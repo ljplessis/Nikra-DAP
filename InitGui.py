@@ -1,7 +1,6 @@
 #TODO: add license
 
 
-
 class DapWorkbench(Workbench):
     """ Dap workbench option """
     def __init__(self):

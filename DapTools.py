@@ -1,4 +1,5 @@
 #TODO add license
+#NOTE Some of these functions come from CfdOF, need to give credit
 
 import FreeCAD
 import os
@@ -38,9 +39,17 @@ def addObjectProperty(obj, prop, init_val, type, *args):
 
 
 def get_module_path():
-    """ Returns the current Cfd module path.
+    """ Returns the current Dap module path.
     Determines where this file is running from, so works regardless of whether
     the module is installed in the app's module directory or the user's app data folder.
     (The second overrides the first.)
     """
     return os.path.dirname(__file__)
+
+
+def indexOrDefault(list, findItem, defaultIndex):
+    """ Look for findItem in list, and return defaultIndex if not found """
+    try:
+        return list.index(findItem)
+    except ValueError:
+        return defaultIndex

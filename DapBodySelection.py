@@ -16,7 +16,11 @@ if FreeCAD.GuiUp:
     from PySide import QtCore
 
 
+BODY_TYPES = ["Ground",
+              "Moving"]
 
+BODY_TYPE_HELPER_TEXT = ["A fixed body",
+                         "A free moving body"]
 
 def makeDapBody(name="DapBody"):
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", name)
@@ -64,8 +68,9 @@ class _DapBody:
         self.initProperties(obj)
 
     def initProperties(self, obj):
-        addObjectProperty(obj, 'References', [], "App::PropertyPythonObject", "", "List of Parts")
-        addObjectProperty(obj, 'LinkedObjects', [], "App::PropertyLinkList", "", "Linked objects")
+        addObjectProperty(obj, 'References', [], "App::PropertyStringList", "", "List of Parts")
+        addObjectProperty(obj, 'BodyType', BODY_TYPES, "App::PropertyEnumeration", "", "Type of Body")
+        #addObjectProperty(obj, 'LinkedObjects', [], "App::PropertyLinkList", "", "Linked objects")
         
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
@@ -80,7 +85,7 @@ class _DapBody:
             #if selection_object is not None:  # May have been deleted
                 #if selection_object not in obj.LinkedObjects:
                     #obj.LinkedObjects += [selection_object]
-        #shape = CfdTools.makeShapeFromReferences(obj.References, False)
+        #shape = DapTools.makeShapeFromReferences(obj.References, False)
         #if shape is None:
             #obj.Shape = Part.Shape()
         #else:
