@@ -53,10 +53,15 @@ class TaskPanelDapBody:
         doc.resetEdit()
         self.obj.References = self.References
         self.obj.BodyType = self.BodyType
+        # Recompute document to update viewprovider based on the shapes
+        doc = FreeCADGui.getDocument(self.obj.Document)
+        doc_name = str(self.obj.Document.Name)
+        FreeCAD.getDocument(doc_name).recompute()
         return
 
     def reject(self):
         FreeCADGui.Selection.removeObserver(self)
+        # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
@@ -77,7 +82,6 @@ class TaskPanelDapBody:
             if hasattr(item,"Proxy"):
                 if item.Proxy.Type == 'DapBody':
                     DapBodyFound = True
-                    FreeCADGui.Console.PrintMessage("Attempted to add a DapBody to parts list")
             else:
                 DapBodyFound = False
             if hasattr(item, "Shape") and (not DapBodyFound):

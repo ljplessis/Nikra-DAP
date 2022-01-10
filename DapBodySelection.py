@@ -36,7 +36,7 @@ class _CommandDapBody:
         return {
             'Pixmap': icon_path,
             'MenuText': QtCore.QT_TRANSLATE_NOOP("Dap_Body", "Body Definition"),
-            #'Accel': "C, W",
+            #'Accel': "C, B",
             'ToolTip': QtCore.QT_TRANSLATE_NOOP("Dap_Body", "Creates and defines a body for the DAP analysis")}
 
     def IsActive(self):
@@ -70,26 +70,25 @@ class _DapBody:
     def initProperties(self, obj):
         addObjectProperty(obj, 'References', [], "App::PropertyStringList", "", "List of Parts")
         addObjectProperty(obj, 'BodyType', BODY_TYPES, "App::PropertyEnumeration", "", "Type of Body")
-        #addObjectProperty(obj, 'LinkedObjects', [], "App::PropertyLinkList", "", "Linked objects")
+        addObjectProperty(obj, 'LinkedObjects', [], "App::PropertyLinkList", "", "Linked objects")
         
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
 
     def execute(self, obj):
         """ Create compound part at recompute. """
-        #docName = str(obj.Document.Name)
-        #doc = FreeCAD.getDocument(docName)
-        #obj.LinkedObjects = []
-        #for ref in obj.References:
-            #selection_object = doc.getObject(ref[0])
-            #if selection_object is not None:  # May have been deleted
-                #if selection_object not in obj.LinkedObjects:
-                    #obj.LinkedObjects += [selection_object]
-        #shape = DapTools.makeShapeFromReferences(obj.References, False)
-        #if shape is None:
-            #obj.Shape = Part.Shape()
-        #else:
-            #obj.Shape = shape
+        docName = str(obj.Document.Name)
+        doc = FreeCAD.getDocument(docName)
+        shape_objects = []
+        for i in range(len(obj.References)):
+            selection_object = doc.getObjectsByLabel(obj.References[i])[0]
+            shape_objects.append(selection_object.Shape)
+        shape = Part.makeCompound(shape_objects)
+        
+        if shape is None:
+            obj.Shape = Part.Shape()
+        else:
+            obj.Shape = shape
 
     def __getstate__(self):
         return None
@@ -127,7 +126,7 @@ class _ViewProviderDapBody:
         return
 
     def onChanged(self, vobj, prop):
-        #CfdTools.setCompSolid(vobj)
+        #DapTools.setCompSolid(vobj)
         return
 
     def doubleClicked(self, vobj):
@@ -139,16 +138,6 @@ class _ViewProviderDapBody:
         return True
 
     def setEdit(self, vobj, mode):
-        #analysis_object = CfdTools.getParentAnalysisObject(self.Object)
-        #if analysis_object is None:
-            #CfdTools.cfdError("Boundary must have a parent analysis object")
-            #return False
-        #physics_model = CfdTools.getPhysicsModel(analysis_object)
-        #if not physics_model:
-            #CfdTools.cfdError("Analysis object must have a physics object")
-            #return False
-        #material_objs = CfdTools.getMaterials(analysis_object)
-
         import _TaskPanelDapBody
         taskd = _TaskPanelDapBody.TaskPanelDapBody(self.Object)
         #for obj in FreeCAD.ActiveDocument.Objects:
