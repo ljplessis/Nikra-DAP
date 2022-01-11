@@ -1,5 +1,4 @@
 
-
 #TODO Include license
 
 
@@ -16,28 +15,30 @@ if FreeCAD.GuiUp:
     from PySide import QtCore
 
 
-BODY_TYPES = ["Ground",
-              "Moving"]
+JOINT_TYPES = ["Revolute"]
 
-BODY_TYPE_HELPER_TEXT = ["A fixed body",
-                         "A free moving body"]
+DEFINITION_MODES = [["1 Point + 2 Bodies",
+                     "2 Points"]]
 
-def makeDapBody(name="DapBody"):
+HELPER_TEXT = [["Choose a point and the two bodies attached at the point. Assumes the parts are already correctly positioned. Useful when assembly is constructed using the Assembly 4 workbench ",
+                "Choose a point on each of the two different bodies. The points/faces must belong to each of the bodies."]]
+
+def makeDapJoints(name="DapJoint"):
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", name)
-    _DapBody(obj)
+    _DapJoint(obj)
     if FreeCAD.GuiUp:
-        _ViewProviderDapBody(obj.ViewObject)
+        _ViewProviderDapJoint(obj.ViewObject)
     return obj
 
 
-class _CommandDapBody:
+class _CommandDapJoint:
     def GetResources(self):
-        icon_path = os.path.join(DapTools.get_module_path(), "Gui", "Resources", "icons", "Icon3.png")
+        icon_path = os.path.join(DapTools.get_module_path(), "Gui", "Resources", "icons", "Icon4.png")
         return {
             'Pixmap': icon_path,
-            'MenuText': QtCore.QT_TRANSLATE_NOOP("Dap_Body", "Body Definition"),
+            'MenuText': QtCore.QT_TRANSLATE_NOOP("Dap_Joint", "Add New Joint"),
             #'Accel': "C, B",
-            'ToolTip': QtCore.QT_TRANSLATE_NOOP("Dap_Body", "Creates and defines a body for the DAP analysis")}
+            'ToolTip': QtCore.QT_TRANSLATE_NOOP("Dap_Joint", "Add a new joint to the DAP analysis.")}
 
     def IsActive(self):
         return DapTools.getActiveAnalysis() is not None
@@ -50,49 +51,48 @@ class _CommandDapBody:
         #FreeCADGui.doCommand("DapTools.getActiveAnalysis().addObject(CfdFluidBoundary.makeCfdFluidBoundary())")
         #FreeCADGui.ActiveDocument.setEdit(FreeCAD.ActiveDocument.ActiveObject.Name)
         import DapTools
-        import DapBodySelection
-        DapTools.getActiveAnalysis().addObject(DapBodySelection.makeDapBody())
+        import DapJointSelection
+        DapTools.getActiveAnalysis().addObject(DapJointSelection.makeDapJoints())
         FreeCADGui.ActiveDocument.setEdit(FreeCAD.ActiveDocument.ActiveObject.Name)
 
 
 if FreeCAD.GuiUp:
-    FreeCADGui.addCommand('Dap_Body', _CommandDapBody())
+    FreeCADGui.addCommand('Dap_Joint', _CommandDapJoint())
 
 
-class _DapBody:
+class _DapJoint:
     def __init__(self, obj):
 
         obj.Proxy = self
-        self.Type = "DapBody"
+        self.Type = "DapJoint"
 
         self.initProperties(obj)
 
     def initProperties(self, obj):
-        addObjectProperty(obj, 'References', [], "App::PropertyStringList", "", "List of Parts")
-        addObjectProperty(obj, 'BodyType', BODY_TYPES, "App::PropertyEnumeration", "", "Type of Body")
-        addObjectProperty(obj, 'LinkedObjects', [], "App::PropertyLinkList", "", "Linked objects")
+        #addObjectProperty(obj, 'References', [], "App::PropertyStringList", "", "List of Parts")
+        all_subtypes = []
+        for s in DEFINITION_MODES:
+            all_subtypes += s
+        addObjectProperty(obj, 'JointDefinitionMode', all_subtypes, "App::PropertyEnumeration","", "Define how the Joint is defined")
+        addObjectProperty(obj, 'JointType', JOINT_TYPES, "App::PropertyEnumeration", "", "Type of Joint")
+        #addObjectProperty(obj, 'LinkedObjects', [], "App::PropertyLinkList", "", "Linked objects")
+        addObjectProperty(obj, 'DisplayCoordinate', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
+        addObjectProperty(obj, 'Body1', "", "App::PropertyString", "", "Body 1 label")
+        addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
+        addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
+        addObjectProperty(obj, 'Joint2', "", "App::PropertyString", "", "Joint 2 label")
         
+        
+
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
 
     def execute(self, obj):
-        """ Create compound part at recompute. """
-        docName = str(obj.Document.Name)
-        doc = FreeCAD.getDocument(docName)
-        shape_objects = []
-        if len(obj.References)>0:
-            for i in range(len(obj.References)):
-                selection_object = doc.getObjectsByLabel(obj.References[i])[0]
-                shape_objects.append(selection_object.Shape)
-            shape = Part.makeCompound(shape_objects)
-            obj.Shape = shape
-        else:
-            obj.Shape = Part.Shape()
-
-        #if shape is None:
-            #obj.Shape = Part.Shape()
-        #else:
-            #obj.Shape = shape
+        """ Create joint representation part at recompute. """
+        #TODO should update the representation and scaling of joint visual representation
+        r = 10
+        shape = Part.makeSphere(r, obj.DisplayCoordinate)
+        obj.Shape = shape
 
     def __getstate__(self):
         return None
@@ -100,12 +100,12 @@ class _DapBody:
     def __setstate__(self, state):
         return None
     
-class _ViewProviderDapBody:
+class _ViewProviderDapJoint:
     def __init__(self, vobj):
         vobj.Proxy = self
 
     def getIcon(self):
-        icon_path = os.path.join(DapTools.get_module_path(), "Gui", "Resources", "icons", "Icon3.png")
+        icon_path = os.path.join(DapTools.get_module_path(), "Gui", "Resources", "icons", "Icon4.png")
         return icon_path
 
     def attach(self, vobj):
@@ -121,8 +121,6 @@ class _ViewProviderDapBody:
         return modes
 
     def getDefaultDisplayMode(self):
-        # TODO choose default display style
-        #return "Flat Lines"
         return "Shaded"
 
     def setDisplayMode(self,mode):
@@ -144,13 +142,8 @@ class _ViewProviderDapBody:
         return True
 
     def setEdit(self, vobj, mode):
-        import _TaskPanelDapBody
-        taskd = _TaskPanelDapBody.TaskPanelDapBody(self.Object)
-        #for obj in FreeCAD.ActiveDocument.Objects:
-            #if obj.isDerivedFrom("Fem::FemMeshObject"):
-                #obj.ViewObject.hide()
-        #self.Object.ViewObject.show()
-        #taskd.obj = vobj.Object
+        import _TaskPanelDapJoint
+        taskd = _TaskPanelDapJoint.TaskPanelDapJoint(self.Object)
         FreeCADGui.Control.showDialog(taskd)
         return True
 
