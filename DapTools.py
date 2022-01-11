@@ -37,6 +37,13 @@ def addObjectProperty(obj, prop, init_val, type, *args):
     else:
         return False
 
+def getListOfBodyLabels():
+    body_labels = []
+    active_analysis = getActiveAnalysis()
+    for i in active_analysis.Group:
+            if "DapBody" in i.Name:
+                body_labels.append(i.Label)
+    return body_labels
 
 def get_module_path():
     """ Returns the current Dap module path.
