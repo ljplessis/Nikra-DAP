@@ -45,6 +45,13 @@ def getListOfBodyLabels():
                 body_labels.append(i.Label)
     return body_labels
 
+def getMaterialObject():
+    active_analysis = getActiveAnalysis()
+    for i in active_analysis.Group:
+            if "DapMaterial" in i.Name:
+                return i
+    return None
+
 def get_module_path():
     """ Returns the current Dap module path.
     Determines where this file is running from, so works regardless of whether

@@ -71,7 +71,7 @@ class _DapBody:
         addObjectProperty(obj, 'References', [], "App::PropertyStringList", "", "List of Parts")
         addObjectProperty(obj, 'BodyType', BODY_TYPES, "App::PropertyEnumeration", "", "Type of Body")
         addObjectProperty(obj, 'LinkedObjects', [], "App::PropertyLinkList", "", "Linked objects")
-        
+
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
 

@@ -68,7 +68,6 @@ class TaskPanelDapJoint:
         #FreeCAD.Console.PrintMessage(body_labels)
 
         self.form.chooseCoordinateButton.clicked.connect(self.addLCS)
-        
 
 
     def accept(self):        
@@ -128,7 +127,7 @@ class TaskPanelDapJoint:
         sel = FreeCADGui.Selection.getSelectionEx()
         updated = False
         if len(sel)>1 or len(sel[0].SubElementNames)>1:
-            FreeCAD.Console.PrintError("Only a single face, or single LCS should be selected.")
+            FreeCAD.Console.PrintError("Only a single face, or single LCS should be selected when defining co-ordinate.")
         else:
             if "LCS" in sel[0].Object.Name:
                 self.form.LCSObjectReference.setText(sel[0].Object.Label)

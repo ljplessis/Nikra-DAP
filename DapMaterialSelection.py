@@ -29,24 +29,22 @@ class _CommandDapMaterial:
         icon_path = os.path.join(DapTools.get_module_path(), "Gui", "Resources", "icons", "Icon5.png")
         return {
             'Pixmap': icon_path,
-            'MenuText': QtCore.QT_TRANSLATE_NOOP("Dap_Material", "Add New Material Container"),
+            'MenuText': QtCore.QT_TRANSLATE_NOOP("Dap_Material", "Define materia properties"),
             #'Accel': "C, B",
-            'ToolTip': QtCore.QT_TRANSLATE_NOOP("Dap_Material", "Add new material container, used to define material properties.")}
+            'ToolTip': QtCore.QT_TRANSLATE_NOOP("Dap_Material", "Define the material properties associated with each body.")}
 
     def IsActive(self):
         return DapTools.getActiveAnalysis() is not None
 
     def Activated(self):
-        #FreeCAD.ActiveDocument.openTransaction("Create CfdFluidBoundary")
-        #FreeCADGui.doCommand("")
-        #FreeCADGui.addModule("CfdFluidBoundary")
-        #FreeCADGui.addModule("DapTools")
-        #FreeCADGui.doCommand("DapTools.getActiveAnalysis().addObject(CfdFluidBoundary.makeCfdFluidBoundary())")
-        #FreeCADGui.ActiveDocument.setEdit(FreeCAD.ActiveDocument.ActiveObject.Name)
         import DapTools
         import DapMaterialSelection
-        DapTools.getActiveAnalysis().addObject(DapMaterialSelection.makeDapMaterial())
-        FreeCADGui.ActiveDocument.setEdit(FreeCAD.ActiveDocument.ActiveObject.Name)
+        matObject = DapTools.getMaterialObject()
+        if matObject == None:
+            DapTools.getActiveAnalysis().addObject(DapMaterialSelection.makeDapMaterial())
+            FreeCADGui.ActiveDocument.setEdit(FreeCAD.ActiveDocument.ActiveObject.Name)
+        else:
+            FreeCADGui.ActiveDocument.setEdit(matObject.Name)
 
 
 if FreeCAD.GuiUp:
@@ -62,18 +60,8 @@ class _DapMaterial:
         self.initProperties(obj)
 
     def initProperties(self, obj):
-        #addObjectProperty(obj, 'References', [], "App::PropertyStringList", "", "List of Parts")
-        #all_subtypes = []
-        #for s in DEFINITION_MODES:
-            #all_subtypes += s
-        #addObjectProperty(obj, 'JointDefinitionMode', all_subtypes, "App::PropertyEnumeration","", "Define how the Joint is defined")
-        #addObjectProperty(obj, 'JointType', JOINT_TYPES, "App::PropertyEnumeration", "", "Type of Joint")
-        ##addObjectProperty(obj, 'LinkedObjects', [], "App::PropertyLinkList", "", "Linked objects")
-        #addObjectProperty(obj, 'DisplayCoordinate', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
-        #addObjectProperty(obj, 'Body1', "", "App::PropertyString", "", "Body 1 label")
-        #addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
-        #addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
-        #addObjectProperty(obj, 'Joint2', "", "App::PropertyString", "", "Joint 2 label")
+        #PythonObject
+        addObjectProperty(obj, 'MaterialDictionary', {}, "App::PropertyPythonObject", "", "Dictionary of parts and linked material properties")
         return
         
 
