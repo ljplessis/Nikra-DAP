@@ -41,6 +41,7 @@ class TaskPanelDapMaterial:
         self.bodyComboSelectionChanged()
 
         self.form.tableWidget.cellClicked.connect(self.tableWidgetCellClicked)
+        self.form.tableWidget.cellChanged.connect(self.valueInCellChanged)
 
 
     def accept(self):
@@ -52,10 +53,25 @@ class TaskPanelDapMaterial:
 
     def reject(self):
         FreeCADGui.Selection.removeObserver(self)
-        #FreeCAD.getDocument(doc_name).recompute()
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
         return True
+
+    def valueInCellChanged(self):
+        row = self.form.tableWidget.currentRow()
+        col = self.form.tableWidget.currentColumn()
+
+        # Only interested atm in changes that happen when user enters a custom density value
+        if col == 2:
+            part_label = self.form.tableWidget.item(row, 0).text()
+            combo_box_object = self.form.tableWidget.cellWidget(row,1)
+            mat_index = combo_box_object.currentIndex()
+            current_mat_choice = self.card_name_list[mat_index]
+
+            changed_text = self.form.tableWidget.item(row, col).text()
+
+            self.MaterialDictionary[part_label] = {"matName": current_mat_choice[0],
+                                                   "density" : changed_text}
 
     def fetchFreeCADMaterials(self):
         # Prepulate list of available material properties in FreeCAD
@@ -99,36 +115,41 @@ class TaskPanelDapMaterial:
             self.form.tableWidget.setItem(i,0,partName)
             self.form.tableWidget.setCellWidget(i,1,combo)
             
+            #TODO: a lot of code duplication between the various functions.
             if current_body_label in self.MaterialDictionary.keys():
                 mat_name = self.MaterialDictionary[current_body_label]["matName"]
+                density = self.MaterialDictionary[current_body_label]["density"]
                 mi = indexOrDefault(self.card_name_labels, mat_name, 0)
                 combo.setCurrentIndex(mi)
-                self.setDensityInTable(mi, i)
+                density_item = QtGui.QTableWidgetItem(density)
+                self.form.tableWidget.setItem(i, 2, density_item)
+                # NOTE: if index != 0, then it is a pre-defined freecad material, which cannot be edited
+                # Not sure if this behaviour should be forced.
+                if mi != 0:
+                    density_item.setFlags(QtCore.Qt.ItemIsEnabled)
 
             combo.currentIndexChanged.connect(self.materialComboChanged)
 
 
     def materialComboChanged(self, index):
         current_row = self.form.tableWidget.currentRow()
-        self.setDensityInTable(index, current_row)
-
-
-    def setDensityInTable(self, index, current_row):
         current_mat_choice = self.card_name_list[index]
-        part_label = self.form.tableWidget.item(current_row, 0).text()
-        #index 0 is manual editing
         if index == 0:
             density = self.default_density
-            density_item = QtGui.QTableWidgetItem(density)
         else:
             density = self.materials[current_mat_choice[1]]["Density"]
-            density_item = QtGui.QTableWidgetItem(str(density))
+
+        density_item = QtGui.QTableWidgetItem(str(density))
+        
+        if index != 0:
+            #NOTE This disables editing of the density value if it is selected from
+            #available freeCAD materials. Not sure we should really force this?
             density_item.setFlags(QtCore.Qt.ItemIsEnabled)
 
         self.form.tableWidget.setItem(current_row, 2, density_item)
-
+        part_label = self.form.tableWidget.item(current_row, 0).text()
         self.MaterialDictionary[part_label] = {"matName": current_mat_choice[0],
-                                               "density" : density}
+                                                "density" : density}
 
     def tableWidgetCellClicked(self, row, column):
         # select the object to make it visible
