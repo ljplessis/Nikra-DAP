@@ -91,6 +91,7 @@ class TaskPanelDapMaterial:
 
     def bodyComboSelectionChanged(self):
         ci = self.form.bodyCombo.currentIndex()
+        table_row = 0
 
         docName = str(self.doc_name)
         doc = FreeCAD.getDocument(docName)
@@ -98,38 +99,67 @@ class TaskPanelDapMaterial:
         self.form.tableWidget.setRowCount(0)
         self.form.tableWidget.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
 
-        selection_object = doc.getObjectsByLabel(self.body_labels[ci])[0]
-        list_of_parts = selection_object.References
-        #for part in list_of_parts:
-        for i in range(len(list_of_parts)):
-            self.form.tableWidget.insertRow(i)
-            combo = QtGui.QComboBox()
+        if len(self.body_labels):
+            selection_object = doc.getObjectsByLabel(self.body_labels[ci])[0]
+            list_of_parts = selection_object.References
+            #for part in list_of_parts:
+            #for i in range(len(list_of_parts)):
+            for current_body_label in list_of_parts:
+                self.form.tableWidget.insertRow(table_row)
+                
+                #current_body_label = list_of_parts[i]
+                obj = doc.getObjectsByLabel(current_body_label)[0]
+                shape_label_list = DapTools.getListOfSolidsFromShape(obj, [])
+                
+                
+                FreeCAD.Console.PrintMessage("List of parts loop, current part: " + str(current_body_label)+ "\n")
+                
+                FreeCAD.Console.PrintMessage(str(obj.Label) + "\n")
+                FreeCAD.Console.PrintMessage("Subshapes: \n")
+                FreeCAD.Console.PrintMessage(shape_label_list)
+                FreeCAD.Console.PrintMessage("\n")
+                
+                if len(shape_label_list)>1:
+                    partName = QtGui.QTableWidgetItem(current_body_label)
+                    partName.setFlags(QtCore.Qt.ItemIsEnabled)
+                    font = QtGui.QFont()
+                    font.setBold(True)
+                    partName.setFont(font)
+                    self.form.tableWidget.setItem(table_row,0,partName)
+                    table_row += 1
 
-            for mat in self.card_name_list:
-                combo.addItem(QtGui.QIcon(mat[2]), mat[0], mat[1])
+                for sub_shape_label in shape_label_list:
+                    self.form.tableWidget.insertRow(table_row)
+                    partName = QtGui.QTableWidgetItem(sub_shape_label)
+                    partName.setFlags(QtCore.Qt.ItemIsEnabled)
+                    self.form.tableWidget.setItem(table_row,0,partName)
+                    
+                    
+                
+                    combo = QtGui.QComboBox()
+                    for mat in self.card_name_list:
+                        combo.addItem(QtGui.QIcon(mat[2]), mat[0], mat[1])
 
-            current_body_label = list_of_parts[i]
-            
-            partName = QtGui.QTableWidgetItem(current_body_label)
-            partName.setFlags(QtCore.Qt.ItemIsEnabled)
-            self.form.tableWidget.setItem(i,0,partName)
-            self.form.tableWidget.setCellWidget(i,1,combo)
-            
-            #TODO: a lot of code duplication between the various functions.
-            if current_body_label in self.MaterialDictionary.keys():
-                mat_name = self.MaterialDictionary[current_body_label]["matName"]
-                density = self.MaterialDictionary[current_body_label]["density"]
-                mi = indexOrDefault(self.card_name_labels, mat_name, 0)
-                combo.setCurrentIndex(mi)
-                density_item = QtGui.QTableWidgetItem(density)
-                self.form.tableWidget.setItem(i, 2, density_item)
-                # NOTE: if index != 0, then it is a pre-defined freecad material, which cannot be edited
-                # Not sure if this behaviour should be forced.
-                if mi != 0:
-                    density_item.setFlags(QtCore.Qt.ItemIsEnabled)
+                
+                    self.form.tableWidget.setCellWidget(table_row,1,combo)
+                    
 
-            combo.currentIndexChanged.connect(self.materialComboChanged)
 
+                    #TODO: a lot of code duplication between the various functions.
+                    if sub_shape_label in self.MaterialDictionary.keys():
+                        mat_name = self.MaterialDictionary[sub_shape_label]["matName"]
+                        density = self.MaterialDictionary[sub_shape_label]["density"]
+                        mi = indexOrDefault(self.card_name_labels, mat_name, 0)
+                        combo.setCurrentIndex(mi)
+                        density_item = QtGui.QTableWidgetItem(density)
+                        self.form.tableWidget.setItem(table_row, 2, density_item)
+                        # NOTE: if index != 0, then it is a pre-defined freecad material, which cannot be edited
+                        # Not sure if this behaviour should be forced.
+                        if mi != 0:
+                            density_item.setFlags(QtCore.Qt.ItemIsEnabled)
+
+                    combo.currentIndexChanged.connect(self.materialComboChanged)
+                    table_row += 1
 
     def materialComboChanged(self, index):
         current_row = self.form.tableWidget.currentRow()
