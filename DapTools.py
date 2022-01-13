@@ -29,22 +29,19 @@ def getListOfSolidsFromShape(obj, shape_label_list=[]):
         obj: object, such as assembly container, part, body
     returns: 
         shape_label_list: list to the labels of objects contained within obj """
-
-    if hasattr(obj, "Group"):
-        for sub_object in obj.Group:
-            if hasattr(sub_object, "Shape"):
-                solids = sub_object.Shape.Solids
-                if len(solids)>0:
-                    if len(solids)>1:
-                        getListOfSolidsFromShape(sub_object, shape_label_list)
-                    else:
-                        #shape_list.append(sub_object)
-                        shape_label_list.append(sub_object.Label)
+    
+    if hasattr(obj, 'Shape'):
+        solids = obj.Shape.Solids
+        if len(solids) == 1:
+            shape_label_list.append(obj.Label)
+        elif len(solids)>1:
+            if hasattr(obj, "Group"):
+                for sub_object in obj.Group:
+                    getListOfSolidsFromShape(sub_object, shape_label_list)
     else:
         if hasattr(obj, "Shape"):
             solids = obj.Shape.Solids
             if len(solids)>0:
-                #shape_list = [obj]
                 shape_label_list = [obj.Label]
     return shape_label_list
 
