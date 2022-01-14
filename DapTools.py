@@ -1,8 +1,13 @@
 #TODO add license
+
+#TODO TODO Add Johan Heyns and Oliver Oxtoby to the Copyright in the license for this file
+# copy and pasted code from CfdOF workbench
+
 #NOTE Some of these functions come from CfdOF, need to give credit
 
 import FreeCAD
 import os
+from FreeCAD import Units
 
 def setActiveAnalysis(analysis):
     from DapAnalysis import _DapAnalysis
@@ -90,3 +95,24 @@ def indexOrDefault(list, findItem, defaultIndex):
         return list.index(findItem)
     except ValueError:
         return defaultIndex
+
+
+def setQuantity(inputField, quantity):
+    """ Set the quantity (quantity object or unlocalised string) into the inputField correctly """
+    # Must set in the correctly localised value as the user would enter it.
+    # A bit painful because the python locale settings seem to be based on language,
+    # not input settings as the FreeCAD settings are. So can't use that; hence
+    # this rather roundabout way involving the UserString of Quantity
+    q = Units.Quantity(quantity)
+    # Avoid any truncation
+    if isinstance(q.Format, tuple):  # Backward compat
+        q.Format = (12, 'e')
+    else:
+        q.Format = {'Precision': 12, 'NumberFormat': 'e', 'Denominator': q.Format['Denominator']}
+    inputField.setProperty("quantityString", q.UserString)
+
+
+def getQuantity(inputField):
+    """ Get the quantity as an unlocalised string from an inputField """
+    q = inputField.property("quantity")
+    return str(q)

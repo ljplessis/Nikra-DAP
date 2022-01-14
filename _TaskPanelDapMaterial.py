@@ -8,10 +8,12 @@
 
 
 import FreeCAD
+from FreeCAD import Units
 import os
 import os.path
 import DapTools
 from DapTools import indexOrDefault
+from DapTools import getQuantity, setQuantity
 import DapBodySelection
 if FreeCAD.GuiUp:
     import FreeCADGui
@@ -41,7 +43,7 @@ class TaskPanelDapMaterial:
         self.bodyComboSelectionChanged()
 
         self.form.tableWidget.cellClicked.connect(self.tableWidgetCellClicked)
-        self.form.tableWidget.cellChanged.connect(self.valueInCellChanged)
+        #self.form.tableWidget.cellChanged.connect(self.valueInCellChanged)
 
 
     def accept(self):
@@ -68,10 +70,10 @@ class TaskPanelDapMaterial:
             mat_index = combo_box_object.currentIndex()
             current_mat_choice = self.card_name_list[mat_index]
 
-            changed_text = self.form.tableWidget.item(row, col).text()
+            density_quantity = getQuantity(self.form.tableWidget.cellWidget(row, col))
 
             self.MaterialDictionary[part_label] = {"matName": current_mat_choice[0],
-                                                   "density" : changed_text}
+                                                   "density" : density_quantity}
 
     def fetchFreeCADMaterials(self):
         # Prepulate list of available material properties in FreeCAD
@@ -102,23 +104,13 @@ class TaskPanelDapMaterial:
         if len(self.body_labels):
             selection_object = doc.getObjectsByLabel(self.body_labels[ci])[0]
             list_of_parts = selection_object.References
-            #for part in list_of_parts:
-            #for i in range(len(list_of_parts)):
             for current_body_label in list_of_parts:
                 self.form.tableWidget.insertRow(table_row)
-                
+
                 #current_body_label = list_of_parts[i]
                 obj = doc.getObjectsByLabel(current_body_label)[0]
                 shape_label_list = DapTools.getListOfSolidsFromShape(obj, [])
-                
-                
-                FreeCAD.Console.PrintMessage("List of parts loop, current part: " + str(current_body_label)+ "\n")
-                
-                FreeCAD.Console.PrintMessage(str(obj.Label) + "\n")
-                FreeCAD.Console.PrintMessage("Subshapes: \n")
-                FreeCAD.Console.PrintMessage(shape_label_list)
-                FreeCAD.Console.PrintMessage("\n")
-                
+
                 if len(shape_label_list)>1:
                     partName = QtGui.QTableWidgetItem(current_body_label)
                     partName.setFlags(QtCore.Qt.ItemIsEnabled)
@@ -133,30 +125,24 @@ class TaskPanelDapMaterial:
                     partName = QtGui.QTableWidgetItem(sub_shape_label)
                     partName.setFlags(QtCore.Qt.ItemIsEnabled)
                     self.form.tableWidget.setItem(table_row,0,partName)
-                    
-                    
-                
+
                     combo = QtGui.QComboBox()
                     for mat in self.card_name_list:
                         combo.addItem(QtGui.QIcon(mat[2]), mat[0], mat[1])
 
-                
                     self.form.tableWidget.setCellWidget(table_row,1,combo)
-                    
-
 
                     #TODO: a lot of code duplication between the various functions.
                     if sub_shape_label in self.MaterialDictionary.keys():
                         mat_name = self.MaterialDictionary[sub_shape_label]["matName"]
                         density = self.MaterialDictionary[sub_shape_label]["density"]
                         mi = indexOrDefault(self.card_name_labels, mat_name, 0)
-                        combo.setCurrentIndex(mi)
-                        density_item = QtGui.QTableWidgetItem(density)
-                        self.form.tableWidget.setItem(table_row, 2, density_item)
-                        # NOTE: if index != 0, then it is a pre-defined freecad material, which cannot be edited
-                        # Not sure if this behaviour should be forced.
-                        if mi != 0:
-                            density_item.setFlags(QtCore.Qt.ItemIsEnabled)
+                    else:
+                        mat_name = self.card_name_labels[0]
+                        density = self.default_density
+                        mi = 0
+                    combo.setCurrentIndex(mi)
+                    self.addDensityItemToTable(density, table_row, mi)
 
                     combo.currentIndexChanged.connect(self.materialComboChanged)
                     table_row += 1
@@ -169,17 +155,28 @@ class TaskPanelDapMaterial:
         else:
             density = self.materials[current_mat_choice[1]]["Density"]
 
-        density_item = QtGui.QTableWidgetItem(str(density))
-        
-        if index != 0:
-            #NOTE This disables editing of the density value if it is selected from
-            #available freeCAD materials. Not sure we should really force this?
-            density_item.setFlags(QtCore.Qt.ItemIsEnabled)
-
-        self.form.tableWidget.setItem(current_row, 2, density_item)
+        self.addDensityItemToTable(density, current_row, index)
         part_label = self.form.tableWidget.item(current_row, 0).text()
+        self.form.tableWidget.resizeColumnsToContents()
         self.MaterialDictionary[part_label] = {"matName": current_mat_choice[0],
                                                 "density" : density}
+
+    def addDensityItemToTable(self, density, current_row, mat_index):
+        density = Units.Quantity(density)
+        ui = FreeCADGui.UiLoader()
+        density_item = ui.createWidget("Gui::InputField")
+        setQuantity(density_item, density)
+        
+        if mat_index != 0:
+            #NOTE TODO This disables editing of the density value if it is selected from
+            #available freeCAD materials. Not sure we should really force this?
+            #density_item.setFlags(QtCore.Qt.ItemIsEnabled)
+            density_item.setEnabled(False)
+
+        #self.form.tableWidget.setItem(current_row, 2, density_item)
+        density_item.editingFinished.connect(self.valueInCellChanged)
+        self.form.tableWidget.setCellWidget(current_row,2,density_item)
+
 
     def tableWidgetCellClicked(self, row, column):
         # select the object to make it visible
