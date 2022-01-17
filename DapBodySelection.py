@@ -77,15 +77,19 @@ class _DapBody:
         docName = str(obj.Document.Name)
         doc = FreeCAD.getDocument(docName)
         shape_objects = []
-        for i in range(len(obj.References)):
-            selection_object = doc.getObjectsByLabel(obj.References[i])[0]
-            shape_objects.append(selection_object.Shape)
-        shape = Part.makeCompound(shape_objects)
-        
-        if shape is None:
-            obj.Shape = Part.Shape()
-        else:
+        if len(obj.References)>0:
+            for i in range(len(obj.References)):
+                selection_object = doc.getObjectsByLabel(obj.References[i])[0]
+                shape_objects.append(selection_object.Shape)
+            shape = Part.makeCompound(shape_objects)
             obj.Shape = shape
+        else:
+            obj.Shape = Part.Shape()
+
+        #if shape is None:
+            #obj.Shape = Part.Shape()
+        #else:
+            #obj.Shape = shape
 
     def __getstate__(self):
         return None
@@ -132,6 +136,8 @@ class _ViewProviderDapBody:
         return modes
 
     def getDefaultDisplayMode(self):
+        # TODO choose default display style
+        #return "Flat Lines"
         return "Shaded"
 
     def setDisplayMode(self,mode):
