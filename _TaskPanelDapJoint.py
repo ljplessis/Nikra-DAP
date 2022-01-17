@@ -58,19 +58,33 @@ class TaskPanelDapJoint:
         self.form.LCSBody1.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body1, 0)
         self.form.LCSBody1.setCurrentIndex(b1i)
-        
+        self.selectedBody1()
+                
         self.form.LCSBody2.addItems(self.body_labels)
         b2i = indexOrDefault(self.body_labels, self.obj.Body2, 0)
         self.form.LCSBody2.setCurrentIndex(b2i)
+        self.selectedBody2()
+
+        self.form.comboBoxBody1LinMov.addItems(self.body_labels)
+        b1i = indexOrDefault(self.body_labels, self.obj.Body1, 0)
+        self.form.comboBoxBody1LinMov.setCurrentIndex(b1i)        
+        self.selectedBody1()
+
+        self.form.comboBoxBody2LinMov.addItems(self.body_labels)
+        b2i = indexOrDefault(self.body_labels, self.obj.Body2, 0)
+        self.form.comboBoxBody2LinMov.setCurrentIndex(b2i)
+        self.selectedBody2()        
 
         self.form.LCSBody1.currentIndexChanged.connect(self.selectedBody1)
         self.form.LCSBody2.currentIndexChanged.connect(self.selectedBody2)
+        self.form.comboBoxBody1LinMov.currentIndexChanged.connect(self.selectedBody1)
+        self.form.comboBoxBody2LinMov.currentIndexChanged.connect(self.selectedBody2)
         #FreeCAD.Console.PrintMessage(body_labels)
 
-        self.form.chooseCoordinateButton.clicked.connect(self.addLCS)
-        
-
-
+        self.form.chooseCoordinateButton.clicked.connect(self.addLCS1)
+        self.form.PushButtonLCS1LinMov.clicked.connect(self.addLCS1)
+        self.form.PushButtonLCS2LinMov.clicked.connect(self.addLCS2)
+      
     def accept(self):        
         self.obj.JointType = self.JointType
         self.obj.JointDefinitionMode = self.JointDefinitionMode
@@ -78,6 +92,7 @@ class TaskPanelDapJoint:
         self.obj.Body2 = self.Body2
         self.obj.Joint1 = self.Joint1
         self.obj.Joint2 = self.Joint2
+        
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
         return
@@ -94,64 +109,84 @@ class TaskPanelDapJoint:
 
     def jointTypeChanged(self):
         index =  self.form.jointType.currentIndex()
+        #FreeCAD.Console.PrintMessage(f"\njointTypeChangedindex = {index}")
         self.form.definitionMode.clear()
         self.form.definitionMode.addItems(DapJointSelection.DEFINITION_MODES[index])
+        self.JointType = DapJointSelection.JOINT_TYPES[index]
 
     def definitionModeChanged(self):
-        joint_type_index = self.form.jointType.currentIndex()
+        self.joint_type_index = self.form.jointType.currentIndex()
         definition_mode_index = self.form.definitionMode.currentIndex()
-        self.form.helperText.setText(DapJointSelection.HELPER_TEXT[joint_type_index][definition_mode_index])
+        self.JointDefinitionMode = DapJointSelection.DEFINITION_MODES[self.joint_type_index][definition_mode_index]
+        self.form.helperText.setText(DapJointSelection.HELPER_TEXT[self.joint_type_index][definition_mode_index])
+        current_index = self.findDefinitionWidgetIndex(self.joint_type_index, definition_mode_index)
+        self.form.definitionWidget.setCurrentIndex(current_index)
         
-        self.form.definitionWidget.setCurrentIndex(definition_mode_index)
-        
-        if definition_mode_index == 0 and self.Joint1 != "":
-            self.form.LCSObjectReference.setText(self.Joint1)
+        if definition_mode_index == 0:
+            if self.joint_type_index == 0 and self.Joint1 != "":
+                self.form.LCSObjectReference.setText(self.Joint1)
+            elif self.joint_type_index == 1:
+                if self.Joint1 != "":
+                    self.form.objectNameLCS1LinMov.setText(self.Joint1)
+                elif self.Joint2 != "":
+                    self.form.objectNameLCS2LinMov.setText(self.Joint2)
+
+    def findDefinitionWidgetIndex(self, joint_index, definition_index):
+        current_count = 0
+        if joint_index>0:
+            for i in range(joint_index):
+                current_count += len(DapJointSelection.DEFINITION_MODES[i])
+        current_count += definition_index
+        return current_count
         
     def selectedBody1(self):
-        index = self.form.LCSBody1.currentIndex()
+        if self.joint_type_index == 0:
+            index = self.form.LCSBody1.currentIndex()
+        elif self.joint_type_index == 1:
+            index = self.form.comboBoxBody1LinMov.currentIndex()
         self.Body1 = self.body_labels[index]
         self.selectObjectInGui(index)
     
     def selectedBody2(self):
-        index = self.form.LCSBody2.currentIndex()
+        if self.joint_type_index == 0:
+            index = self.form.LCSBody2.currentIndex()
+        elif self.joint_type_index == 1:
+            index = self.form.comboBoxBody2LinMov.currentIndex()
         self.Body2 = self.body_labels[index]
         self.selectObjectInGui(index)
         
     def selectObjectInGui(self, index):
         FreeCADGui.Selection.clearSelection()
-        FreeCAD.Console.PrintMessage(self.body_labels[index])
+        #FreeCAD.Console.PrintMessage(self.body_labels[index])
         if self.body_objects[index] != None:
             FreeCADGui.showObject(self.body_objects[index])
             FreeCADGui.Selection.addSelection(self.body_objects[index])
 
-    def addLCS(self):
+    def addLCS1(self):
         sel = FreeCADGui.Selection.getSelectionEx()
         updated = False
         if len(sel)>1 or len(sel[0].SubElementNames)>1:
             FreeCAD.Console.PrintError("Only a single face, or single LCS should be selected.")
         else:
             if "LCS" in sel[0].Object.Name:
-                self.form.LCSObjectReference.setText(sel[0].Object.Label)
+                if self.joint_type_index == 0:
+                    self.form.LCSObjectReference.setText(sel[0].Object.Label)
+                elif self.joint_type_index == 1:
+                    self.form.objectNameLCS1LinMov.setText(sel[0].Object.Label)
                 updated = True
                 self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
                 self.Joint1 = sel[0].Object.Label
-            else:
-                sub_element_name = sel[0].SubElementNames[0]
-                elt =  sel[0].Object.Shape.getElement(sel[0].SubElementNames[0])
-                if elt.ShapeType == "Edge" or elt.ShapeType == "Face":
-                    obj_text = sel[0].Object.Name + ":" + sel[0].SubElementNames[0]
-                    self.form.LCSObjectReference.setText(obj_text)
-                    updated = True
-                    self.obj.DisplayCoordinate = elt.CenterOfGravity
-                    self.Joint1 = obj_text
 
-        if updated:
-            #Recomputing document to add joint type visualisation
-            doc_name = str(self.obj.Document.Name)
-            FreeCAD.getDocument(doc_name).recompute()
-                #if "Face" in sub_element_name or "Edge" in sub_element_name:
-                    #return
-        #if sel[0].subEleme
-        #for item in sel:
-            #if hasattr(item, "Shape")
-        return
+    def addLCS2(self):
+        sel = FreeCADGui.Selection.getSelectionEx()
+        updated = False
+        if len(sel)>1 or len(sel[0].SubElementNames)>1:
+            FreeCAD.Console.PrintError("Only a single face, or single LCS should be selected.")
+        else:
+            if "LCS" in sel[0].Object.Name:
+                if self.joint_type_index == 1:
+                    #FreeCAD.Console.PrintMessage(f"\nsel[0] = {sel[0]}")
+                    self.form.objectNameLCS2LinMov.setText(sel[0].Object.Label)
+                updated = True
+                self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
+                self.Joint2 = sel[0].Object.Label
