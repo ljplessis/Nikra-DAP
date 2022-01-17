@@ -96,10 +96,10 @@ class TaskPanelDapBody:
 
     def buttonRemovePartClicked(self):
         if not self.References:
-            FreeCAD.Console.PrintMessage("Here 1")
+            #FreeCAD.Console.PrintMessage("Here 1")
             return
         if not self.form.partList.currentItem():
-            FreeCAD.Console.PrintMessage("Here 2")
+            #FreeCAD.Console.PrintMessage("Here 2")
             return
         row = self.form.partList.currentRow()
         self.References.pop(row)
