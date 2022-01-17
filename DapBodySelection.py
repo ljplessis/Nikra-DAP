@@ -43,12 +43,6 @@ class _CommandDapBody:
         return DapTools.getActiveAnalysis() is not None
 
     def Activated(self):
-        #FreeCAD.ActiveDocument.openTransaction("Create CfdFluidBoundary")
-        #FreeCADGui.doCommand("")
-        #FreeCADGui.addModule("CfdFluidBoundary")
-        #FreeCADGui.addModule("DapTools")
-        #FreeCADGui.doCommand("DapTools.getActiveAnalysis().addObject(CfdFluidBoundary.makeCfdFluidBoundary())")
-        #FreeCADGui.ActiveDocument.setEdit(FreeCAD.ActiveDocument.ActiveObject.Name)
         import DapTools
         import DapBodySelection
         DapTools.getActiveAnalysis().addObject(DapBodySelection.makeDapBody())
@@ -71,7 +65,10 @@ class _DapBody:
         addObjectProperty(obj, 'References', [], "App::PropertyStringList", "", "List of Parts")
         addObjectProperty(obj, 'BodyType', BODY_TYPES, "App::PropertyEnumeration", "", "Type of Body")
         addObjectProperty(obj, 'LinkedObjects', [], "App::PropertyLinkList", "", "Linked objects")
-        
+        addObjectProperty(obj, 'InitialHorizontal', 0.0, "App::PropertyFloat","","Initial Velocity (Horizontal)")
+        addObjectProperty(obj, 'InitialVertical', 0.0, "App::PropertyFloat","","Initial Velocity (Vertical)")
+        addObjectProperty(obj, 'InitialAngular', 0.0, "App::PropertyFloat","","Initial Velocity (Angular)")
+
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
 
@@ -140,11 +137,6 @@ class _ViewProviderDapBody:
     def setEdit(self, vobj, mode):
         import _TaskPanelDapBody
         taskd = _TaskPanelDapBody.TaskPanelDapBody(self.Object)
-        #for obj in FreeCAD.ActiveDocument.Objects:
-            #if obj.isDerivedFrom("Fem::FemMeshObject"):
-                #obj.ViewObject.hide()
-        #self.Object.ViewObject.show()
-        #taskd.obj = vobj.Object
         FreeCADGui.Control.showDialog(taskd)
         return True
 
