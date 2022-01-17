@@ -8,16 +8,19 @@
 
 
 import FreeCAD
+from FreeCAD import Units
 import os
 import os.path
 import numpy 
 import DapTools
 from DapTools import indexOrDefault
+from DapTools import getQuantity, setQuantity
 import DapForceSelection
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtGui
     from PySide.QtGui import QFormLayout
+    from PySide import QtCore
 
 
 class TaskPanelDapForce:
@@ -27,20 +30,31 @@ class TaskPanelDapForce:
     def __init__(self, obj):
         self.obj = obj
         self.Type = self.obj.ForceTypes
+
         self.X = self.obj.gx
         self.Y = self.obj.gy
         self.Z = self.obj.gz
+
         self.Stiff=self.obj.Stiffness
         self.UndefLen=self.obj.UndeformedLength
+
+
         self.Body1 = self.obj.Body1
         self.Body2 = self.obj.Body2
         self.Joint1 = self.obj.Joint1
         self.Joint2 = self.obj.Joint2
+
         self.doc_name = self.obj.Document.Name
+
+        self.default_stiffness = "1 kg/s^2"  
+        self.default_length = "1 mm"
+        self.default_acceleration = "1 m/s^2"
 
 
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelDapForces.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
+
+        self.unitFunc()
 
         self.form.forceComboBox.addItems(DapForceSelection.FORCE_TYPES)
         # On reload, check to see if item already exists, and set dropbox item appropriately
@@ -55,23 +69,38 @@ class TaskPanelDapForce:
 
         self.form.forceComboBox.currentIndexChanged.connect(self.comboTypeChanged)
 
-
-    
-
         self.comboTypeChanged()
 
-        self.rebuildInputs()
-        
+        self.unitFunc()
 
+        self.rebuildInputs()
+
+        return 
+
+    def unitFunc(self):
+
+        acceleration = Units.Quantity(self.default_acceleration)
+        length = Units.Quantity(self.default_length)
+        stiffness = Units.Quantity(self.default_stiffness)
+
+
+        setQuantity(self.form.xIn,acceleration)
+        setQuantity(self.form.yIn,acceleration)
+        setQuantity(self.form.zIn,acceleration)
+
+        setQuantity(self.form.undefIn,length)
+
+        setQuantity(self.form.stiffnessIn,stiffness)
 
         return 
 
     def rebuildInputs(self):
-        self.form.xIn.insertPlainText(self.X)
-        self.form.yIn.insertPlainText(self.Y)
-        self.form.zIn.insertPlainText(self.Z)
-        self.form.stiffnessIn.insertPlainText(self.Stiff)
-        self.form.undefIn.insertPlainText(self.UndefLen)
+        setQuantity(self.form.xIn, self.X)
+        setQuantity(self.form.yIn, self.Y)
+        setQuantity(self.form.zIn, self.Z)
+        setQuantity(self.form.stiffnessIn, self.Stiff)
+        setQuantity(self.form.undefIn, self.UndefLen)
+       
   
 
     # def forceListRowChanged(self, row):
@@ -94,15 +123,18 @@ class TaskPanelDapForce:
             FreeCAD.Console.PrintError('Gravity has already been selected')
         else:
             self.obj.ForceTypes = self.Type
-            self.obj.gx = self.form.xIn.toPlainText()
-            self.obj.gy = self.form.yIn.toPlainText()
-            self.obj.gz = self.form.zIn.toPlainText()
-            self.obj.Stiffness = self.form.stiffnessIn.toPlainText()
-            self.obj.UndeformedLength = self.form.undefIn.toPlainText()
-        
-        # self.obj.gx = self.X
-        # self.obj.gy = self.Y
-        # self.obj.gz = self.Z
+            self.obj.gx = getQuantity(self.form.xIn)
+            self.obj.gy = getQuantity(self.form.yIn)
+            self.obj.gz = getQuantity(self.form.zIn)
+            self.obj.Stiffness = getQuantity(self.form.stiffnessIn)
+            self.obj.UndeformedLength = getQuantity(self.form.undefIn)
+
+            self.X=self.obj.gx
+            self.Y=self.obj.gy
+            self.Z=self.obj.gz
+            self.Stiff=self.obj.Stiffness
+            self.UndefLen=self.obj.UndeformedLength
+
 
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
