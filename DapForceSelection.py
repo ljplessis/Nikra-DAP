@@ -82,8 +82,10 @@ class _DapForce:
         addObjectProperty(obj, 'gz', "", "App::PropertyString", "", "Z Component")
         addObjectProperty(obj, 'Stiffness', "", "App::PropertyString", "", "Stiffness")
         addObjectProperty(obj, 'UndeformedLength', "", "App::PropertyString", "", "Undeformed Length")
-        addObjectProperty(obj, 'StartPoint', "", "App::PropertyString", "", "Start Point")
-        addObjectProperty(obj, 'EndPoint', "", "App::PropertyString", "", "End Point")
+        addObjectProperty(obj, 'Body1', "", "App::PropertyString", "", "Body 1 label")
+        addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
+        addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
+        addObjectProperty(obj, 'Joint2', "", "App::PropertyString", "", "Joint 2 label")
         
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
@@ -101,14 +103,16 @@ class _DapForce:
 
     def onChanged(self, obj, prop):
         if prop == "ForceTypes":
-            FreeCAD.Console.PrintError('This is working')
+            # FreeCAD.Console.PrintError('This is working')
 
             if obj.ForceTypes == "Gravity":
-                FreeCAD.Console.PrintError('This is also working')
+                # FreeCAD.Console.PrintError('This is also working')
                 obj.setEditorMode("Stiffness", 2)
                 obj.setEditorMode("UndeformedLength", 2)
-                obj.setEditorMode("StartPoint", 2)
-                obj.setEditorMode("EndPoint", 2)
+                obj.setEditorMode("Body1", 2)
+                obj.setEditorMode("Body2", 2)
+                obj.setEditorMode("Joint1", 2)
+                obj.setEditorMode("Joint2", 2)
                 obj.setEditorMode("gx", 0)
                 obj.setEditorMode("gy", 0)
                 obj.setEditorMode("gz", 0)
@@ -119,8 +123,11 @@ class _DapForce:
                 obj.setEditorMode("gz", 2)
                 obj.setEditorMode("Stiffness", 0)
                 obj.setEditorMode("UndeformedLength", 0)
-                obj.setEditorMode("StartPoint", 0)
-                obj.setEditorMode("EndPoint", 0)
+                obj.setEditorMode("Body1", 0)
+                obj.setEditorMode("Body2", 0)
+                obj.setEditorMode("Joint1", 0)
+                obj.setEditorMode("Joint2", 0)
+                
 
 
     

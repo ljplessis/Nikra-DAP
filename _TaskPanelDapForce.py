@@ -32,8 +32,10 @@ class TaskPanelDapForce:
         self.Z = self.obj.gz
         self.Stiff=self.obj.Stiffness
         self.UndefLen=self.obj.UndeformedLength
-        self.Start=self.obj.StartPoint
-        self.End=self.obj.EndPoint
+        self.Body1 = self.obj.Body1
+        self.Body2 = self.obj.Body2
+        self.Joint1 = self.obj.Joint1
+        self.Joint2 = self.obj.Joint2
         self.doc_name = self.obj.Document.Name
 
 
@@ -53,17 +55,23 @@ class TaskPanelDapForce:
 
         self.form.forceComboBox.currentIndexChanged.connect(self.comboTypeChanged)
 
+
+    
+
         self.comboTypeChanged()
 
-        self.rebuildVectorInputs()
+        self.rebuildInputs()
+        
+
 
         return 
 
-    def rebuildVectorInputs(self):
+    def rebuildInputs(self):
         self.form.xIn.insertPlainText(self.X)
         self.form.yIn.insertPlainText(self.Y)
         self.form.zIn.insertPlainText(self.Z)
-
+        self.form.stiffnessIn.insertPlainText(self.Stiff)
+        self.form.undefIn.insertPlainText(self.UndefLen)
   
 
     # def forceListRowChanged(self, row):
@@ -89,6 +97,8 @@ class TaskPanelDapForce:
             self.obj.gx = self.form.xIn.toPlainText()
             self.obj.gy = self.form.yIn.toPlainText()
             self.obj.gz = self.form.zIn.toPlainText()
+            self.obj.Stiffness = self.form.stiffnessIn.toPlainText()
+            self.obj.UndeformedLength = self.form.undefIn.toPlainText()
         
         # self.obj.gx = self.X
         # self.obj.gy = self.Y
@@ -116,24 +126,30 @@ class TaskPanelDapForce:
         self.form.descriptionhelp.setText(DapForceSelection.FORCE_TYPE_HELPER_TEXT[type_index])
         self.Type = DapForceSelection.FORCE_TYPES[type_index]
 
+        self.form.inputWidget.setCurrentIndex(type_index)
+
         
         if self.Type == "Gravity":
-            self.obj.setEditorMode("Stiffness", 2)
-            self.obj.setEditorMode("UndeformedLength", 2)
-            self.obj.setEditorMode("StartPoint", 2)
-            self.obj.setEditorMode("EndPoint", 2)
-            self.obj.setEditorMode("gx", 0)
-            self.obj.setEditorMode("gy", 0)
-            self.obj.setEditorMode("gz", 0)
+                self.obj.setEditorMode("Stiffness", 2)
+                self.obj.setEditorMode("UndeformedLength", 2)
+                self.obj.setEditorMode("Body1", 2)
+                self.obj.setEditorMode("Body2", 2)
+                self.obj.setEditorMode("Joint1", 2)
+                self.obj.setEditorMode("Joint2", 2)
+                self.obj.setEditorMode("gx", 0)
+                self.obj.setEditorMode("gy", 0)
+                self.obj.setEditorMode("gz", 0)
 
         elif self.Type == "Spring":
-            self.obj.setEditorMode("gx", 2)
-            self.obj.setEditorMode("gy", 2)
-            self.obj.setEditorMode("gz", 2)
-            self.obj.setEditorMode("Stiffness", 0)
-            self.obj.setEditorMode("UndeformedLength", 0)
-            self.obj.setEditorMode("StartPoint", 0)
-            self.obj.setEditorMode("EndPoint", 0)
+                self.obj.setEditorMode("gx", 2)
+                self.obj.setEditorMode("gy", 2)
+                self.obj.setEditorMode("gz", 2)
+                self.obj.setEditorMode("Stiffness", 0)
+                self.obj.setEditorMode("UndeformedLength", 0)
+                self.obj.setEditorMode("Body1", 0)
+                self.obj.setEditorMode("Body2", 0)
+                self.obj.setEditorMode("Joint1", 0)
+                self.obj.setEditorMode("Joint2", 0)
         
     # def buttonAddForceClicked(self):
     #     sel = FreeCADGui.Selection.getSelection()
