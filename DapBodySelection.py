@@ -55,11 +55,11 @@ if FreeCAD.GuiUp:
 
 class _DapBody:
     def __init__(self, obj):
-
+        self.initProperties(obj)
         obj.Proxy = self
         self.Type = "DapBody"
 
-        self.initProperties(obj)
+        
 
     def initProperties(self, obj):
         addObjectProperty(obj, 'References', [], "App::PropertyStringList", "", "List of Parts")
@@ -89,6 +89,24 @@ class _DapBody:
 
     def __getstate__(self):
         return None
+
+    
+    def onChanged(self, obj, prop):
+        if prop == "BodyType":
+            if obj.BodyType == "Ground":
+
+                obj.InitialAngular = 0.0
+                obj.InitialHorizontal = 0.0
+                obj.InitialVertical = 0.0
+
+                obj.setEditorMode("InitialAngular", 1)
+                obj.setEditorMode("InitialHorizontal", 1)
+                obj.setEditorMode("InitialVertical", 1)
+            else:
+                obj.setEditorMode("InitialAngular", 0)
+                obj.setEditorMode("InitialHorizontal", 0)
+                obj.setEditorMode("InitialVertical", 0)
+        return
 
     def __setstate__(self, state):
         return None
@@ -122,9 +140,6 @@ class _ViewProviderDapBody:
     def updateData(self, obj, prop):
         return
 
-    def onChanged(self, vobj, prop):
-        #DapTools.setCompSolid(vobj)
-        return
 
     def doubleClicked(self, vobj):
         doc = FreeCADGui.getDocument(vobj.Object.Document)

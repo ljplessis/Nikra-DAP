@@ -4,8 +4,7 @@
 
 #TODO Include license
 
-#Use the onChanged function to immediately change the visibility of properties
-#Update of properties to be done via the viewprovider directly
+
 
 import FreeCAD
 import os
@@ -72,7 +71,7 @@ class TaskPanelDapBody:
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
-        return print(self.obj.InitialHorizontal, self.obj.InitialVertical, self.obj.InitialAngular)
+        return #self.obj.InitialHorizontal, self.obj.InitialVertical, self.obj.InitialAngular
 
     def reject(self):
         FreeCADGui.Selection.removeObserver(self)
@@ -147,10 +146,6 @@ class TaskPanelDapBody:
             self.form.lblInitialConditions.setHidden(True)
             self.form.labelInitConditionDescription.setHidden(True)
 
-            self.obj.setEditorMode("InitialHorizontal", 2)
-            self.obj.setEditorMode("InitialVertical", 2)
-            self.obj.setEditorMode("InitialAngular", 2)
-
             self.form.lblVelocityHorizontal.setHidden(True)
             self.form.lblVelocityVertical.setHidden(True)
             self.form.lblVelocityAngular.setHidden(True)
@@ -180,10 +175,6 @@ class TaskPanelDapBody:
             self.form.dsbVelocityHorizontal.setHidden(False)
             self.form.dsbVelocityVertical.setHidden(False)
             self.form.dsbVelocityAngular.setHidden(False)
-
-            self.obj.setEditorMode("InitialHorizontal", 0)
-            self.obj.setEditorMode("InitialVertical", 0)
-            self.obj.setEditorMode("InitialAngular", 0)
 
             self.form.pbResetInitialConditions.setHidden(False)
 
