@@ -20,12 +20,14 @@ class DapWorkbench(Workbench):
         from DapBodySelection import _CommandDapBody
         from DapJointSelection import _CommandDapJoint
         from DapMaterialSelection import _CommandDapMaterial
+        from DapSolverRunner import _CommandDapSolver
         
         FreeCADGui.addCommand("Dap_analysis", _CommandDapAnalysis())
         cmdlst = ["Dap_analysis",
                   "Dap_Body",
                   "Dap_Joint",
-                  "Dap_Material"]
+                  "Dap_Material",
+                  "Dap_Solver"]
         
         self.appendToolbar("My Commands",cmdlst) # creates a new toolbar with your commands
         self.appendMenu("Nikra-Dap",cmdlst) # creates a new menu

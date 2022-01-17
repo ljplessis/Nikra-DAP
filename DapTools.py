@@ -80,6 +80,14 @@ def getMaterialObject():
                 return i
     return None
 
+def getSolverObject():
+    active_analysis = getActiveAnalysis()
+    for i in active_analysis.Group:
+            if "DapSolver" in i.Name:
+                return i
+    return None
+
+
 def get_module_path():
     """ Returns the current Dap module path.
     Determines where this file is running from, so works regardless of whether
