@@ -25,7 +25,7 @@
      <rect>
       <x>50</x>
       <y>120</y>
-      <width>401</width>
+      <width>411</width>
       <height>311</height>
      </rect>
     </property>
@@ -39,7 +39,7 @@
         <x>30</x>
         <y>50</y>
         <width>271</width>
-        <height>101</height>
+        <height>107</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -207,7 +207,7 @@
      </widget>
     </widget>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>60</x>
@@ -257,7 +257,7 @@
      <x>0</x>
      <y>0</y>
      <width>515</width>
-     <height>21</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDAP_Force_Selection">

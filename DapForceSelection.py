@@ -69,11 +69,11 @@ if FreeCAD.GuiUp:
 
 class _DapForce:
     def __init__(self, obj):
-
+        self.initProperties(obj)
         obj.Proxy = self
         self.Type = "DapForce"
 
-        self.initProperties(obj)
+        
 
     def initProperties(self, obj):
         addObjectProperty(obj, 'ForceTypes', FORCE_TYPES, "App::PropertyEnumeration", "", "Types of Forces")    
@@ -97,8 +97,36 @@ class _DapForce:
 
     def __setstate__(self, state):
         return None
+        
+
+    def onChanged(self, obj, prop):
+        if prop == "ForceTypes":
+            FreeCAD.Console.PrintError('This is working')
+
+            if obj.ForceTypes == "Gravity":
+                FreeCAD.Console.PrintError('This is also working')
+                obj.setEditorMode("Stiffness", 2)
+                obj.setEditorMode("UndeformedLength", 2)
+                obj.setEditorMode("StartPoint", 2)
+                obj.setEditorMode("EndPoint", 2)
+                obj.setEditorMode("gx", 0)
+                obj.setEditorMode("gy", 0)
+                obj.setEditorMode("gz", 0)
+                
+            elif obj.ForceTypes == "Spring":
+                obj.setEditorMode("gx", 2)
+                obj.setEditorMode("gy", 2)
+                obj.setEditorMode("gz", 2)
+                obj.setEditorMode("Stiffness", 0)
+                obj.setEditorMode("UndeformedLength", 0)
+                obj.setEditorMode("StartPoint", 0)
+                obj.setEditorMode("EndPoint", 0)
+
+
     
 class _ViewProviderDapForce:
+
+
     def __init__(self, vobj):
         vobj.Proxy = self
 
@@ -118,6 +146,8 @@ class _ViewProviderDapForce:
         modes = []
         return modes
 
+   
+
     def getDefaultDisplayMode(self):
         # TODO choose default display style
         #return "Flat Lines"
@@ -129,10 +159,7 @@ class _ViewProviderDapForce:
     def updateData(self, obj, prop):
         return
 
-    def onChanged(self, vobj, prop):
-        #DapTools.setCompSolid(vobj)
-        return
-
+  
     def doubleClicked(self, vobj):
         doc = FreeCADGui.getDocument(vobj.Object.Document)
         if not doc.getInEdit():

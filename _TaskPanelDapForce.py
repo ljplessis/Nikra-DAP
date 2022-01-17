@@ -57,8 +57,6 @@ class TaskPanelDapForce:
 
         self.rebuildVectorInputs()
 
-        self.PageState()
-
         return 
 
     def rebuildVectorInputs(self):
@@ -66,27 +64,7 @@ class TaskPanelDapForce:
         self.form.yIn.insertPlainText(self.Y)
         self.form.zIn.insertPlainText(self.Z)
 
-    def PageState(self):
-
-        # if self.obj.ForceTypes == "Gravity":
-        #     self.obj.setPropertyStatus("Stiffness", 'Hidden')
-        #     self.obj.setPropertyStatus("UndeformedLength", 'Hidden')
-        #     self.obj.setPropertyStatus("StartPoint", 'Hidden')
-        #     self.obj.setPropertyStatus("EndPoint", 'Hidden')
-         
-
-        # elif self.obj.ForceTypes == "Spring":
-        #     self.obj.setPropertyStatus('gx', 'Hidden')
-        #     self.obj.setPropertyStatus('gy', 'Hidden')
-        #     self.obj.setPropertyStatus('gz', 'Hidden')
-       
-       return  
- 
-        
-        
-
-
-        
+  
 
     # def forceListRowChanged(self, row):
     #     """ Actively select the forces to make it visible when viewing forces already in list """
@@ -106,11 +84,11 @@ class TaskPanelDapForce:
         doc.resetEdit()
         if DapTools.gravityChecker():
             FreeCAD.Console.PrintError('Gravity has already been selected')
-        #else:
-        self.obj.ForceTypes = self.Type
-        self.obj.gx = self.form.xIn.toPlainText()
-        self.obj.gy = self.form.yIn.toPlainText()
-        self.obj.gz = self.form.zIn.toPlainText()
+        else:
+            self.obj.ForceTypes = self.Type
+            self.obj.gx = self.form.xIn.toPlainText()
+            self.obj.gy = self.form.yIn.toPlainText()
+            self.obj.gz = self.form.zIn.toPlainText()
         
         # self.obj.gx = self.X
         # self.obj.gy = self.Y
@@ -137,6 +115,25 @@ class TaskPanelDapForce:
         type_index = self.form.forceComboBox.currentIndex()
         self.form.descriptionhelp.setText(DapForceSelection.FORCE_TYPE_HELPER_TEXT[type_index])
         self.Type = DapForceSelection.FORCE_TYPES[type_index]
+
+        
+        if self.Type == "Gravity":
+            self.obj.setEditorMode("Stiffness", 2)
+            self.obj.setEditorMode("UndeformedLength", 2)
+            self.obj.setEditorMode("StartPoint", 2)
+            self.obj.setEditorMode("EndPoint", 2)
+            self.obj.setEditorMode("gx", 0)
+            self.obj.setEditorMode("gy", 0)
+            self.obj.setEditorMode("gz", 0)
+
+        elif self.Type == "Spring":
+            self.obj.setEditorMode("gx", 2)
+            self.obj.setEditorMode("gy", 2)
+            self.obj.setEditorMode("gz", 2)
+            self.obj.setEditorMode("Stiffness", 0)
+            self.obj.setEditorMode("UndeformedLength", 0)
+            self.obj.setEditorMode("StartPoint", 0)
+            self.obj.setEditorMode("EndPoint", 0)
         
     # def buttonAddForceClicked(self):
     #     sel = FreeCADGui.Selection.getSelection()
