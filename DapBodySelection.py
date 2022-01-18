@@ -5,6 +5,7 @@
 
 
 import FreeCAD
+from FreeCAD import Units 
 import os
 import DapTools
 from DapTools import addObjectProperty
@@ -65,9 +66,11 @@ class _DapBody:
         addObjectProperty(obj, 'References', [], "App::PropertyStringList", "", "List of Parts")
         addObjectProperty(obj, 'BodyType', BODY_TYPES, "App::PropertyEnumeration", "", "Type of Body")
         addObjectProperty(obj, 'LinkedObjects', [], "App::PropertyLinkList", "", "Linked objects")
-        addObjectProperty(obj, 'InitialHorizontal', 0.0, "App::PropertyFloat","","Initial Velocity (Horizontal)")
-        addObjectProperty(obj, 'InitialVertical', 0.0, "App::PropertyFloat","","Initial Velocity (Vertical)")
-        addObjectProperty(obj, 'InitialAngular', 0.0, "App::PropertyFloat","","Initial Velocity (Angular)")
+        addObjectProperty(obj, 'InitialHorizontal', "", "App::PropertySpeed","","Initial Velocity (Horizontal)")
+        addObjectProperty(obj, 'InitialVertical', "", "App::PropertySpeed","","Initial Velocity (Vertical)")
+        addObjectProperty(obj, 'InitialAngular', "", "App::PropertyQuantity","","Initial Velocity (Angular)")
+
+        obj.InitialAngular=Units.Unit('rad/s')
 
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
@@ -95,9 +98,9 @@ class _DapBody:
         if prop == "BodyType":
             if obj.BodyType == "Ground":
 
-                obj.InitialAngular = 0.0
-                obj.InitialHorizontal = 0.0
-                obj.InitialVertical = 0.0
+                obj.InitialAngular = "0.0"
+                obj.InitialHorizontal = "0.0"
+                obj.InitialVertical = "0.0"
 
                 obj.setEditorMode("InitialAngular", 1)
                 obj.setEditorMode("InitialHorizontal", 1)
