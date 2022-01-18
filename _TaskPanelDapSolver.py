@@ -48,5 +48,5 @@ class TaskPanelDapSolver:
 
     def solveButtonClicked(self):
         builder = DapSolverBuilder.DapSolverBuilder()
-        builder.computeCentreOfGravity()
+        #builder.computeCentreOfGravity()
         

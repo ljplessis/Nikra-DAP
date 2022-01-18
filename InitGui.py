@@ -28,8 +28,9 @@ class DapWorkbench(Workbench):
                   "Dap_Body",
                   "Dap_Joint",
                   "Dap_Material",
-                  "Dap_Solver",
-                  "Dap_Force"]
+                  "Dap_Force",
+                  "Dap_Solver"
+                  ]
         
         self.appendToolbar("My Commands",cmdlst) # creates a new toolbar with your commands
         self.appendMenu("Nikra-Dap",cmdlst) # creates a new menu
