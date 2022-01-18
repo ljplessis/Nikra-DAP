@@ -107,7 +107,7 @@ class _DapForce:
     def onChanged(self, obj, prop):
         if prop == "ForceTypes":
             # FreeCAD.Console.PrintError('This is working')
-
+            self.lstMultiGrav = []
             if obj.ForceTypes == "Gravity":
                 # FreeCAD.Console.PrintError('This is also working')
                 obj.setEditorMode("Stiffness", 2)
@@ -119,7 +119,14 @@ class _DapForce:
                 obj.setEditorMode("gx", 0)
                 obj.setEditorMode("gy", 0)
                 obj.setEditorMode("gz", 0)
-                
+                self.lstMultiGrav = DapTools.getListOfForces() #Mod
+                countGrav = 0
+                for k in range(len(self.lstMultiGrav)):
+                    if self.lstMultiGrav[k] == "Gravity":
+                        countGrav = countGrav + 1
+                if countGrav > 1:
+                    FreeCAD.Console.PrintError(self.lstMultiGrav)
+                    FreeCAD.Console.PrintError("\n Multiple gravities have been defined.  Check for redundancy \n")              
             elif obj.ForceTypes == "Spring":
                 obj.setEditorMode("gx", 2)
                 obj.setEditorMode("gy", 2)

@@ -81,6 +81,14 @@ def getListOfBodyReferences():
                 body_references = body_references + i.References
     return body_references
 
+def getListOfForces(): #Mod
+    forces = []
+    active_analysis = getActiveAnalysis()
+    for j in active_analysis.Group:
+        if "DapForce" in j.Name:
+            forces.append(j.ForceTypes)
+    return forces
+
 def getMaterialObject():
     active_analysis = getActiveAnalysis()
     for i in active_analysis.Group:

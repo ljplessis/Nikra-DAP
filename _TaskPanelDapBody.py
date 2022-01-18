@@ -31,7 +31,7 @@ class TaskPanelDapBody:
         self.initAngular = self.obj.InitialAngular
 
         self.default_velocity = "1 m/s"
-        self.defaulty_angVelocity = "1 rad/s"
+        self.default_angVelocity = "1 rad/s"
 
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelDapBodies.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
@@ -66,7 +66,7 @@ class TaskPanelDapBody:
     def unitFunc(self):
 
         velocity = Units.Quantity(self.default_velocity)
-        angVelocity = Units.Quantity(self.defaulty_angVelocity)
+        angVelocity = Units.Quantity(self.default_angVelocity)
         
 
         setQuantity(self.form.velocityAngular,angVelocity)
@@ -129,11 +129,7 @@ class TaskPanelDapBody:
             self.obj.InitialVertical = "0 m/s"
             self.obj.InitialAngular = "0 rad/s"
         self.rebuildInitialConditions()
-
-        
-
-
-        
+       
     def buttonAddPartClicked(self):
         sel = FreeCADGui.Selection.getSelection()
 
@@ -171,12 +167,10 @@ class TaskPanelDapBody:
         for i in range(len(self.References)):
             self.form.partList.addItem(self.References[i])
 
-
     def rebuildInitialConditions(self):
         setQuantity(self.form.velocityHorizontal, self.obj.InitialHorizontal)
         setQuantity(self.form.velocityVertical, self.obj.InitialVertical)
         setQuantity(self.form.velocityAngular, self.obj.InitialAngular)
-
 
     def partListRowChanged(self, row):
         """ Actively select the part to make it visible when viewing parts already in list """
