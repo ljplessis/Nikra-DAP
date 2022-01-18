@@ -113,9 +113,6 @@ class TaskPanelDapBody:
         self.rebuildInitialConditions()
 
         
-
-
-        
     def buttonAddPartClicked(self):
         sel = FreeCADGui.Selection.getSelection()
 
