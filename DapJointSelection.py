@@ -15,13 +15,15 @@ if FreeCAD.GuiUp:
     from PySide import QtCore
 
 
-JOINT_TYPES = ["Revolute"]
+JOINT_TYPES = ["Revolute", "Linear Movement"]
 
 DEFINITION_MODES = [["1 Point + 2 Bodies",
-                     "2 Points"]]
+                     "alt def mode"], ["2 Points + 2 Bodies"]]
 
-HELPER_TEXT = [["Choose a point and the two bodies attached at the point. Assumes the parts are already correctly positioned. Useful when assembly is constructed using the Assembly 4 workbench ",
-                "Choose a point on each of the two different bodies. The points/faces must belong to each of the bodies."]]
+HELPER_TEXT = [["Choose a point and the two bodies attached at the point. Assumes the parts are already correctly \
+                 positioned. Useful when assembly is constructed using the Assembly 4 workbench ",
+                "Choose a point on each of the two different bodies. The points/faces must belong to each of the \
+                 bodies."], ["Choose two points and two bodies, (each point must be attached to its own body)"]]
 
 def makeDapJoints(name="DapJoint"):
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", name)
