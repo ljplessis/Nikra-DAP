@@ -50,11 +50,8 @@ class TaskPanelDapForce:
         self.default_length = "1 mm"
         self.default_acceleration = "1 m/s^2"
 
-
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelDapForces.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
-
-        self.unitFunc()
 
         self.form.forceComboBox.addItems(DapForceSelection.FORCE_TYPES)
         # On reload, check to see if item already exists, and set dropbox item appropriately
