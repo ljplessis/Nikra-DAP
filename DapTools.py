@@ -73,6 +73,14 @@ def getListOfBodyLabels():
                 body_labels.append(i.Label)
     return body_labels
 
+def getListOfBodyReferences():
+    body_references = []
+    active_analysis = getActiveAnalysis()
+    for i in active_analysis.Group:
+            if "DapBody" in i.Name:
+                body_references = body_references + i.References
+    return body_references
+
 def getMaterialObject():
     active_analysis = getActiveAnalysis()
     for i in active_analysis.Group:

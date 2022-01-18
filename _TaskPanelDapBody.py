@@ -17,7 +17,6 @@ if FreeCAD.GuiUp:
     from PySide import QtGui
     from PySide.QtGui import QFormLayout
 
-
 class TaskPanelDapBody:
     """ Taskpanel for adding DAP Bodies """
     def __init__(self, obj):
@@ -57,12 +56,12 @@ class TaskPanelDapBody:
 
         self.rebuildInitialConditions()
 
+
     def accept(self):
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
         self.obj.References = self.References
         self.obj.BodyType = self.BodyType
-
         self.obj.InitialHorizontal = self.form.dsbVelocityHorizontal.value()
         self.obj.InitialVertical = self.form.dsbVelocityVertical.value()
         self.obj.InitialAngular = self.form.dsbVelocityAngular.value()
@@ -71,6 +70,25 @@ class TaskPanelDapBody:
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
+
+        #Determine if a single body has been referenced under multiple DapBody containers
+        self.lstMultiple = DapTools.getListOfBodyReferences()
+        self.lstMultiple_set = set(self.lstMultiple)
+        self.duplicateReferences = len(self.lstMultiple) != len(self.lstMultiple_set)
+        if self.duplicateReferences == True:
+            FreeCAD.Console.PrintWarning("\n The following elements have been defined under more than one DapBody:  \n")
+            self.lstDuplicates = []
+            self.viewed = set()
+            for j in self.lstMultiple:
+                if j in self.viewed:
+                    self.lstDuplicates.append(j)
+                else:
+                    self.viewed.add(j)
+            #Provide the user with a list of objects that have been defined multiple times
+            FreeCAD.Console.PrintError(set(self.lstDuplicates))
+            FreeCAD.Console.PrintWarning("\n Check for redundant element definitions \n")
+        else:
+            FreeCAD.Console.PrintMessage("\n All DapBody definitions are uniquely defined \n")
         return #self.obj.InitialHorizontal, self.obj.InitialVertical, self.obj.InitialAngular
 
     def reject(self):
@@ -110,10 +128,10 @@ class TaskPanelDapBody:
 
     def buttonRemovePartClicked(self):
         if not self.References:
-            #FreeCAD.Console.PrintMessage("Here 1")
+            FreeCAD.Console.PrintMessage("Here 1")
             return
         if not self.form.partList.currentItem():
-            #FreeCAD.Console.PrintMessage("Here 2")
+            FreeCAD.Console.PrintMessage("Here 2")
             return
         row = self.form.partList.currentRow()
         self.References.pop(row)
@@ -124,6 +142,7 @@ class TaskPanelDapBody:
         self.form.partList.clear()
         for i in range(len(self.References)):
             self.form.partList.addItem(self.References[i])
+
 
     def rebuildInitialConditions(self):
         self.form.dsbVelocityHorizontal.setValue(self.initHorizontal)
@@ -183,6 +202,3 @@ class TaskPanelDapBody:
         self.form.dsbVelocityHorizontal.setValue(0.00)
         self.form.dsbVelocityVertical.setValue(0.00)
         self.form.dsbVelocityAngular.setValue(0.00)
-
-            
-            
