@@ -244,7 +244,7 @@ class DapSolverBuilder():
                 
                 #Project CoG of shape onto plane and compute distance of projected CoG of current shape to projected
                 # body CoG
-                centre_of_gravity = shape_obj.Shape.CenterOfGravity
+                centre_of_gravity = shape_obj.Shape.CenterOfMass
                 CoG_me_proj = self.projectPointOntoPlane(centre_of_gravity)
                 CoG_body_proj = self.cog_of_body_projected[body_label]
                 planar_dist_CoG_to_CogBody = ((CoG_me_proj.x - CoG_body_proj.x)**2 + (CoG_me_proj.y - CoG_body_proj.y)**2 
@@ -287,7 +287,7 @@ class DapSolverBuilder():
                 
                 
                 shape_obj = self.doc.getObjectsByLabel(shape_label)[0]
-                centre_of_gravity = shape_obj.Shape.CenterOfGravity
+                centre_of_gravity = shape_obj.Shape.CenterOfMass
                 volume = shape_obj.Shape.Volume
 
                 #NOTE: Converting density to base units which is mm?
