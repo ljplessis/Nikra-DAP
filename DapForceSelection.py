@@ -5,6 +5,7 @@
 
 
 import FreeCAD
+from FreeCAD import Units
 import os
 import DapTools
 from DapTools import addObjectProperty
@@ -77,15 +78,17 @@ class _DapForce:
 
     def initProperties(self, obj):
         addObjectProperty(obj, 'ForceTypes', FORCE_TYPES, "App::PropertyEnumeration", "", "Types of Forces")    
-        addObjectProperty(obj, 'gx', "", "App::PropertyString", "", "X Component")
-        addObjectProperty(obj, 'gy', "", "App::PropertyString", "", "Y Component")
-        addObjectProperty(obj, 'gz', "", "App::PropertyString", "", "Z Component")
-        addObjectProperty(obj, 'Stiffness', "", "App::PropertyString", "", "Stiffness")
-        addObjectProperty(obj, 'UndeformedLength', "", "App::PropertyString", "", "Undeformed Length")
+        addObjectProperty(obj, 'gx', "", "App::PropertyAcceleration", "", "X Component")
+        addObjectProperty(obj, 'gy', "", "App::PropertyAcceleration", "", "Y Component")
+        addObjectProperty(obj, 'gz', "", "App::PropertyAcceleration", "", "Z Component")
+        addObjectProperty(obj, 'Stiffness', "", "App::PropertyQuantity", "", "Stiffness")
+        addObjectProperty(obj, 'UndeformedLength', "", "App::PropertyLength", "", "Undeformed Length")
         addObjectProperty(obj, 'Body1', "", "App::PropertyString", "", "Body 1 label")
         addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
         addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
         addObjectProperty(obj, 'Joint2', "", "App::PropertyString", "", "Joint 2 label")
+
+        obj.Stiffness=Units.Unit('kg/s^2')
         
     def onDocumentRestored(self, obj):
         self.initProperties(obj)

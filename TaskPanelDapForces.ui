@@ -83,7 +83,7 @@
     <item>
      <widget class="QStackedWidget" name="inputWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="Page1">
        <layout class="QGridLayout" name="gridLayout">
@@ -110,16 +110,6 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QPlainTextEdit" name="yIn">
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>25</height>
-             </size>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="0">
            <widget class="QLabel" name="label_7">
             <property name="text">
@@ -128,112 +118,69 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QPlainTextEdit" name="zIn">
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>25</height>
-             </size>
-            </property>
-           </widget>
+           <widget class="Gui::InputField" name="zIn" native="true"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="Gui::InputField" name="yIn" native="true"/>
           </item>
           <item row="0" column="1">
-           <widget class="QPlainTextEdit" name="xIn">
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>25</height>
-             </size>
-            </property>
-           </widget>
+           <widget class="Gui::InputField" name="xIn" native="true"/>
           </item>
          </layout>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="Page2">
-       <widget class="QWidget" name="gridLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>50</y>
-          <width>233</width>
-          <height>61</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label_2">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Spring Input </string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Stiffness</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Undeformed Length </string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="Gui::InputField" name="stiffnessIn" native="true"/>
+          </item>
+          <item row="1" column="1">
+           <widget class="Gui::InputField" name="undefIn" native="true"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget" native="true">
+          <widget class="QLabel" name="label_8">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>10</y>
+             <width>191</width>
+             <height>61</height>
+            </rect>
+           </property>
            <property name="text">
-            <string>Stiffness</string>
+            <string>Input Body Selection Window here </string>
            </property>
           </widget>
-         </item>
-         <item row="0" column="1" colspan="2">
-          <widget class="QPlainTextEdit" name="stiffnessIn">
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>25</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1" colspan="2">
-          <widget class="QTextEdit" name="undefIn">
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>25</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Undeformed Length </string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QLabel" name="label">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>0</y>
-          <width>111</width>
-          <height>51</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Spring Input </string>
-        </property>
-       </widget>
-       <widget class="QWidget" name="widget" native="true">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>170</y>
-          <width>211</width>
-          <height>81</height>
-         </rect>
-        </property>
-        <widget class="QLabel" name="label_8">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>10</y>
-           <width>191</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Input Body Selection Window here </string>
-         </property>
-        </widget>
-       </widget>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -262,6 +209,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Gui::InputField</class>
+   <extends>QWidget</extends>
+   <header>gui::inputfield.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
