@@ -73,6 +73,14 @@ def getListOfBodyLabels():
                 body_labels.append(i.Label)
     return body_labels
 
+def getListOfBodyObjects():
+    body_object = []
+    active_analysis = getActiveAnalysis()
+    for i in active_analysis.Group:
+            if "DapBody" in i.Name:
+                body_object.append(i)
+    return body_object
+
 def getMaterialObject():
     active_analysis = getActiveAnalysis()
     for i in active_analysis.Group:
@@ -87,6 +95,14 @@ def getSolverObject():
                 return i
     return None
 
+
+def getListOfJointObjects():
+    joints = []
+    active_analysis = getActiveAnalysis()
+    for i in active_analysis.Group:
+            if "DapJoint" in i.Name:
+                joints.append(i)
+    return joints
 
 def get_module_path():
     """ Returns the current Dap module path.

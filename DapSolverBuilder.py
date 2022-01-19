@@ -12,6 +12,10 @@ from FreeCAD import Units
 from math import *
 import os
 
+
+JOINT_TRANSLATION = {"Revolute": "rev",
+                     "Linear Movement": "tran"}
+
 class DapSolverBuilder():
     
     
@@ -23,9 +27,20 @@ class DapSolverBuilder():
         
         
         self.list_of_bodies = DapTools.getListOfBodyLabels()
+        self.body_objects = DapTools.getListOfBodyObjects()
         self.material_object = DapTools.getMaterialObject()
         
+        if not(self.material_object):
+            raise RuntimeError("No material defined")
+        
+        
+        
         self.material_dictionary = self.material_object.MaterialDictionary
+        
+        
+        
+        self.joints = DapTools.getListOfJointObjects()
+        
         
         
         #TODO: get the save folder from the freecad GUI
@@ -33,8 +48,8 @@ class DapSolverBuilder():
         
         #TODO define the plane of movement using freecad gui
         #either by defining a principle axis or selecting planar Face/sketch/plane
-        #self.plane_norm = FreeCAD.Vector(0, 0, 1)
-        self.plane_norm = FreeCAD.Vector(0.49999999999999994, -0.5, 0.7071067811865477)
+        self.plane_norm = FreeCAD.Vector(0, 0, 1)
+        #self.plane_norm = FreeCAD.Vector(0.49999999999999994, -0.5, 0.7071067811865477)
         
         self.plane_origin = FreeCAD.Vector(0, 0, 0) #NOTE assuming for now that plane moves through global origina
         
@@ -58,6 +73,9 @@ class DapSolverBuilder():
         #2.) There are joints defined
         #3.) Check to make sure that not only ground parts are specified
         #4.) Make sure the same body part is not specified as both a ground and moving
+        #5.) Check to make sure that there are moving bodies, and that everything is not by default ground
+        #6.) Throw an error if both bodies of a joint is ground
+        
         
         self.parts_of_bodies = {}
         for body_label in self.list_of_bodies:
@@ -81,20 +99,76 @@ class DapSolverBuilder():
         
     
         
-        
+        self.listOfMovingBodies()
         self.global_rotation_matrix = self.computeRotationMatrix()
         self.computeCentreOfGravity()
         self.computeMomentOfInertia()
         self.writeBodies()
         
-        cog = self.cog_of_body_projected["DapBody"]
-        FreeCAD.Console.PrintMessage("Original cog:" + str(cog) + "\n")
-        FreeCAD.Console.PrintMessage("Rotated plane normal:" +  str(self.global_rotation_matrix*self.plane_norm) + "\n")
-        FreeCAD.Console.PrintMessage("Rotated centre of gravity:" +  str(self.global_rotation_matrix*cog) + "\n")
-        FreeCAD.Console.PrintMessage("Actual CoG: " + str(self.centre_of_gravity_of_body) +"\n")
-        FreeCAD.Console.PrintMessage("Projected CoG: " + str(self.cog_of_body_projected) +"\n")
-        FreeCAD.Console.PrintMessage("Rotated-projected CoG: " + str(self.cog_of_body_rotated) +"\n")
+        self.processJoints()
+        
+        #cog = self.cog_of_body_projected["DapBody"]
+        #FreeCAD.Console.PrintMessage("Original cog:" + str(cog) + "\n")
+        #FreeCAD.Console.PrintMessage("Rotated plane normal:" +  str(self.global_rotation_matrix*self.plane_norm) + "\n")
+        #FreeCAD.Console.PrintMessage("Rotated centre of gravity:" +  str(self.global_rotation_matrix*cog) + "\n")
+        #FreeCAD.Console.PrintMessage("Actual CoG: " + str(self.centre_of_gravity_of_body) +"\n")
+        #FreeCAD.Console.PrintMessage("Projected CoG: " + str(self.cog_of_body_projected) +"\n")
+        #FreeCAD.Console.PrintMessage("Rotated-projected CoG: " + str(self.cog_of_body_rotated) +"\n")
+        
+        #FreeCAD.Console.PrintMessage("List of joints: " + str(self.joints) + "\n")
         #self.projectPointOntoPlane(FreeCAD.Vector(10,10,10))
+    
+    
+    def processJoints(self):
+        for i in range(len(self.joints)):
+            joint_type = JOINT_TRANSLATION[self.joints[i].JointType]
+            
+            if joint_type == "rev":
+                joint1 = self.joints[i].Joint1
+                joint1_coord = self.joints[i].JointCoord1
+                body1 = self.joints[i].Body1
+                body2 = self.joints[i].Body2
+
+
+                body1_index = self.extractDAPBodyIndex(body1)
+                body2_index = self.extractDAPBodyIndex(body2)
+
+                if body1_index == 0 and body2_index == 0:
+                    raise RuntimeError("Both bodies attached to " + 
+                                       str(self.joints[i].Label) + " were defined as ground.\n" +
+                                       "The two bodies attached to the current joint are : " 
+                                       + str(body1) + " and " +str(body2))
+                
+                FreeCAD.Console.PrintMessage("body index 1 " + str(body1_index) +" \n")
+                FreeCAD.Console.PrintMessage("body index 2 " + str(body2_index) +" \n")
+
+    def extractDAPBodyIndex(self, body):
+        if body == "Ground":
+            body_index = 0
+        else:
+            test_index = self.list_of_bodies.index(body)
+            body_type = self.body_objects[test_index].BodyType
+            if body_type == "Ground":
+                body_index = 0
+            else:
+                body_index = self.moving_bodies.index(body) + 1  #NOTE DAP.py is not 0 indexing
+        return body_index
+    #def collectAllPoints(self):
+        #""" Loops over all possible objects which may have points and generates list of points """
+
+
+
+
+        #return
+    
+    def listOfMovingBodies(self):
+        self.moving_bodies = []
+        
+        #for body in self.body_objects:
+        for i in range(len(self.body_objects)):
+            if self.body_objects[i].BodyType == "Moving":
+                self.moving_bodies.append(self.list_of_bodies[i])
+    
     
     def computeRotationMatrix(self):
         """ Computes the rotation matrix, to rotate a given plane onto the xy plane. This is needed to
@@ -104,7 +178,6 @@ class DapSolverBuilder():
         """
         
         z = FreeCAD.Vector(0, 0, 1)
-        #z = FreeCAD.Vector(1, 0, 0)
         #rotation_angle
         phi = acos(self.plane_norm * z)
         #axis_of_rotation
@@ -127,8 +200,6 @@ class DapSolverBuilder():
         rotation_matrix.A13 = u.x*u.z*(1 - cos(phi)) + u.y*sin(phi)
         rotation_matrix.A23 = u.y*u.z*(1 - cos(phi)) - u.x*sin(phi)
         rotation_matrix.A33 = cos(phi) + u.z**2*(1 - cos(phi))
-        
-        
         
         #FreeCAD.Console.PrintMessa
         FreeCAD.Console.PrintMessage("Angle of rotation: " + str(phi) + "\n")
@@ -167,6 +238,7 @@ class DapSolverBuilder():
                 density = Units.Quantity(self.material_dictionary[shape_label]["density"]).Value
                 #Moment of inertia about axis of orientation (normal of plane)
                 J = Iij * self.plane_norm * self.plane_norm  * density
+                
                 FreeCAD.Console.PrintMessage(str(Iij) + "\n")
                 FreeCAD.Console.PrintMessage("Moment of intertia about axis of rotation through COG: " + str(J) + "\n")
                 
@@ -185,6 +257,7 @@ class DapSolverBuilder():
                 J_global_body += J + shape_mass * planar_dist_CoG_to_CogBody**2
                 
                 FreeCAD.Console.PrintMessage("Planar distance of CoG to CoG: " + str(planar_dist_CoG_to_CogBody) + "\n")
+            
             FreeCAD.Console.PrintMessage("Total J: " + str(J_global_body) + "\n")
             
             self.J[body_label] = J_global_body
@@ -249,17 +322,20 @@ class DapSolverBuilder():
         fid = open(file_path, 'w')
         fid.write("global Bodies \n")
         
-        for i in range(len(self.list_of_bodies)):
+        #TODO: check whether body is ground or not
+        #for i in range(len(self.list_of_bodies)):
+        for i in range(len(self.moving_bodies)):
+            body_index = self.list_of_bodies.index(self.moving_bodies[i])
             fid.write("B"+str(i)+" = Body_struct()\n")
-            fid.write("B"+str(i)+".m = " + str(self.total_mass_of_body[self.list_of_bodies[i]]) + "\n")
-            fid.write("B"+str(i)+".J = " + str(self.J[self.list_of_bodies[i]]) + "\n")
-            fid.write("B"+str(i)+".r = np.array([[" + str(self.cog_of_body_rotated[self.list_of_bodies[i]].x) + ","
-                      + str(self.cog_of_body_rotated[self.list_of_bodies[i]].y) + "]]).T\n")
+            fid.write("B"+str(i)+".m = " + str(self.total_mass_of_body[self.list_of_bodies[body_index]]) + "\n")
+            fid.write("B"+str(i)+".J = " + str(self.J[self.list_of_bodies[body_index]]) + "\n")
+            fid.write("B"+str(i)+".r = np.array([[" + str(self.cog_of_body_rotated[self.list_of_bodies[body_index]].x) + ","
+                      + str(self.cog_of_body_rotated[self.list_of_bodies[body_index]].y) + "]]).T\n")
             fid.write("B"+str(i)+".p = " + str(0) + "\n")
             fid.write("\n")
             #bodies.append("B"+str(i))
         fid.write('Bodies = np.array([[None')
-        for i in range(len(self.list_of_bodies)):
+        for i in range(len(self.moving_bodies)):
             fid.write(', B'+str(i))
         fid.write("]]).T\n")
         fid.close()

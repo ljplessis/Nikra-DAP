@@ -175,6 +175,7 @@ class TaskPanelDapJoint:
                     self.form.objectNameLCS1LinMov.setText(sel[0].Object.Label)
                 updated = True
                 self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
+                self.obj.JointCoord1 = sel[0].Object.Placement.Base
                 self.Joint1 = sel[0].Object.Label
 
     def addLCS2(self):

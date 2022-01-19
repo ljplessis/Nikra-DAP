@@ -78,6 +78,8 @@ class _DapJoint:
         addObjectProperty(obj, 'JointDefinitionMode', all_subtypes, "App::PropertyEnumeration","", "Define how the Joint is defined")
         addObjectProperty(obj, 'JointType', JOINT_TYPES, "App::PropertyEnumeration", "", "Type of Joint")
         addObjectProperty(obj, 'DisplayCoordinate', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
+        addObjectProperty(obj, 'JointCoord1', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
+        addObjectProperty(obj, 'JointCoord2', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
         addObjectProperty(obj, 'Body1', "", "App::PropertyString", "", "Body 1 label")
         addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
         addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
