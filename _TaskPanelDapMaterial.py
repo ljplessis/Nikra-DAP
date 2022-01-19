@@ -140,6 +140,9 @@ class TaskPanelDapMaterial:
                     else:
                         mat_name = self.card_name_labels[0]
                         density = self.default_density
+                        self.MaterialDictionary[sub_shape_label] = {}
+                        self.MaterialDictionary[sub_shape_label]["matName"] = mat_name
+                        self.MaterialDictionary[sub_shape_label]["density"] = density
                         mi = 0
                     combo.setCurrentIndex(mi)
                     self.addDensityItemToTable(density, table_row, mi)

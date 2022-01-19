@@ -25,6 +25,8 @@ class DapSolverBuilder():
         self.doc_name = self.active_analysis.Document.Name
         self.doc = FreeCAD.getDocument(self.doc_name)
         
+        self.dap_points = []
+        self.dap_joints = []
         
         self.list_of_bodies = DapTools.getListOfBodyLabels()
         self.body_objects = DapTools.getListOfBodyObjects()
@@ -44,7 +46,15 @@ class DapSolverBuilder():
         
         
         #TODO: get the save folder from the freecad GUI
-        self.folder = "/tmp"
+        from sys import platform
+        if platform == "linux" or platform == "linux2":
+            self.folder = "/tmp"
+        #elif platform == "darwin":
+            ## OS X
+        elif platform == "win32":
+            # Windows...
+            self.folder = "c:\windows\temp"
+        
         
         #TODO define the plane of movement using freecad gui
         #either by defining a principle axis or selecting planar Face/sketch/plane
@@ -139,8 +149,39 @@ class DapSolverBuilder():
                                        "The two bodies attached to the current joint are : " 
                                        + str(body1) + " and " +str(body2))
                 
+                self.addDapPointUsingJointCoordAndBodyLabel(body1_index, body1, joint1_coord)
+                self.addDapPointUsingJointCoordAndBodyLabel(body2_index, body2, joint1_coord)
+            
+                #if the body is not ground, then the point coordinates should the local coordinate
+                #with respect to the body CoG
+                
+                FreeCAD.Console.PrintMessage("dapPoints " + str(self.dap_points) + "\n")
                 FreeCAD.Console.PrintMessage("body index 1 " + str(body1_index) +" \n")
                 FreeCAD.Console.PrintMessage("body index 2 " + str(body2_index) +" \n")
+
+    def addDapPointUsingJointCoordAndBodyLabel(self, body_index, body_label, point_coord):
+        point = {}
+        point['bIndex'] = body_index
+        projected_coord = self.projectPointOntoPlane(point_coord)
+        rotated_coord = self.global_rotation_matrix*projected_coord
+        
+        FreeCAD.Console.PrintMessage("Body: " + str(body_label) + "\n")
+        
+        FreeCAD.Console.PrintMessage("Projected coord " + str(projected_coord) + "\n")
+        FreeCAD.Console.PrintMessage("Projected-rotated coord " + str(rotated_coord) + "\n")
+        # if body index =0, then connecting body is ground, and coordinates should be 
+        # defined in the global coordinates based on the current logic
+        if body_index == 0:
+            point['x'] = rotated_coord.x
+            point['y'] = rotated_coord.y
+        else:
+            FreeCAD.Console.PrintMessage("Body rotated CoG: " + str(self.cog_of_body_rotated[body_label]) + "\n")
+            bodyCoG = self.cog_of_body_rotated[body_label]
+            point['x'] = rotated_coord.x - bodyCoG.x
+            point['y'] = rotated_coord.y - bodyCoG.y
+            #join1_coord
+        
+        self.dap_points.append(point)
 
     def extractDAPBodyIndex(self, body):
         if body == "Ground":
