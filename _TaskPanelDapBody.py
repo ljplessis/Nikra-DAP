@@ -91,24 +91,6 @@ class TaskPanelDapBody:
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
 
-        #Determine if a single body has been referenced under multiple DapBody containers
-        self.lstMultiple = DapTools.getListOfBodyReferences()
-        self.lstMultiple_set = set(self.lstMultiple)
-        self.duplicateReferences = len(self.lstMultiple) != len(self.lstMultiple_set)
-        if self.duplicateReferences == True:
-            FreeCAD.Console.PrintWarning("\n The following elements have been defined under more than one DapBody:  \n")
-            self.lstDuplicates = []
-            self.viewed = set()
-            for j in self.lstMultiple:
-                if j in self.viewed:
-                    self.lstDuplicates.append(j)
-                else:
-                    self.viewed.add(j)
-            #Provide the user with a list of objects that have been defined multiple times
-            FreeCAD.Console.PrintError(set(self.lstDuplicates))
-            FreeCAD.Console.PrintWarning("\n Check for redundant element definitions \n")
-        else:
-            FreeCAD.Console.PrintMessage("\n All DapBody definitions are uniquely defined \n")
         return #self.obj.InitialHorizontal, self.obj.InitialVertical, self.obj.InitialAngular
 
     def reject(self):
