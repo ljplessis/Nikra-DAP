@@ -109,7 +109,26 @@ class _DapBody:
                 obj.setEditorMode("InitialAngular", 0)
                 obj.setEditorMode("InitialHorizontal", 0)
                 obj.setEditorMode("InitialVertical", 0)
-        return
+
+        if prop == "References":
+            #Determine if a single body has been referenced under multiple DapBody containers
+            self.lstMultiRef = DapTools.getListOfBodyReferences()
+            self.lstMultiRef_set = set(self.lstMultiRef)
+            self.duplicateRef = len(self.lstMultiRef) != len(self.lstMultiRef_set)
+            if self.duplicateRef == True:
+                FreeCAD.Console.PrintWarning("\n The following elements have been defined under more than one DapBody:  \n")
+                self.lstDuplicateRef = []
+                self.viewed = set()
+                for j in self.lstMultiRef:
+                    if j in self.viewed:
+                        self.lstDuplicateRef.append(j)
+                    else:
+                        self.viewed.add(j)
+                #Provide the user with a list of objects that have been defined multiple times
+                FreeCAD.Console.PrintError(set(self.lstDuplicateRef))
+                FreeCAD.Console.PrintWarning("\n Check for redundant element definitions \n")
+            else:
+                FreeCAD.Console.PrintMessage("\n All DapBody definitions are uniquely defined \n")
 
     def __setstate__(self, state):
         return None
