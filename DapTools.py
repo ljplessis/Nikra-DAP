@@ -95,6 +95,13 @@ def getSolverObject():
                 return i
     return None
 
+def getForcesObjects():
+    force_objects = []
+    active_analysis = getActiveAnalysis()
+    for i in active_analysis.Group:
+            if "DapForce" in i.Name:
+                force_objects.append(i)
+    return force_objects
 
 def getListOfJointObjects():
     joints = []

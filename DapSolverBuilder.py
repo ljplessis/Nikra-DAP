@@ -27,10 +27,12 @@ class DapSolverBuilder():
         
         self.dap_points = []
         self.dap_joints = []
+        self.dap_forces = []
         
         self.list_of_bodies = DapTools.getListOfBodyLabels()
         self.body_objects = DapTools.getListOfBodyObjects()
         self.material_object = DapTools.getMaterialObject()
+        self.list_of_force_ojects = DapTools.getForcesObjects()
         
         if not(self.material_object):
             raise RuntimeError("No material defined")
@@ -114,12 +116,14 @@ class DapSolverBuilder():
         self.computeCentreOfGravity()
         self.computeMomentOfInertia()
         self.processJoints() #this includes processing points included within joints
+        self.processForces()
         
         
         
         self.writeBodies()
         self.writePoints()
         self.writeJoints()
+        self.writeForces()
         
         #cog = self.cog_of_body_projected["DapBody"]
         #FreeCAD.Console.PrintMessage("Original cog:" + str(cog) + "\n")
@@ -132,6 +136,37 @@ class DapSolverBuilder():
         #FreeCAD.Console.PrintMessage("List of joints: " + str(self.joints) + "\n")
         #self.projectPointOntoPlane(FreeCAD.Vector(10,10,10))
     
+    
+    def processForces(self):
+        for force_obj in self.list_of_force_ojects:
+            FreeCAD.Console.PrintMessage("Force Object: " + str(force_obj.Label) + "\n")
+            force = {}
+            if force_obj.ForceTypes == "Gravity":
+                
+                gx = force_obj.gx.Value
+                FreeCAD.Console.PrintMessage("gx " + str(gx) + "\n")
+                gy = force_obj.gy.Value
+                gz = force_obj.gz.Value
+                gravity_vector = FreeCAD.Vector(gx, gy, gz)
+                gravity_mag = gravity_vector.Length
+                gravity_norm = gravity_vector/gravity_mag
+                
+                gravity_norm_projected = self.projectPointOntoPlane(gravity_norm)
+                gravity_norm_rotated = self.global_rotation_matrix*gravity_norm_projected
+                
+                force['type'] = 'weight'
+                force['gravity'] = gravity_mag
+                force['x'] = gravity_norm_rotated.x
+                force['y'] = gravity_norm_rotated.y
+                
+                FreeCAD.Console.PrintMessage("gravity mag " + str(gravity_mag) + "\n")
+                FreeCAD.Console.PrintMessage("gravity norm " + str(gravity_norm) + "\n")
+                FreeCAD.Console.PrintMessage("gravity norm projected" + str(gravity_norm_projected) + "\n")
+                FreeCAD.Console.PrintMessage("gravity norm rotated" + str(gravity_norm_rotated) + "\n")
+            
+            #TODO add additional force type
+            
+            self.dap_forces.append(force)
     
     def processJoints(self):
         for i in range(len(self.joints)):
@@ -261,7 +296,6 @@ class DapSolverBuilder():
         rotation_matrix.A23 = u.y*u.z*(1 - cos(phi)) - u.x*sin(phi)
         rotation_matrix.A33 = cos(phi) + u.z**2*(1 - cos(phi))
         
-        #FreeCAD.Console.PrintMessa
         FreeCAD.Console.PrintMessage("Angle of rotation: " + str(phi) + "\n")
         FreeCAD.Console.PrintMessage("Length of u: " + str(u.Length) + "\n")
         FreeCAD.Console.PrintMessage("Length of planenorm: " + str(self.plane_norm.Length) + "\n")
@@ -426,7 +460,7 @@ class DapSolverBuilder():
         fid.write('global Joints\n')
         for i in range(len(self.dap_joints)):
             fid.write("J"+str(i+1)+" = Joint_struct()\n")
-            fid.write("J"+str(i+1)+".type = " + str(self.dap_joints[i]["type"]) + "\n")
+            fid.write("J"+str(i+1)+".type = '" + str(self.dap_joints[i]["type"]) + "'\n")
             fid.write("J"+str(i+1)+".iPindex = " + str(self.dap_joints[i]["i"]) + "\n")
             fid.write("J"+str(i+1)+".jPindex = " + str(self.dap_joints[i]["j"]) + "\n")
             
@@ -438,5 +472,29 @@ class DapSolverBuilder():
         fid.write('Joints = np.array([[None')
         for i in range(len(self.dap_joints)):
             fid.write(', J'+str(i+1))
+        fid.write("]]).T\n")
+        fid.close()
+        
+        
+    def writeForces(self):
+        file_path = os.path.join(self.folder,"inForces.py")
+        fid = open(file_path, 'w')
+        fid.write('global Forces\n')
+        for i in range(len(self.dap_forces)):
+            fid.write("F"+str(i+1)+" = Force_struct()\n")
+            fid.write("F"+str(i+1)+".type = '" + str(self.dap_forces[i]["type"]) + "'\n")
+            if self.dap_forces[i]["type"] == 'weight':
+                fid.write("F"+str(i+1)+".gravity = " + str(self.dap_forces[i]["gravity"]) + "\n")
+                fid.write("F"+str(i+1)+".wgt = np.array([["+str(self.dap_forces[i]['x']) 
+                          + ", " +str(self.dap_forces[i]['y']) + "]]).T\n")
+            
+            #TODO add uVectors if translational joint
+            
+            
+            fid.write("\n")
+            
+        fid.write('Forces = np.array([[None')
+        for i in range(len(self.dap_joints)):
+            fid.write(', F'+str(i+1))
         fid.write("]]).T\n")
         fid.close()
