@@ -113,9 +113,13 @@ class DapSolverBuilder():
         self.global_rotation_matrix = self.computeRotationMatrix()
         self.computeCentreOfGravity()
         self.computeMomentOfInertia()
-        self.writeBodies()
+        self.processJoints() #this includes processing points included within joints
         
-        self.processJoints()
+        
+        
+        self.writeBodies()
+        self.writePoints()
+        self.writeJoints()
         
         #cog = self.cog_of_body_projected["DapBody"]
         #FreeCAD.Console.PrintMessage("Original cog:" + str(cog) + "\n")
@@ -149,15 +153,29 @@ class DapSolverBuilder():
                                        "The two bodies attached to the current joint are : " 
                                        + str(body1) + " and " +str(body2))
                 
-                self.addDapPointUsingJointCoordAndBodyLabel(body1_index, body1, joint1_coord)
-                self.addDapPointUsingJointCoordAndBodyLabel(body2_index, body2, joint1_coord)
-            
+                iIndex = self.addDapPointUsingJointCoordAndBodyLabel(body1_index, body1, joint1_coord)
+                
+                jIndex = self.addDapPointUsingJointCoordAndBodyLabel(body2_index, body2, joint1_coord)
+                
+                self.addJoint(joint_type, iIndex, jIndex)
                 #if the body is not ground, then the point coordinates should the local coordinate
                 #with respect to the body CoG
                 
                 FreeCAD.Console.PrintMessage("dapPoints " + str(self.dap_points) + "\n")
+                FreeCAD.Console.PrintMessage("dapJoints " + str(self.dap_joints) + "\n")
                 FreeCAD.Console.PrintMessage("body index 1 " + str(body1_index) +" \n")
                 FreeCAD.Console.PrintMessage("body index 2 " + str(body2_index) +" \n")
+
+    def addJoint(self, joint_type, iIndex, jIndex):
+            joint = {}
+            joint["type"] = joint_type
+            #NOTE: DAP.py is currently not 0 indexing, hence these indices should be 1 indexing
+            joint["i"] = iIndex 
+            joint["j"] = jIndex
+            
+            #TODO: if translation add uvectors
+            
+            self.dap_joints.append(joint)
 
     def addDapPointUsingJointCoordAndBodyLabel(self, body_index, body_label, point_coord):
         point = {}
@@ -179,9 +197,10 @@ class DapSolverBuilder():
             bodyCoG = self.cog_of_body_rotated[body_label]
             point['x'] = rotated_coord.x - bodyCoG.x
             point['y'] = rotated_coord.y - bodyCoG.y
-            #join1_coord
         
         self.dap_points.append(point)
+        
+        return len(self.dap_points)
 
     def extractDAPBodyIndex(self, body):
         if body == "Ground":
@@ -367,17 +386,57 @@ class DapSolverBuilder():
         #for i in range(len(self.list_of_bodies)):
         for i in range(len(self.moving_bodies)):
             body_index = self.list_of_bodies.index(self.moving_bodies[i])
-            fid.write("B"+str(i)+" = Body_struct()\n")
-            fid.write("B"+str(i)+".m = " + str(self.total_mass_of_body[self.list_of_bodies[body_index]]) + "\n")
-            fid.write("B"+str(i)+".J = " + str(self.J[self.list_of_bodies[body_index]]) + "\n")
-            fid.write("B"+str(i)+".r = np.array([[" + str(self.cog_of_body_rotated[self.list_of_bodies[body_index]].x) + ","
+            fid.write("B"+str(i+1)+" = Body_struct()\n")
+            fid.write("B"+str(i+1)+".m = " + str(self.total_mass_of_body[self.list_of_bodies[body_index]]) + "\n")
+            fid.write("B"+str(i+1)+".J = " + str(self.J[self.list_of_bodies[body_index]]) + "\n")
+            fid.write("B"+str(i+1)+".r = np.array([[" + str(self.cog_of_body_rotated[self.list_of_bodies[body_index]].x) + ","
                       + str(self.cog_of_body_rotated[self.list_of_bodies[body_index]].y) + "]]).T\n")
-            fid.write("B"+str(i)+".p = " + str(0) + "\n")
+            fid.write("B"+str(i+1)+".p = " + str(0) + "\n")
             fid.write("\n")
             #bodies.append("B"+str(i))
         fid.write('Bodies = np.array([[None')
         for i in range(len(self.moving_bodies)):
-            fid.write(', B'+str(i))
+            fid.write(', B'+str(i+1))
         fid.write("]]).T\n")
         fid.close()
         
+    def writePoints(self):
+        FreeCAD.Console.PrintMessage(str(self.dap_points) + "\n")
+        file_path = os.path.join(self.folder,"inPoints.py")
+        fid = open(file_path, 'w')
+        fid.write('global Points\n')
+        for i in range(len(self.dap_points)):
+            fid.write("P"+str(i+1)+" = Point_struct()\n")
+            fid.write("P"+str(i+1)+".Bindex = " + str(self.dap_points[i]["bIndex"]) +"\n")
+            sp_i = self.dap_points[i]["x"]
+            sp_j = self.dap_points[i]["y"]
+            fid.write("P"+str(i+1)+".sPlocal = np.array([[" + str(sp_i) + "," + str(sp_j) + "])).T\n")
+            fid.write("\n")
+        
+        fid.write('Points = np.array([[None')
+        for i in range(len(self.dap_points)):
+            fid.write(', P'+str(i+1))
+        fid.write("]]).T\n")
+        fid.close()
+
+    def writeJoints(self):
+        FreeCAD.Console.PrintMessage(str(self.dap_joints)+"\n")
+        file_path = os.path.join(self.folder,"inJoints.py")
+        fid = open(file_path, 'w')
+        fid.write('global Joints\n')
+        for i in range(len(self.dap_joints)):
+            fid.write("J"+str(i+1)+" = Joint_struct()\n")
+            fid.write("J"+str(i+1)+".type = " + str(self.dap_joints[i]["type"]) + "\n")
+            fid.write("J"+str(i+1)+".iPindex = " + str(self.dap_joints[i]["i"]) + "\n")
+            fid.write("J"+str(i+1)+".jPindex = " + str(self.dap_joints[i]["j"]) + "\n")
+            
+            #TODO add uVectors if translational joint
+            
+            
+            fid.write("\n")
+            
+        fid.write('Joints = np.array([[None')
+        for i in range(len(self.dap_joints)):
+            fid.write(', J'+str(i+1))
+        fid.write("]]).T\n")
+        fid.close()
