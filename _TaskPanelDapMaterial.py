@@ -33,6 +33,7 @@ class TaskPanelDapMaterial:
         
         self.doc_name = self.obj.Document.Name
         
+        
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelDapMaterials.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
 

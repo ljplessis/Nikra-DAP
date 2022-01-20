@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>421</width>
-    <height>421</height>
+    <width>425</width>
+    <height>199</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,8 +20,8 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="0" column="0">
        <widget class="QLabel" name="forceType">
@@ -80,7 +80,7 @@
       </item>
      </layout>
     </item>
-    <item>
+    <item row="1" column="0">
      <widget class="QStackedWidget" name="inputWidget">
       <property name="currentIndex">
        <number>1</number>
@@ -118,13 +118,13 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="Gui::InputField" name="zIn" native="true"/>
+           <widget class="Gui::InputField" name="zIn"/>
           </item>
           <item row="1" column="1">
-           <widget class="Gui::InputField" name="yIn" native="true"/>
+           <widget class="Gui::InputField" name="yIn"/>
           </item>
           <item row="0" column="1">
-           <widget class="Gui::InputField" name="xIn" native="true"/>
+           <widget class="Gui::InputField" name="xIn"/>
           </item>
          </layout>
         </item>
@@ -138,6 +138,9 @@
            <string>Spring Input </string>
           </property>
          </widget>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="bodySelection"/>
         </item>
         <item>
          <layout class="QGridLayout" name="gridLayout_3">
@@ -155,30 +158,13 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="Gui::InputField" name="stiffnessIn" native="true"/>
-          </item>
           <item row="1" column="1">
-           <widget class="Gui::InputField" name="undefIn" native="true"/>
+           <widget class="Gui::InputField" name="undefIn"/>
+          </item>
+          <item row="0" column="1">
+           <widget class="Gui::InputField" name="stiffnessIn"/>
           </item>
          </layout>
-        </item>
-        <item>
-         <widget class="QWidget" name="widget" native="true">
-          <widget class="QLabel" name="label_8">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>10</y>
-             <width>191</width>
-             <height>61</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Input Body Selection Window here </string>
-           </property>
-          </widget>
-         </widget>
         </item>
        </layout>
       </widget>
@@ -191,8 +177,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>421</width>
-     <height>32</height>
+     <width>425</width>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDAP_Force_Selection">
@@ -212,8 +198,8 @@
  <customwidgets>
   <customwidget>
    <class>Gui::InputField</class>
-   <extends>QWidget</extends>
-   <header>gui::inputfield.h</header>
+   <extends>QLineEdit</extends>
+   <header>Gui/InputField.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

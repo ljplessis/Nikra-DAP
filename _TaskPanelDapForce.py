@@ -16,6 +16,7 @@ import DapTools
 from DapTools import indexOrDefault
 from DapTools import getQuantity, setQuantity
 import DapForceSelection
+import _BodySelector 
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtGui
@@ -58,6 +59,8 @@ class TaskPanelDapForce:
         bi = indexOrDefault(DapForceSelection.FORCE_TYPES, self.Type, 0)
         self.form.forceComboBox.setCurrentIndex(bi)
 
+        self.bodySelector = _BodySelector.BodySelector(self.form.bodySelection, self.obj)
+
         # self.form.pushAdd.clicked.connect(self.buttonAddForceClicked)
 
         # self.form.pushRemove.clicked.connect(self.buttonRemoveForceClicked)
@@ -97,6 +100,11 @@ class TaskPanelDapForce:
         setQuantity(self.form.zIn, self.Z)
         setQuantity(self.form.stiffnessIn, self.Stiff)
         setQuantity(self.form.undefIn, self.UndefLen)
+
+        self.Body1 = self.obj.Body1
+        self.Body2 = self.obj.Body2
+        self.Joint1 = self.obj.Joint1
+        self.Joint2 = self.obj.Joint2
        
   
 
@@ -131,6 +139,11 @@ class TaskPanelDapForce:
             self.Z=self.obj.gz
             self.Stiff=self.obj.Stiffness
             self.UndefLen=self.obj.UndeformedLength
+            # self.obj.Body1, self.obj.Body2, self.obj.Joint1,self.obj.Joint2 = _BodySelector.BodySelector.accept(self)
+
+            self.bodySelector.accept()
+            
+        self.bodySelector.closing()
 
 
         # Recompute document to update viewprovider based on the shapes
@@ -147,6 +160,7 @@ class TaskPanelDapForce:
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
         doc.resetEdit()
+        self.bodySelector.closing()
         return True
     
 

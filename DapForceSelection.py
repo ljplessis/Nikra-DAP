@@ -83,7 +83,7 @@ class _DapForce:
         addObjectProperty(obj, 'gz', "", "App::PropertyAcceleration", "", "Z Component")
         addObjectProperty(obj, 'Stiffness', "", "App::PropertyQuantity", "", "Stiffness")
         addObjectProperty(obj, 'UndeformedLength', "", "App::PropertyLength", "", "Undeformed Length")
-        addObjectProperty(obj, 'Body1', "", "App::PropertyString", "", "Body 1 label")
+        addObjectProperty(obj, 'Body1', "Randomness", "App::PropertyString", "", "Body 1 label")
         addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
         addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
         addObjectProperty(obj, 'Joint2', "", "App::PropertyString", "", "Joint 2 label")
