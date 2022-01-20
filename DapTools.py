@@ -88,6 +88,21 @@ def get_module_path():
     """
     return os.path.dirname(__file__)
 
+def gravityChecker():
+    counter=0
+    active_analysis=getActiveAnalysis()
+    for i in active_analysis.Group:
+        if "DapForce" in i.Name:
+            if i.ForceTypes == "Gravity":
+                counter+=1
+    if counter>1:
+        return True 
+            
+    else:
+        return False
+         
+
+    
 
 def indexOrDefault(list, findItem, defaultIndex):
     """ Look for findItem in list, and return defaultIndex if not found """

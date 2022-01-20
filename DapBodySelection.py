@@ -5,6 +5,7 @@
 
 
 import FreeCAD
+from FreeCAD import Units 
 import os
 import DapTools
 from DapTools import addObjectProperty
@@ -43,12 +44,6 @@ class _CommandDapBody:
         return DapTools.getActiveAnalysis() is not None
 
     def Activated(self):
-        #FreeCAD.ActiveDocument.openTransaction("Create CfdFluidBoundary")
-        #FreeCADGui.doCommand("")
-        #FreeCADGui.addModule("CfdFluidBoundary")
-        #FreeCADGui.addModule("DapTools")
-        #FreeCADGui.doCommand("DapTools.getActiveAnalysis().addObject(CfdFluidBoundary.makeCfdFluidBoundary())")
-        #FreeCADGui.ActiveDocument.setEdit(FreeCAD.ActiveDocument.ActiveObject.Name)
         import DapTools
         import DapBodySelection
         DapTools.getActiveAnalysis().addObject(DapBodySelection.makeDapBody())
@@ -61,16 +56,21 @@ if FreeCAD.GuiUp:
 
 class _DapBody:
     def __init__(self, obj):
-
+        self.initProperties(obj)
         obj.Proxy = self
         self.Type = "DapBody"
 
-        self.initProperties(obj)
+        
 
     def initProperties(self, obj):
         addObjectProperty(obj, 'References', [], "App::PropertyStringList", "", "List of Parts")
         addObjectProperty(obj, 'BodyType', BODY_TYPES, "App::PropertyEnumeration", "", "Type of Body")
         addObjectProperty(obj, 'LinkedObjects', [], "App::PropertyLinkList", "", "Linked objects")
+        addObjectProperty(obj, 'InitialHorizontal', "", "App::PropertySpeed","","Initial Velocity (Horizontal)")
+        addObjectProperty(obj, 'InitialVertical', "", "App::PropertySpeed","","Initial Velocity (Vertical)")
+        addObjectProperty(obj, 'InitialAngular', "", "App::PropertyQuantity","","Initial Velocity (Angular)")
+
+        obj.InitialAngular=Units.Unit('rad/s')
 
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
@@ -96,6 +96,24 @@ class _DapBody:
 
     def __getstate__(self):
         return None
+
+    
+    def onChanged(self, obj, prop):
+        if prop == "BodyType":
+            if obj.BodyType == "Ground":
+
+                obj.InitialAngular = "0.0"
+                obj.InitialHorizontal = "0.0"
+                obj.InitialVertical = "0.0"
+
+                obj.setEditorMode("InitialAngular", 1)
+                obj.setEditorMode("InitialHorizontal", 1)
+                obj.setEditorMode("InitialVertical", 1)
+            else:
+                obj.setEditorMode("InitialAngular", 0)
+                obj.setEditorMode("InitialHorizontal", 0)
+                obj.setEditorMode("InitialVertical", 0)
+        return
 
     def __setstate__(self, state):
         return None
@@ -131,9 +149,6 @@ class _ViewProviderDapBody:
     def updateData(self, obj, prop):
         return
 
-    def onChanged(self, vobj, prop):
-        #DapTools.setCompSolid(vobj)
-        return
 
     def doubleClicked(self, vobj):
         doc = FreeCADGui.getDocument(vobj.Object.Document)
@@ -146,11 +161,6 @@ class _ViewProviderDapBody:
     def setEdit(self, vobj, mode):
         import _TaskPanelDapBody
         taskd = _TaskPanelDapBody.TaskPanelDapBody(self.Object)
-        #for obj in FreeCAD.ActiveDocument.Objects:
-            #if obj.isDerivedFrom("Fem::FemMeshObject"):
-                #obj.ViewObject.hide()
-        #self.Object.ViewObject.show()
-        #taskd.obj = vobj.Object
         FreeCADGui.Control.showDialog(taskd)
         return True
 
