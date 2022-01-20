@@ -79,7 +79,7 @@ class _DapForce:
     def initProperties(self, obj):
         addObjectProperty(obj, 'ForceTypes', FORCE_TYPES, "App::PropertyEnumeration", "", "Types of Forces")    
         addObjectProperty(obj, 'gx', "", "App::PropertyAcceleration", "", "X Component")
-        addObjectProperty(obj, 'gy', "9.81 m/s^2", "App::PropertyAcceleration", "", "Y Component")
+        addObjectProperty(obj, 'gy', "-9.81 m/s^2", "App::PropertyAcceleration", "", "Y Component")
         addObjectProperty(obj, 'gz', "", "App::PropertyAcceleration", "", "Z Component")
         addObjectProperty(obj, 'Stiffness', "", "App::PropertyQuantity", "", "Stiffness")
         addObjectProperty(obj, 'UndeformedLength', "", "App::PropertyLength", "", "Undeformed Length")

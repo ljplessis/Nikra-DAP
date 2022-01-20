@@ -76,8 +76,17 @@ class TaskPanelDapForce:
 
         self.rebuildInputs()
 
+        self.bodySelectionPage()
+
         return 
 
+    def bodySelectionPage(self):
+        if self.Type == "Spring":
+            index = 1 
+            self.bodySelector.Page(0)
+        else: 
+            self.bodySelector.closing()
+    
     def unitFunc(self):
 
         acceleration = Units.Quantity(self.default_acceleration)

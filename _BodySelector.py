@@ -6,6 +6,8 @@ import os.path
 import DapTools 
 from DapTools import indexOrDefault
 from DapTools import addObjectProperty
+import DapForceSelection
+import _TaskPanelDapForce
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore
@@ -27,15 +29,14 @@ class BodySelector:
         addObjectProperty(obj,"JointType",TYPES, "App::PropertyEnumeration", "", "Joint Types")
         
         self.obj = obj
-        self.Type = self.obj.JointType 
+        self.JType = self.obj.JointType 
         self.Body1 = self.obj.Body1
         self.Body2 = self.obj.Body2
         self.Joint1 = self.obj.Joint1
         self.Joint2 = self.obj.Joint2
         self.DisplayCoordinate = self.obj.DisplayCoordinate
 
-        
-
+    
         self.doc_name = self.obj.Document.Name
         self.view_object = self.obj.ViewObject
 
@@ -47,12 +48,15 @@ class BodySelector:
                 self.body_labels.append(i.Label)
                 self.body_objects.append(i)
 
-        self.form.comboType.addItems(TYPES)
-        b1i = indexOrDefault(TYPES, self.obj.JointType, 0)
-        self.form.comboType.setCurrentIndex(b1i)
-        self.form.comboType.currentIndexChanged.connect(self.comboTypeChanged)
-        self.comboTypeChanged()
+        # self.form.comboType.addItems(TYPES)
+        # b1i = indexOrDefault(TYPES, self.obj.JointType, 0)
+        # self.form.comboType.setCurrentIndex(b1i)
+        # self.form.comboType.currentIndexChanged.connect(self.comboTypeChanged)
+        # self.form.comboType.currentIndexChanged.connect(self.Page)
+        # self.Page()
         
+        self.comboTypeChanged()
+
         self.form.body1Combo.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body1, 0)
         self.form.body1Combo.setCurrentIndex(b1i)
@@ -91,13 +95,19 @@ class BodySelector:
 
         self.rebuildInputs()
     
+    
+    def Page(self,index): 
+        self.form.inputWidget.setCurrentIndex(index)
+        
+
+
     def comboTypeChanged(self):
         
-        type_index = self.form.comboType.currentIndex()
+        type_index = self.form.inputWidget.currentIndex()
         self.form.labelHelperText.setText(HELPER_TEXT[type_index])
-        self.Type = TYPES[type_index]
+        self.JType = TYPES[type_index]
 
-        self.form.inputWidget.setCurrentIndex(type_index)
+        
     
     def rebuildInputs(self):
         self.Body1 = self.obj.Body1
