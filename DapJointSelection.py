@@ -24,7 +24,7 @@ DEFINITION_MODES = [["1 Point + 2 Bodies",
 HELPER_TEXT = [["Choose a point and the two bodies attached at the point.",
                 "Alternative Deifinition Mode Description"], ["Choose two points and two bodies, (each point must be attached to its own body)"]]
 
-def makeDapJoints(name="DapJoint"):
+def makeDapJoints(name="DapRelativeMovement"):
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", name)
     _DapJoint(obj)
     if FreeCAD.GuiUp:
