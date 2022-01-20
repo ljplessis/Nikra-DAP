@@ -13,7 +13,7 @@ from math import *
 import os
 
 
-JOINT_TRANSLATION = {"Revolute": "rev",
+JOINT_TRANSLATION = {"Rotation": "rev",
                      "Linear Movement": "tran"}
 
 class DapSolverBuilder():
@@ -174,7 +174,7 @@ class DapSolverBuilder():
             
             if joint_type == "rev":
                 joint1 = self.joints[i].Joint1
-                joint1_coord = self.joints[i].JointCoord1
+                joint1_coord = self.joints[i].Joint1Coord
                 body1 = self.joints[i].Body1
                 body2 = self.joints[i].Body2
 
