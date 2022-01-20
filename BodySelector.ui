@@ -6,32 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>619</width>
-    <height>470</height>
+    <width>557</width>
+    <height>409</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
+  <layout class="QGridLayout" name="gridLayout_5">
    <item row="0" column="0">
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="5" column="2">
-      <widget class="QComboBox" name="body1Combo"/>
-     </item>
-     <item row="7" column="2">
-      <widget class="QComboBox" name="body2Combo"/>
-     </item>
-     <item row="2" column="1">
-      <widget class="QPushButton" name="lcsName1">
-       <property name="text">
-        <string>PushButton</string>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
+    <layout class="QFormLayout" name="formLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="label_5">
        <property name="text">
@@ -39,72 +23,158 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Pick two bodies as well as the LCS associated with that body </string>
-       </property>
-      </widget>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="comboType"/>
      </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_7">
+     <item row="1" column="0" colspan="2">
+      <widget class="QLabel" name="labelHelperText">
        <property name="text">
-        <string>Point 2</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QPushButton" name="lcsName2">
-       <property name="text">
-        <string>Select the point (LCS)</string>
-       </property>
-       <property name="flat">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Body 2</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="lcsPush1">
-       <property name="text">
-        <string>Add Point</string>
-       </property>
-       <property name="flat">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Body 1</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="2">
-      <widget class="QPushButton" name="lcsPush2">
-       <property name="text">
-        <string>Add Point</string>
-       </property>
-       <property name="flat">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Point 1</string>
+        <string>Description Text </string>
        </property>
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QStackedWidget" name="inputWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="page_3">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="3" column="2">
+          <widget class="QComboBox" name="body1Combo"/>
+         </item>
+         <item row="5" column="2">
+          <widget class="QComboBox" name="body2Combo"/>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="lcsName1">
+           <property name="text">
+            <string>PushButton</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Point 2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QPushButton" name="lcsName2">
+           <property name="text">
+            <string>Select the point (LCS)</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Body 2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="lcsPush1">
+           <property name="text">
+            <string>Add Point</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Body 1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QPushButton" name="lcsPush2">
+           <property name="text">
+            <string>Add Point</string>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Point 1</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_4">
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="1">
+          <widget class="QPushButton" name="lcsName3">
+           <property name="text">
+            <string>Select the point (LCS)</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Body 2 </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Point 1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Body 1 </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QPushButton" name="lcsPush3">
+           <property name="text">
+            <string>Add Point</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" colspan="2">
+          <widget class="QComboBox" name="body1Combo_2"/>
+         </item>
+         <item row="3" column="1" colspan="2">
+          <widget class="QComboBox" name="body2Combo_2"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>

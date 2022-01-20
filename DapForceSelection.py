@@ -79,7 +79,7 @@ class _DapForce:
     def initProperties(self, obj):
         addObjectProperty(obj, 'ForceTypes', FORCE_TYPES, "App::PropertyEnumeration", "", "Types of Forces")    
         addObjectProperty(obj, 'gx', "", "App::PropertyAcceleration", "", "X Component")
-        addObjectProperty(obj, 'gy', "", "App::PropertyAcceleration", "", "Y Component")
+        addObjectProperty(obj, 'gy', "9.81 m/s^2", "App::PropertyAcceleration", "", "Y Component")
         addObjectProperty(obj, 'gz', "", "App::PropertyAcceleration", "", "Z Component")
         addObjectProperty(obj, 'Stiffness', "", "App::PropertyQuantity", "", "Stiffness")
         addObjectProperty(obj, 'UndeformedLength', "", "App::PropertyLength", "", "Undeformed Length")
@@ -87,14 +87,18 @@ class _DapForce:
         addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
         addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
         addObjectProperty(obj, 'Joint2', "", "App::PropertyString", "", "Joint 2 label")
+        addObjectProperty(obj, 'DisplayCoordinate', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
 
         obj.Stiffness=Units.Unit('kg/s^2')
+
+        
         
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
 
     def execute(self, obj):
         """ Create compound part at recompute. """
+        
         return 
 
     def __getstate__(self):
@@ -116,6 +120,7 @@ class _DapForce:
                 obj.setEditorMode("Body2", 2)
                 obj.setEditorMode("Joint1", 2)
                 obj.setEditorMode("Joint2", 2)
+                obj.setEditorMode("DisplayCoordinate", 2)
                 obj.setEditorMode("gx", 0)
                 obj.setEditorMode("gy", 0)
                 obj.setEditorMode("gz", 0)
@@ -126,6 +131,7 @@ class _DapForce:
                 obj.setEditorMode("gz", 2)
                 obj.setEditorMode("Stiffness", 0)
                 obj.setEditorMode("UndeformedLength", 0)
+                obj.setEditorMode("DisplayCoordinate",0)
                 obj.setEditorMode("Body1", 0)
                 obj.setEditorMode("Body2", 0)
                 obj.setEditorMode("Joint1", 0)

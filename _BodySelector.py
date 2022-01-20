@@ -13,6 +13,10 @@ if FreeCAD.GuiUp:
     from PySide import QtGui
     from PySide.QtCore import QTimer
 
+TYPES = ["two points and two bodies","One point and two bodies", ]
+
+HELPER_TEXT = ["Choose two points (LCS) and two bodies that points are attached to","Choose one point (LCS) and two bodies", ]
+
 class BodySelector:
     def __init__(self, parent_widget, obj):
         ui_path = os.path.join(os.path.dirname(__file__), "BodySelector.ui")
@@ -20,12 +24,17 @@ class BodySelector:
         self.form = FreeCADGui.PySideUic.loadUi(ui_path, self.parent_widget)
         self.parent_widget.layout().addWidget(self.form)
 
+        addObjectProperty(obj,"JointType",TYPES, "App::PropertyEnumeration", "", "Joint Types")
+        
         self.obj = obj
+        self.Type = self.obj.JointType 
         self.Body1 = self.obj.Body1
         self.Body2 = self.obj.Body2
         self.Joint1 = self.obj.Joint1
         self.Joint2 = self.obj.Joint2
-        # self.DisplayCoordinate = self.obj.DisplayCoordinate
+        self.DisplayCoordinate = self.obj.DisplayCoordinate
+
+        
 
         self.doc_name = self.obj.Document.Name
         self.view_object = self.obj.ViewObject
@@ -38,6 +47,12 @@ class BodySelector:
                 self.body_labels.append(i.Label)
                 self.body_objects.append(i)
 
+        self.form.comboType.addItems(TYPES)
+        b1i = indexOrDefault(TYPES, self.obj.JointType, 0)
+        self.form.comboType.setCurrentIndex(b1i)
+        self.form.comboType.currentIndexChanged.connect(self.comboTypeChanged)
+        self.comboTypeChanged()
+        
         self.form.body1Combo.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body1, 0)
         self.form.body1Combo.setCurrentIndex(b1i)
@@ -48,19 +63,41 @@ class BodySelector:
         self.form.body2Combo.setCurrentIndex(b1i)
         self.selectedBody2()
 
+        self.form.body1Combo_2.addItems(self.body_labels)
+        b1i = indexOrDefault(self.body_labels, self.obj.Body2, 0)
+        self.form.body1Combo_2.setCurrentIndex(b1i)
+        self.selectedBody1()
+
+        self.form.body2Combo_2.addItems(self.body_labels)
+        b1i = indexOrDefault(self.body_labels, self.obj.Body2, 0)
+        self.form.body2Combo_2.setCurrentIndex(b1i)
+        self.selectedBody2()
+        
+
         self.form.lcsPush1.clicked.connect(self.addLCS1)
         self.form.lcsPush2.clicked.connect(self.addLCS2)
+        self.form.lcsPush3.clicked.connect(self.addLCS3)
+
 
         self.form.lcsName1.clicked.connect(lambda : self.selectLCSinGui(self.Joint1))
         self.form.lcsName2.clicked.connect(lambda : self.selectLCSinGui(self.Joint2))
+        self.form.lcsName3.clicked.connect(lambda : self.selectLCSinGui(self.Joint1))
         
         
         self.form.body1Combo.currentIndexChanged.connect(self.selectedBody1)
         self.form.body2Combo.currentIndexChanged.connect(self.selectedBody2)
+        self.form.body1Combo_2.currentIndexChanged.connect(self.selectedBody1_)
+        self.form.body2Combo_2.currentIndexChanged.connect(self.selectedBody2_)
 
         self.rebuildInputs()
     
-    
+    def comboTypeChanged(self):
+        
+        type_index = self.form.comboType.currentIndex()
+        self.form.labelHelperText.setText(HELPER_TEXT[type_index])
+        self.Type = TYPES[type_index]
+
+        self.form.inputWidget.setCurrentIndex(type_index)
     
     def rebuildInputs(self):
         self.Body1 = self.obj.Body1
@@ -70,9 +107,9 @@ class BodySelector:
 
         self.form.lcsName1.setText(self.Joint1)
         self.form.lcsName2.setText(self.Joint2)
+        self.form.lcsName3.setText(self.Joint1)
 
         return
-
 
 
     def accept(self):        
@@ -80,19 +117,18 @@ class BodySelector:
         self.obj.Body2 = self.Body2
         self.obj.Joint1 = self.Joint1
         self.obj.Joint2 = self.Joint2
+        self.obj.DisplayCoordinate = self.DisplayCoordinate
 
-        # doc = FreeCADGui.getDocument(self.obj.Document)
-        # doc.resetEdit()
-        # FreeCAD.Console.PrintError(str(self.obj.Body1))
-        # FreeCAD.Console.PrintError(self.Body1)
-        # FreeCAD.Console.PrintError("F-it")
+        doc = FreeCADGui.getDocument(self.obj.Document)
+        doc.resetEdit()
+    
         return self.obj.Body1, self.obj.Body2, self.obj.Joint1, self.obj.Joint2
 
     def reject(self):
         FreeCADGui.Selection.removeObserver(self)
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
-        # self.obj.DisplayCoordinate = self.DisplayCoordinate
+        self.obj.DisplayCoordinate = self.DisplayCoordinate
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
         doc.resetEdit()
@@ -101,6 +137,16 @@ class BodySelector:
     def selectedBody1(self):
         index = self.form.body1Combo.currentIndex()
         self.Body1 = self.body_labels[index]
+        self.selectObjectInGui(index)
+
+    def selectedBody1_(self):
+        index = self.form.body1Combo_2.currentIndex()
+        self.Body1 = self.body_labels[index]
+        self.selectObjectInGui(index)
+
+    def selectedBody2_(self):
+        index = self.form.body1Combo_2.currentIndex()
+        self.Body2 = self.body_labels[index]
         self.selectObjectInGui(index)
 
     def selectedBody2(self):
@@ -124,7 +170,6 @@ class BodySelector:
         FreeCADGui.Selection.addSelection(selection_object)
 
             
-
     def addLCS1(self):
         sel = FreeCADGui.Selection.getSelectionEx()
         updated = False
@@ -134,8 +179,8 @@ class BodySelector:
             if "LCS" in sel[0].Object.Name:
                 self.form.lcsName1.setText(sel[0].Object.Label)
                 updated = True
-                # self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
                 self.Joint1 = sel[0].Object.Label
+                self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
 
     def addLCS2(self):
         sel = FreeCADGui.Selection.getSelectionEx()
@@ -146,9 +191,20 @@ class BodySelector:
             if "LCS" in sel[0].Object.Name:
                 self.form.lcsName2.setText(sel[0].Object.Label)
                 updated = True
-                # self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
                 self.Joint2 = sel[0].Object.Label
-            
+                self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
+
+    def addLCS3(self):
+        sel = FreeCADGui.Selection.getSelectionEx()
+        updated = False
+        if len(sel)>1 or len(sel[0].SubElementNames)>1:
+            FreeCAD.Console.PrintError("Only a single face, or single LCS should be selected when defining co-ordinate.")
+        else:
+            if "LCS" in sel[0].Object.Name:
+                self.form.lcsName3.setText(sel[0].Object.Label)
+                updated = True
+                self.Joint1 = sel[0].Object.Label
+                self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
     
     def closing(self):
         """ Call this on close to let the widget to its proper cleanup """
