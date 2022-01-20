@@ -9,21 +9,21 @@ import DapTools
 from DapTools import addObjectProperty
 from pivy import coin
 import Part
+from math import sin, cos, pi
 
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtCore
 
 
-JOINT_TYPES = ["Revolute", "Linear Movement"]
+JOINT_TYPES = ["Rotation", "Linear Movement"]
 
 DEFINITION_MODES = [["1 Point + 2 Bodies",
                      "alt def mode"], ["2 Points + 2 Bodies"]]
 
 HELPER_TEXT = [["Choose a point and the two bodies attached at the point. Assumes the parts are already correctly \
                  positioned. Useful when assembly is constructed using the Assembly 4 workbench ",
-                "Choose a point on each of the two different bodies. The points/faces must belong to each of the \
-                 bodies."], ["Choose two points and two bodies, (each point must be attached to its own body)"]]
+                "Alternative Deifinition Mode Description"], ["Choose two points and two bodies, (each point must be attached to its own body)"]]
 
 def makeDapJoints(name="DapJoint"):
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", name)
@@ -38,9 +38,9 @@ class _CommandDapJoint:
         icon_path = os.path.join(DapTools.get_module_path(), "Gui", "Resources", "icons", "Icon4.png")
         return {
             'Pixmap': icon_path,
-            'MenuText': QtCore.QT_TRANSLATE_NOOP("Dap_Joint", "Add New Joint"),
+            'MenuText': QtCore.QT_TRANSLATE_NOOP("Dap_Joint", "Add New Movement"),
             #'Accel': "C, B",
-            'ToolTip': QtCore.QT_TRANSLATE_NOOP("Dap_Joint", "Add a new joint to the DAP analysis.")}
+            'ToolTip': QtCore.QT_TRANSLATE_NOOP("Dap_Joint", "Add a new movement to the DAP analysis.")}
 
     def IsActive(self):
         return DapTools.getActiveAnalysis() is not None
@@ -75,9 +75,13 @@ class _DapJoint:
         all_subtypes = []
         for s in DEFINITION_MODES:
             all_subtypes += s
-        addObjectProperty(obj, 'JointDefinitionMode', all_subtypes, "App::PropertyEnumeration","", "Define how the Joint is defined")
+        addObjectProperty(obj, 'JointDefinitionMode', all_subtypes, "App::PropertyEnumeration","", \
+            "Define how the Joint is defined")
         addObjectProperty(obj, 'JointType', JOINT_TYPES, "App::PropertyEnumeration", "", "Type of Joint")
-        addObjectProperty(obj, 'DisplayCoordinate', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
+        addObjectProperty(obj, 'Joint1Coord', FreeCAD.Vector(0,0,0), "App::PropertyVector", "",\
+            "Vector 1 of 2 to display linear movement visualisation")
+        addObjectProperty(obj, 'Joint2Coord', FreeCAD.Vector(0,0,0), "App::PropertyVector", "",\
+            "Vector 2 of 2 to display linear movement visualisation")
         addObjectProperty(obj, 'Body1', "", "App::PropertyString", "", "Body 1 label")
         addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
         addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
@@ -91,9 +95,52 @@ class _DapJoint:
     def execute(self, obj):
         """ Create joint representation part at recompute. """
         #TODO should update the representation and scaling of joint visual representation
-        r = 10
-        shape = Part.makeSphere(r, obj.DisplayCoordinate)
-        obj.Shape = shape
+
+        active_analysis = DapTools.getActiveAnalysis()
+        if hasattr(active_analysis, 'Shape'):
+            x_lenght = active_analysis.Shape.BoundBox.XLength
+            y_lenght = active_analysis.Shape.BoundBox.YLength
+            area_dap_analyis_bound_box = x_lenght * y_lenght
+            scale_parameter_square_mm = 200000
+            scale_factor = area_dap_analyis_bound_box / scale_parameter_square_mm
+        else:
+            scale_factor = 50
+
+        if obj.JointType == "Rotation":
+            r1 = 7*scale_factor
+            r2 = scale_factor
+            torus_dir = FreeCAD.Vector(0, 0, 1)
+            torus = Part.makeTorus(r1, r2, obj.Joint1Coord, torus_dir, -180, 180, 240)
+            cone1_pos = obj.Joint1Coord + FreeCAD.Vector(r1, -5*r2, 0)
+            cone1_dir = FreeCAD.Vector(0, 1, 0)
+            cone1 = Part.makeCone(0, 2*r2, 5*r2, cone1_pos, cone1_dir)            
+            cone2_pos_x = obj.Joint1Coord.x -r1*cos(pi/3) + 5*r2*cos(pi/6)
+            cone2_pos_y = obj.Joint1Coord.y -r1*sin(pi/3) - 5*r2*sin(pi/6)
+            cone2_pos = FreeCAD.Vector(cone2_pos_x, cone2_pos_y, 0)
+            cone2_dir = FreeCAD.Vector(-cos(pi/6), sin(pi/6), 0)
+            cone2 = Part.makeCone(0, 2*r2, 5*r2, cone2_pos, cone2_dir)
+            torus_w_arrows = Part.makeCompound([torus, cone1, cone2])
+            obj.Shape = torus_w_arrows
+        elif obj.JointType == "Linear Movement":
+            r = scale_factor
+            #r = 80
+            l = (obj.Joint2Coord - obj.Joint1Coord).Length
+            lin_move_dir = (obj.Joint2Coord - obj.Joint1Coord).normalize()
+            if l > 12*r:
+                cylinder = Part.makeCylinder(r, l - 10*r, obj.Joint1Coord + 5*r*lin_move_dir, lin_move_dir)
+                cone1 = Part.makeCone(0, 2*r, 5*r, obj.Joint1Coord, lin_move_dir)
+                cone2 = Part.makeCone(0, 2*r, 5*r, obj.Joint2Coord, -lin_move_dir)
+            else:
+                l = 12*r
+                average_coord = (obj.Joint1Coord + obj.Joint2Coord)/2
+                cylinder_pos = average_coord - FreeCAD.Vector(r, 0, 0)
+                cylinder = Part.makeCylinder(r, l - 10*r, cylinder_pos, lin_move_dir)
+                cone1_pos = average_coord - 6*r*lin_move_dir
+                cone2_pos = average_coord + 6*r*lin_move_dir
+                cone1 = Part.makeCone(0, 2*r, 5*r, cone1_pos, lin_move_dir)
+                cone2 = Part.makeCone(0, 2*r, 5*r, cone2_pos, -lin_move_dir)                
+            double_arrow = Part.makeCompound([cylinder, cone1, cone2])
+            obj.Shape = double_arrow
 
     def __getstate__(self):
         return None
