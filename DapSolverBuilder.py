@@ -124,6 +124,8 @@ class DapSolverBuilder():
         self.writePoints()
         self.writeJoints()
         self.writeForces()
+        self.writeFunctions()
+        self.writeUVectors()
         
         #cog = self.cog_of_body_projected["DapBody"]
         #FreeCAD.Console.PrintMessage("Original cog:" + str(cog) + "\n")
@@ -416,7 +418,6 @@ class DapSolverBuilder():
         fid = open(file_path, 'w')
         fid.write("global Bodies \n")
         
-        #TODO: check whether body is ground or not
         #for i in range(len(self.list_of_bodies)):
         for i in range(len(self.moving_bodies)):
             body_index = self.list_of_bodies.index(self.moving_bodies[i])
@@ -498,3 +499,22 @@ class DapSolverBuilder():
             fid.write(', F'+str(i+1))
         fid.write("]]).T\n")
         fid.close()
+        
+    def writeFunctions(self):
+        file_path = os.path.join(self.folder,"inFuncts.py")
+        fid = open(file_path, 'w')
+        fid.write('global Functs\n')
+        
+        #TODO include writer for functions
+        fid.write("\n")
+        fid.write("Functs = np.array([[]]).T\n")
+    
+    def writeUVectors(self):
+        file_path = os.path.join(self.folder,"inUvectors.py")
+        fid = open(file_path, 'w')
+        fid.write('global Uvectors\n')
+        
+        #TODO include writer for UVectors, needed for translational joints
+        fid.write("\n")
+        fid.write("Uvectors = np.array([[]]).T\n")
+        
