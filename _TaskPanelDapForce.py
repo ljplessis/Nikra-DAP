@@ -170,6 +170,7 @@ class TaskPanelDapForce:
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
+        self.obj.recompute()
         doc.resetEdit()
         self.bodySelector.closing()
         return True
@@ -190,6 +191,8 @@ class TaskPanelDapForce:
                 self.obj.setEditorMode("Body2", 2)
                 self.obj.setEditorMode("Joint1", 2)
                 self.obj.setEditorMode("Joint2", 2)
+                self.obj.setEditorMode("JointCoord1", 2)
+                self.obj.setEditorMode("JointCoord2", 2)
                 self.obj.setEditorMode("gx", 0)
                 self.obj.setEditorMode("gy", 0)
                 self.obj.setEditorMode("gz", 0)
@@ -204,6 +207,8 @@ class TaskPanelDapForce:
                 self.obj.setEditorMode("Body2", 0)
                 self.obj.setEditorMode("Joint1", 0)
                 self.obj.setEditorMode("Joint2", 0)
+                self.obj.setEditorMode("JointCoord1", 0)
+                self.obj.setEditorMode("JointCoord2", 0)
         
     # def buttonAddForceClicked(self):
     #     sel = FreeCADGui.Selection.getSelection()

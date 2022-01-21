@@ -5,7 +5,11 @@
 
 
 import FreeCAD
-from FreeCAD import Units
+from FreeCAD import Units 
+import _FreeCADVectorTools
+from _FreeCADVectorTools import dist, normalized, crossproduct,dotproduct, angle, length
+import math 
+from math import degrees,acos
 import os
 import DapTools
 from DapTools import addObjectProperty
@@ -87,7 +91,9 @@ class _DapForce:
         addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
         addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
         addObjectProperty(obj, 'Joint2', "", "App::PropertyString", "", "Joint 2 label")
-        addObjectProperty(obj, 'DisplayCoordinate', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
+        addObjectProperty(obj, 'JointCoord1', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
+        addObjectProperty(obj, 'JointCoord2', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
+        
 
         obj.Stiffness=Units.Unit('kg/s^2')
 
@@ -98,7 +104,21 @@ class _DapForce:
 
     def execute(self, obj):
         """ Create compound part at recompute. """
-        
+        if obj.ForceTypes == "Spring":
+            p = 1
+            h = dist(obj.JointCoord1,obj.JointCoord2)
+            r = 10
+            axis = crossproduct(obj.JointCoord2,obj.JointCoord1)
+            maglength = length(obj.JointCoord1) * length(obj.JointCoord2)
+            FreeCAD.Console.PrintError(obj.JointCoord1)
+            FreeCAD.Console.PrintError(obj.JointCoord2)
+            FreeCAD.Console.PrintError(axis)
+            angle = degrees(acos(dotproduct(obj.JointCoord1,obj.JointCoord2)/maglength))
+            FreeCAD.Console.PrintError(angle)
+            helix = Part.makeHelix(p,h,r)
+            helix.Placement.Base = obj.JointCoord1
+            helix.rotate(obj.JointCoord1,axis,angle)
+            obj.Shape = helix 
         return 
 
     def __getstate__(self):
@@ -120,7 +140,6 @@ class _DapForce:
                 obj.setEditorMode("Body2", 2)
                 obj.setEditorMode("Joint1", 2)
                 obj.setEditorMode("Joint2", 2)
-                obj.setEditorMode("DisplayCoordinate", 2)
                 obj.setEditorMode("gx", 0)
                 obj.setEditorMode("gy", 0)
                 obj.setEditorMode("gz", 0)
@@ -131,7 +150,6 @@ class _DapForce:
                 obj.setEditorMode("gz", 2)
                 obj.setEditorMode("Stiffness", 0)
                 obj.setEditorMode("UndeformedLength", 0)
-                obj.setEditorMode("DisplayCoordinate",0)
                 obj.setEditorMode("Body1", 0)
                 obj.setEditorMode("Body2", 0)
                 obj.setEditorMode("Joint1", 0)

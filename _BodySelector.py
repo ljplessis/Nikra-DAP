@@ -34,7 +34,8 @@ class BodySelector:
         self.Body2 = self.obj.Body2
         self.Joint1 = self.obj.Joint1
         self.Joint2 = self.obj.Joint2
-        self.DisplayCoordinate = self.obj.DisplayCoordinate
+        self.JointCoord1 = self.obj.JointCoord1
+        self.JointCoord2 = self.obj.JointCoord2
 
     
         self.doc_name = self.obj.Document.Name
@@ -100,7 +101,6 @@ class BodySelector:
         self.form.inputWidget.setCurrentIndex(index)
         
 
-
     def comboTypeChanged(self):
         
         type_index = self.form.inputWidget.currentIndex()
@@ -114,6 +114,8 @@ class BodySelector:
         self.Body2 = self.obj.Body2
         self.Joint1 = self.obj.Joint1
         self.Joint2 = self.obj.Joint2
+        self.JointCoord1 = self.obj.JointCoord1
+        self.JointCoord2 = self.obj.JointCoord2
 
         self.form.lcsName1.setText(self.Joint1)
         self.form.lcsName2.setText(self.Joint2)
@@ -127,18 +129,18 @@ class BodySelector:
         self.obj.Body2 = self.Body2
         self.obj.Joint1 = self.Joint1
         self.obj.Joint2 = self.Joint2
-        self.obj.DisplayCoordinate = self.DisplayCoordinate
-
+        self.obj.JointCoord1 = self.JointCoord1
+        self.obj.JointCoord2 = self.JointCoord2
+    
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
     
-        return self.obj.Body1, self.obj.Body2, self.obj.Joint1, self.obj.Joint2
+        return self.obj.Body1, self.obj.Body2, self.obj.Joint1, self.obj.Joint2, self.obj.JointCoord1, self.obj.JointCoord2
 
     def reject(self):
         FreeCADGui.Selection.removeObserver(self)
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
-        self.obj.DisplayCoordinate = self.DisplayCoordinate
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
         doc.resetEdit()
@@ -190,7 +192,8 @@ class BodySelector:
                 self.form.lcsName1.setText(sel[0].Object.Label)
                 updated = True
                 self.Joint1 = sel[0].Object.Label
-                self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
+                self.JointCoord1 = sel[0].Object.Placement.Base
+                FreeCAD.Console.PrintError(self.JointCoord1)
 
     def addLCS2(self):
         sel = FreeCADGui.Selection.getSelectionEx()
@@ -202,7 +205,8 @@ class BodySelector:
                 self.form.lcsName2.setText(sel[0].Object.Label)
                 updated = True
                 self.Joint2 = sel[0].Object.Label
-                self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
+                self.JointCoord2 = sel[0].Object.Placement.Base
+                FreeCAD.Console.PrintError(self.JointCoord2)
 
     def addLCS3(self):
         sel = FreeCADGui.Selection.getSelectionEx()
@@ -214,7 +218,8 @@ class BodySelector:
                 self.form.lcsName3.setText(sel[0].Object.Label)
                 updated = True
                 self.Joint1 = sel[0].Object.Label
-                self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
+                self.JointCoord1 = sel[0].Object.Placement.Base
+                FreeCAD.Console.PrintError(self.JointCoord1)
     
     def closing(self):
         """ Call this on close to let the widget to its proper cleanup """
