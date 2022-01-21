@@ -1677,7 +1677,7 @@ if not r.successful():
 
 
 outFile = os.path.join(folder, "dapResults.npy")
-np.save(outFile, Tarray_final)
+np.save(outFile, Tarray)
 
 print("Done")
 

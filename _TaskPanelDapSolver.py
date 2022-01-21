@@ -18,6 +18,7 @@ from DapTools import getQuantity, setQuantity
 import DapBodySelection
 import DapSolverBuilder
 import numpy as np
+import math
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtGui
@@ -87,13 +88,67 @@ class TaskPanelDapSolver:
         FreeCAD.Console.PrintMessage("Time: " + str(Tspan) + "\n")
         
         nt = len(Tspan)
+        current_doc = FreeCADGui.getDocument(self.obj.Document)
+        
+        body_objects = DapTools.getListOfBodyObjects()
+        
+        
+        
+        animation_doc =  FreeCAD.newDocument("Animation")
+        animation_doc.copyObject(body_objects)
+        FreeCADGui.SendMsgToActiveView("ViewFit")
+        animation_body_objects = animation_doc.Objects
+        
+        
+        #for i in range(len(builder.moving_bodies)):
+            #body_index = builder.list_of_bodies.index(builder.moving_bodies[i])
+            #body_cog = builder.centre_of_gravity_of_body[builder.list_of_bodies[body_index]]
+            #axis_of_rotation = builder.plane_norm
+            
+            
+            
+            #FreeCAD.Console.PrintMessage("Body index: " +str(body_index) + "\n")
         
         for i in range(1,nt):
-            ##builder.dapResults
+            ###builder.dapResults
             u = builder.dapResults[i,:].T
+            
+            original_pos = []
+            for bN in range(len(builder.moving_bodies)):
+                dap_pos = builder.dapSolver.Bodies[bN + 1,0].r
+                dap_angle = builder.dapSolver.Bodies[bN + 1,0].p
+                original_pos.append([dap_pos, dap_angle])
+            
+            builder.dapSolver.u_to_Bodies(u)
+            
+            for bN in range(len(builder.moving_bodies)):
+                body_index = builder.list_of_bodies.index(builder.moving_bodies[bN])
+                
+                #body_cog = builder.centre_of_gravity_of_body[builder.list_of_bodies[body_index]]
+                
+                axis_of_rotation = builder.plane_norm
+                animation_body_cog = animation_body_objects[body_index].Shape.CenterOfGravity
+                
+                #NOTE: TODO dap solver is currently 1 indexing
+                dap_pos = builder.dapSolver.Bodies[bN + 1,0].r
+                dap_angle = builder.dapSolver.Bodies[bN + 1,0].p
+                
+                dap_displacement = dap_pos - original_pos[bN][0]
+                dap_angular_displacement = math.degrees(dap_angle - original_pos[bN][1])
+                
+                animation_body_objects[body_index].rotate(animation_body_cog, 
+                                                           axis_of_rotation, 
+                                                           dap_angular_displacement)
+                
+                FreeCAD.Console.PrintMessage("Body index: " +str(body_index) + "\n")
+                FreeCAD.Console.PrintMessage("Dap Pos: " + str(dap_pos) + "\n")
+                FreeCAD.Console.PrintMessage("dap_angle: " + str(dap_angle) + "\n")
+                FreeCAD.Console.PrintMessage("dap_angular displacement: " + str(dap_angular_displacement) + "\n")
+                FreeCAD.Console.PrintMessage("dap_displacement: " + str(dap_displacement) + "\n")
             
             
             #builder.dapSolver.Update_Position()
+            
             #FreeCAD.Console.PrintMessage("Time " +str(i) + "\n")
             #FreeCAD.Console.PrintMessage("u: " + str(u) + "\n")
             ##u_to_Bodies(u)
