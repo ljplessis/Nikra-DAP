@@ -3,6 +3,8 @@
 import numpy as np
 from scipy import integrate
 import matplotlib.pyplot as plt
+import os
+import sys
 # %matplotlib qt5 (For Jupyter- Notebook --> .ipynb)
 
 ##-------------------------------------------------%%% Include global variables 
@@ -23,11 +25,7 @@ global flags, pen_d0
 
 from structures import Body_struct, Force_struct, Joint_struct, Point_struct, Unit_struct, Funct_struct
 
-animate = True
-t_initial = 0
 
-t_final = 2
-dt = 0.01
 
 
 #TODO clean up dap code. build into proper class structure
@@ -514,10 +512,11 @@ def s_rot(s): # This function rotates an array 90degrees positively
 # initialise
 #
 ################################################################
-import numpy as np
+#import numpy as np
 
 
 def initialize():
+    import numpy as np
 ##### include global variables
     global Bodies, nB, nB3, nB6      
     global Points, nP, Points_anim, nPanim, nPtot
@@ -1386,7 +1385,7 @@ def Bodies_to_u_d():
         ird = Bodies[Bi,0].irv
         u_d[ir:ir + 2+1] = np.atleast_2d(np.concatenate((Bodies[Bi,0].r_d, Bodies[Bi,0].p_d), axis=None)).T
         u_d[ird:ird + 2+1] = np.atleast_2d(np.concatenate((Bodies[Bi,0].r_dd, Bodies[Bi,0].p_dd), axis=None)).T
-    return u_d        
+    return u_d
 
 
 
@@ -1628,19 +1627,21 @@ def Update_Velocity():
 
 
 
+#sys.argv 
+#import 
+
+#print(sys.argv)
+folder = sys.argv[1]
+exec(open(os.path.join(folder, 'dapInputSettings.py')).read())
 
 
-
-
-
-
-folder = "/tmp/"
-exec(open(folder + 'inBodies.py').read())
-exec(open(folder + 'inForces.py').read())
-exec(open(folder + 'inFuncts.py').read())
-exec(open(folder + 'inJoints.py').read())
-exec(open(folder + 'inPoints.py').read())
-exec(open(folder + 'inUvectors.py').read())
+#folder = "/tmp/"
+exec(open(os.path.join(folder, 'inBodies.py')).read())
+exec(open(os.path.join(folder, 'inForces.py')).read())
+exec(open(os.path.join(folder, 'inFuncts.py')).read())
+exec(open(os.path.join(folder, 'inJoints.py')).read())
+exec(open(os.path.join(folder, 'inPoints.py')).read())
+exec(open(os.path.join(folder, 'inUvectors.py')).read())
 
 
 
@@ -1674,8 +1675,13 @@ Tarray_final = Tarray[:,1:(6*(nB-1)+1)]
 if not r.successful():
     raise RuntimeError("Could not integrate")
 
+
+outFile = os.path.join(folder, "dapResults.npy")
+np.save(outFile, Tarray_final)
+
 print("Done")
 
+print(Tarray)
 
 if animate:
     
