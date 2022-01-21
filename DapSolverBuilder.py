@@ -234,7 +234,10 @@ class DapSolverBuilder():
             bodyCoG = self.cog_of_body_rotated[body_label]
             point['x'] = rotated_coord.x - bodyCoG.x
             point['y'] = rotated_coord.y - bodyCoG.y
-        
+            
+            #point['x'] =  bodyCoG.x - rotated_coord.x
+            #point['y'] =  bodyCoG.y - rotated_coord.y
+            
         self.dap_points.append(point)
         
         return len(self.dap_points)
@@ -445,7 +448,7 @@ class DapSolverBuilder():
             fid.write("P"+str(i+1)+".Bindex = " + str(self.dap_points[i]["bIndex"]) +"\n")
             sp_i = self.dap_points[i]["x"]
             sp_j = self.dap_points[i]["y"]
-            fid.write("P"+str(i+1)+".sPlocal = np.array([[" + str(sp_i) + "," + str(sp_j) + "])).T\n")
+            fid.write("P"+str(i+1)+".sPlocal = np.array([[" + str(sp_i) + "," + str(sp_j) + "]]).T\n")
             fid.write("\n")
         
         fid.write('Points = np.array([[None')
@@ -495,7 +498,7 @@ class DapSolverBuilder():
             fid.write("\n")
             
         fid.write('Forces = np.array([[None')
-        for i in range(len(self.dap_joints)):
+        for i in range(len(self.dap_forces)):
             fid.write(', F'+str(i+1))
         fid.write("]]).T\n")
         fid.close()
