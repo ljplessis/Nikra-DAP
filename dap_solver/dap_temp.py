@@ -1636,6 +1636,7 @@ exec(open(os.path.join(folder, 'dapInputSettings.py')).read())
 
 
 #folder = "/tmp/"
+print("Reading input files")
 exec(open(os.path.join(folder, 'inBodies.py')).read())
 exec(open(os.path.join(folder, 'inForces.py')).read())
 exec(open(os.path.join(folder, 'inFuncts.py')).read())

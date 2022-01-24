@@ -13,7 +13,9 @@ from math import *
 import os
 import sys
 import numpy as np
-
+from PySide import QtCore
+from PySide.QtCore import QProcess
+#from PySide.QtCore import QProcess
 
 JOINT_TRANSLATION = {"Rotation": "rev",
                      "Linear Movement": "tran"}
@@ -34,6 +36,8 @@ class DapSolverBuilder():
         self.dap_points = []
         self.dap_joints = []
         self.dap_forces = []
+        
+        
         
         
         self.t_initial = 0
@@ -554,19 +558,70 @@ class DapSolverBuilder():
         dap_solver = os.path.join(cwd,"dap_solver","dap_temp.py")
         #exec(open(dap_solver).read())
         
+        self.dapResults = None
+        self.resultsAvailable = False
         
+        #self.process.finished.connect(self.loadResults)
         
+        #cmd = "python3 " + str(dap_solver)
+        #args = [str(self.folder)]
         
-        import subprocess
-        #subprocess.Popen(["python3", str(dap_solver),str(self.folder)])
+        #cmd = "python3"
+        #args = [str(dap_solver),  str(self.folder)]
         
-        subprocess.call(["python3", str(dap_solver),str(self.folder)])
+        #QString pythonCommand = "python3 " + str(dap_solver) + " " + str(self.folder)
+        pythonCommand = "python3 " + str(dap_solver) + " " + str(self.folder)
+        #FreeCAD.Console.PrintMessage(["python3", str(dap_solver),str(self.folder)])
+        #FreeCAD.Console.PrintMessage(cmd + "\n")
+        #self.process.start("python3",str(dap_solver),str(self.folder))
+        
+        #self.process.start(cmd, args)
+        #self.process.start(pythonCommand)
+        #self.process.start("python3",[str(dap_solver), str(self.folder)])
+        
+        from PySide.QtCore import QProcess
+        #process = QProcess()
+        self.process = QtCore.QProcess()
+        self.process.finished.connect(self.onFinished)
+        #process.
+        #process.startDetached("dolphin")
+        #process.start("dolphin"
+        
+        #F)
+        #FreeCAD.Console.PrintMessage("Finished " + str(process.finished()))
+        
+        #process.setReadChannelMode(ForwardedChannels);
+        #env = QtCore.QProcessEnvironment.systemEnvironment()
+        #process.setProcessEnvironment(env)
+        self.process.start("python3",[str(dap_solver), str(self.folder)])
+        ##proc.waitForStarted()
+        #TODO need to overwrite waitForFinished to latch on to the output
+        self.process.waitForFinished()
+        
+        #FreeCAD.Console.PrintMessage(process.waitForStarted())
+        #FreeCAD.Console.PrintMessage("Process started \n")
+        
+        #import subprocess
+        #self.solverCommand = subprocess.Popen(["python3", str(dap_solver),str(self.folder)])
+        #self.dapSolverIsRunning = solverCommand.poll() is None 
+        
+        #subprocess.call(["python3", str(dap_solver),str(self.folder)])
         
         #print("T_Array from solve function",Tarray)
-
+    def onFinished(self,  exitCode,  exitStatus):
+        FreeCAD.Console.PrintMessage("Solver finished on finished \n")
+        FreeCAD.Console.PrintMessage("Exit code " + str(exitCode) + " \n")
+        FreeCAD.Console.PrintMessage("exitStatus " + str(exitStatus) + " \n")
+        
+        if exitCode == 0:
+            self.loadResults()
+            self.resultsAvailable = True
+        
     def loadResults(self):
         results = os.path.join(self.folder, "dapResults.npy")
         self.dapResults = np.load(results)
+        
+        FreeCAD.Console.PrintMessage("Results loaded.\n")
         
         
         
