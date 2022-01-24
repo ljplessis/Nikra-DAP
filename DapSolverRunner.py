@@ -63,6 +63,10 @@ class _DapSolver:
 
     def initProperties(self, obj):
         addObjectProperty(obj, 'DapResults', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Bodies_r', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Bodies_p', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Bodies_p_d', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Bodies_r_d', None, "App::PropertyPythonObject", "", "")
         addObjectProperty(obj, 'global_rotation_matrix', FreeCAD.Matrix(), "App::PropertyMatrix", "", "Global orthonormal rotation matrix")
         #addObjectProperty(obj, 'MaterialDictionary', {}, "App::PropertyPythonObject", "", "Dictionary of parts and linked material properties")
         return

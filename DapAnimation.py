@@ -44,6 +44,9 @@ class _CommandDapAnimation:
         solver_object = DapTools.getSolverObject()
         results = solver_object.DapResults
         rotation_matrix = solver_object.global_rotation_matrix
+        Bodies_r = solver_object.Bodies_r
+        Bodies_p = solver_object.Bodies_p
+        
         #testObject = DapTools.getSolverObject()
         
         if docName in FreeCAD.listDocuments():
@@ -68,7 +71,13 @@ class _CommandDapAnimation:
         
         import _TaskPanelAnimate
         ##testObject = DapTools.getSolverObject()
-        taskd = _TaskPanelAnimate.TaskPanelAnimate(solver_doc, animation_doc, results, list_of_bodies, rotation_matrix)
+        taskd = _TaskPanelAnimate.TaskPanelAnimate(solver_doc, 
+                                                   animation_doc, 
+                                                   results, 
+                                                   list_of_bodies, 
+                                                   rotation_matrix,
+                                                   Bodies_r,
+                                                   Bodies_p)
         FreeCADGui.Control.showDialog(taskd)
         #FreeCAD.Console.PrintMessage("Attempting to get document which doesnt exist \n")
         #FreeCAD.Console.PrintMessage(FreeCAD.getDocument(docName))

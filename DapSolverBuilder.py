@@ -639,12 +639,26 @@ class DapSolverBuilder():
         results = os.path.join(self.folder, "dapResults.npy")
         self.dapResults = np.load(results)
         self.obj.DapResults = self.dapResults.tolist()
+        
+        import pickle
+        with open(os.path.join(self.folder,"Bodies_r"), "rb") as fp:   #Pickling
+            self.obj.Bodies_r = pickle.load(fp)
+        with open(os.path.join(self.folder,"Bodies_p"), "rb") as fp:   #Pickling
+            self.obj.Bodies_p = pickle.load(fp)
+        with open(os.path.join(self.folder,"Bodies_r_d"), "rb") as fp:   #Pickling
+            self.obj.Bodies_r_d = pickle.load(fp)
+        with open(os.path.join(self.folder,"Bodies_p_d"), "rb") as fp:   #Pickling
+            self.obj.Bodies_p_d = pickle.load(fp)
+        
         #FreeCAD.Console.PrintMessage("Results: "+str(self.dapResults) + "\n")
         #FreeCAD.Console.PrintMessage("Results (list): "+str(self.obj.DapResults) + "\n")
         #FreeCAD.Console.PrintMessage("Results loaded.\n")
         
         
-        
+        #self.obj.Bodies_r = []
+        #self.obj.Bodies_p = []
+        #for i in range():
+            
         
         
         

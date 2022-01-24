@@ -1677,12 +1677,52 @@ if not r.successful():
     raise RuntimeError("Could not integrate")
 
 
+# TODO temporary saving of outputs...
+# should update this to be more elegant
 outFile = os.path.join(folder, "dapResults.npy")
 np.save(outFile, Tarray)
 
-print("Done")
+# TODO temporary saving of outputs, saving Bodies CoG r and p
+Bodies_r_T = []
+Bodies_p_T = []
+Bodies_r_d_T = []
+Bodies_p_d_T = []
+nt = len(Tspan)
 
-print(Tarray)
+for i in range(0,nt):
+    u = Tarray[i,:].T
+    u_to_Bodies(u)
+    Bodies_r = []
+    Bodies_p = []
+    Bodies_r_d = []
+    Bodies_p_d = []
+    #print(Bodies)
+    for bn in range(1,nB):
+        #print(Bodies[bn,0])
+        Bodies_r.append(Bodies[bn,0].r.tolist())
+        Bodies_p.append(Bodies[bn,0].p.tolist())
+        Bodies_r_d.append(Bodies[bn,0].r_d.tolist())
+        Bodies_p_d.append(Bodies[bn,0].p_d.tolist())
+    #print("Bodies_r",Bodies_r)
+    Bodies_r_T.append(Bodies_r)
+    Bodies_p_T.append(Bodies_p)
+    Bodies_r_d_T.append(Bodies_r_d)
+    Bodies_p_d_T.append(Bodies_p_d)
+
+import pickle
+with open(os.path.join(folder,"Bodies_r"), "wb") as fp:   #Pickling
+    pickle.dump(Bodies_r_T, fp)
+with open(os.path.join(folder,"Bodies_p"), "wb") as fp:   #Pickling
+    pickle.dump(Bodies_p_T, fp)
+with open(os.path.join(folder,"Bodies_r_d"), "wb") as fp:   #Pickling
+    pickle.dump(Bodies_r_d_T, fp)
+with open(os.path.join(folder,"Bodies_p_d"), "wb") as fp:   #Pickling
+    pickle.dump(Bodies_p_d_T, fp)
+
+#print("Bodies_r_T", Bodies_r_T)
+#print("Done")
+
+#print(Tarray)
 
 if animate:
     
