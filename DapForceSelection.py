@@ -105,20 +105,20 @@ class _DapForce:
     def execute(self, obj):
         """ Create compound part at recompute. """
         if obj.ForceTypes == "Spring":
-            p = 1
+            p = 2
             h = dist(obj.JointCoord1,obj.JointCoord2)
-            r = 10
-            axis = crossproduct(obj.JointCoord2,obj.JointCoord1)
-            maglength = length(obj.JointCoord1) * length(obj.JointCoord2)
-            FreeCAD.Console.PrintError(obj.JointCoord1)
-            FreeCAD.Console.PrintError(obj.JointCoord2)
-            FreeCAD.Console.PrintError(axis)
-            angle = degrees(acos(dotproduct(obj.JointCoord1,obj.JointCoord2)/maglength))
+            r = 1.5
+    
+            creation_axis = FreeCAD.Vector(0,0,1)
+            desired_direction = normalized(obj.JointCoord2 - obj.JointCoord1)
+            angle = degrees(acos(dotproduct(creation_axis, desired_direction)))
+            axis = crossproduct(creation_axis,desired_direction)
             FreeCAD.Console.PrintError(angle)
             helix = Part.makeHelix(p,h,r)
             helix.Placement.Base = obj.JointCoord1
-            helix.rotate(obj.JointCoord1,axis,angle)
-            obj.Shape = helix 
+            helix.rotate(obj.JointCoord1,axis,angle) 
+            Part.show(helix)
+            obj.Shape = helix
         return 
 
     def __getstate__(self):

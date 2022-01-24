@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>393</width>
-    <height>207</height>
+    <width>275</width>
+    <height>202</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@
    <item row="1" column="0">
     <widget class="QStackedWidget" name="inputWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="page_3">
       <layout class="QGridLayout" name="gridLayout_3">
@@ -50,7 +50,7 @@
          <item row="0" column="1">
           <widget class="QPushButton" name="lcsName1">
            <property name="text">
-            <string>PushButton</string>
+            <string>Select the point (LCS)</string>
            </property>
            <property name="flat">
             <bool>true</bool>
@@ -166,6 +166,41 @@
          </item>
          <item row="3" column="1" colspan="2">
           <widget class="QComboBox" name="body2Combo_2"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page">
+      <layout class="QGridLayout" name="gridLayout_7">
+       <item row="0" column="0">
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Body attached to this point </string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="pointPush">
+           <property name="text">
+            <string>Add point</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="bodyPointCombo"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QPushButton" name="pointName">
+           <property name="text">
+            <string>Select the LCS, point or vertex</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>

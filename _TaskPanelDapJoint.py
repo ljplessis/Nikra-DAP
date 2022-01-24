@@ -23,25 +23,25 @@ class TaskPanelDapJoint:
     
     def __init__(self, obj):
         self.obj = obj
-        self.TypeOfRelMov = self.obj.TypeOfRelMov
-        self.RelMovDefinitionMode = self.obj.RelMovDefinitionMode
+        self.JointType = self.obj.JointType
+        self.JointDefinitionMode = self.obj.JointDefinitionMode
         self.Body1 = self.obj.Body1
         self.Body2 = self.obj.Body2
-        self.Point1RelMov = self.obj.Point1RelMov
-        self.Point2RelMov = self.obj.Point2RelMov
-        self.CoordPoint1RelMov = self.obj.CoordPoint1RelMov
-        self.CoordPoint2RelMov = self.obj.CoordPoint2RelMov
+        self.Joint1 = self.obj.Joint1
+        self.Joint2 = self.obj.Joint2
+        self.Joint1Coord = self.obj.Joint1Coord
+        self.Joint2Coord = self.obj.Joint2Coord
 
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelDapJoints.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
 
-        self.form.TypeOfRelMov.addItems(DapJointSelection.JOINT_TYPES)
-        ji = indexOrDefault(DapJointSelection.JOINT_TYPES, self.obj.TypeOfRelMov, 0)
-        self.form.TypeOfRelMov.currentIndexChanged.connect(self.jointTypeChanged)
-        self.form.TypeOfRelMov.setCurrentIndex(ji)
+        self.form.jointType.addItems(DapJointSelection.JOINT_TYPES)
+        ji = indexOrDefault(DapJointSelection.JOINT_TYPES, self.obj.JointType, 0)
+        self.form.jointType.currentIndexChanged.connect(self.jointTypeChanged)
+        self.form.jointType.setCurrentIndex(ji)
         self.jointTypeChanged()
 
-        dmi = indexOrDefault(DapJointSelection.DEFINITION_MODES[ji], self.obj.RelMovDefinitionMode, 0)
+        dmi = indexOrDefault(DapJointSelection.DEFINITION_MODES[ji], self.obj.JointDefinitionMode, 0)
         self.form.definitionMode.currentIndexChanged.connect(self.definitionModeChanged)
         self.form.definitionMode.setCurrentIndex(dmi)
         self.definitionModeChanged()
@@ -80,61 +80,62 @@ class TaskPanelDapJoint:
         self.form.LCSBody2.currentIndexChanged.connect(self.selectedBody2)
         self.form.comboBoxBody1LinMov.currentIndexChanged.connect(self.selectedBody1)
         self.form.comboBoxBody2LinMov.currentIndexChanged.connect(self.selectedBody2)
+        #FreeCAD.Console.PrintMessage(body_labels)
 
         self.form.chooseCoordinateButton.clicked.connect(self.addLCS1)
         self.form.PushButtonLCS1LinMov.clicked.connect(self.addLCS1)
         self.form.PushButtonLCS2LinMov.clicked.connect(self.addLCS2)
       
     def accept(self):        
-        self.obj.RelMovDefinitionMode = self.RelMovDefinitionMode
+        #self.obj.JointType = self.JointType
+        self.obj.JointDefinitionMode = self.JointDefinitionMode
         self.obj.Body1 = self.Body1
         self.obj.Body2 = self.Body2
-        if self.obj.Body1 == self.obj.Body2:
-            FreeCAD.Console.PrintError("\nERROR: A relative movement has been defined between a body and itself.")
-            FreeCAD.Console.PrintError("  Please update the incorrect relative movement so that it is defined between 2 different bodies.")
-        
-        self.obj.Point1RelMov = self.Point1RelMov
-        self.obj.Point2RelMov = self.Point2RelMov
+        self.obj.Joint1 = self.Joint1
+        self.obj.Joint2 = self.Joint2
         
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
         return
 
     def reject(self):
-        self.obj.TypeOfRelMov = self.TypeOfRelMov
+        self.obj.JointType = self.JointType
         FreeCADGui.Selection.removeObserver(self)
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
-        self.obj.CoordPoint1RelMov = self.CoordPoint1RelMov
-        self.obj.CoordPoint2RelMov = self.CoordPoint2RelMov 
+        self.obj.Joint1Coord = self.Joint1Coord
+        self.obj.Joint2Coord = self.Joint2Coord 
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
         doc.resetEdit()
         return True
 
     def jointTypeChanged(self):
-        index =  self.form.TypeOfRelMov.currentIndex()
+        index =  self.form.jointType.currentIndex()
+        #FreeCAD.Console.PrintMessage(f"\njointTypeChangedindex = {index}")
         self.form.definitionMode.clear()
         self.form.definitionMode.addItems(DapJointSelection.DEFINITION_MODES[index])
-        self.obj.TypeOfRelMov = DapJointSelection.JOINT_TYPES[index]
+        self.obj.JointType = DapJointSelection.JOINT_TYPES[index]
         self.obj.recompute()
         
+        #self.obj.DisplayCoordinate = sel[0].Object.Placement.Base
+
     def definitionModeChanged(self):
-        self.joint_type_index = self.form.TypeOfRelMov.currentIndex()
+        self.joint_type_index = self.form.jointType.currentIndex()
         definition_mode_index = self.form.definitionMode.currentIndex()
-        self.RelMovDefinitionMode = DapJointSelection.DEFINITION_MODES[self.joint_type_index][definition_mode_index]
+        self.JointDefinitionMode = DapJointSelection.DEFINITION_MODES[self.joint_type_index][definition_mode_index]
         self.form.helperText.setText(DapJointSelection.HELPER_TEXT[self.joint_type_index][definition_mode_index])
         current_index = self.findDefinitionWidgetIndex(self.joint_type_index, definition_mode_index)
         self.form.definitionWidget.setCurrentIndex(current_index)
         
         if definition_mode_index == 0:
-            if self.joint_type_index == 0 and self.Point1RelMov != "":
-                self.form.LCSObjectReference.setText(self.Point1RelMov)
+            if self.joint_type_index == 0 and self.Joint1 != "":
+                self.form.LCSObjectReference.setText(self.Joint1)
             elif self.joint_type_index == 1:
-                if self.Point1RelMov != "":
-                    self.form.objectNameLCS1LinMov.setText(self.Point1RelMov)
-                if self.Point2RelMov != "":
-                    self.form.objectNameLCS2LinMov.setText(self.Point2RelMov)
+                if self.Joint1 != "":
+                    self.form.objectNameLCS1LinMov.setText(self.Joint1)
+                if self.Joint2 != "":
+                    self.form.objectNameLCS2LinMov.setText(self.Joint2)
 
     def findDefinitionWidgetIndex(self, joint_index, definition_index):
         current_count = 0
@@ -162,6 +163,7 @@ class TaskPanelDapJoint:
         
     def selectObjectInGui(self, index):
         FreeCADGui.Selection.clearSelection()
+        #FreeCAD.Console.PrintMessage(self.body_labels[index])
         if self.body_objects[index] != None:
             FreeCADGui.showObject(self.body_objects[index])
             FreeCADGui.Selection.addSelection(self.body_objects[index])
@@ -175,15 +177,15 @@ class TaskPanelDapJoint:
             if "LCS" in sel[0].Object.Name:
                 if self.joint_type_index == 0:
                     self.form.LCSObjectReference.setText(sel[0].Object.Label)
-                    self.obj.CoordPoint1RelMov = sel[0].Object.Placement.Base
+                    self.obj.Joint1Coord = sel[0].Object.Placement.Base
                     updated = True
 
                 elif self.joint_type_index == 1:
                     self.form.objectNameLCS1LinMov.setText(sel[0].Object.Label)
-                    self.obj.CoordPoint1RelMov = sel[0].Object.Placement.Base
+                    self.obj.Joint1Coord = sel[0].Object.Placement.Base
                 
-                self.Point1RelMov = sel[0].Object.Label
-                if self.Point2RelMov != "":
+                self.Joint1 = sel[0].Object.Label
+                if self.Joint2 != "":
                     updated = True
         if updated:
             self.obj.recompute()
@@ -195,9 +197,12 @@ class TaskPanelDapJoint:
         else:
             if "LCS" in sel[0].Object.Name:
                 if self.joint_type_index == 1:
+                    #FreeCAD.Console.PrintMessage(f"\nsel[0] = {sel[0]}")
                     self.form.objectNameLCS2LinMov.setText(sel[0].Object.Label)
-                    self.obj.CoordPoint2RelMov = sel[0].Object.Placement.Base
-                    self.Point2RelMov = sel[0].Object.Label
+                    self.obj.Joint2Coord = sel[0].Object.Placement.Base
+                    #FreeCAD.Console.PrintMessage(self.LinMovDisplayCoordinate2)  
+                    #self.obj.recompute()
+                    self.Joint2 = sel[0].Object.Label
                     
-                    if self.Point1RelMov != "":
+                    if self.Joint1 != "":
                         self.obj.recompute()

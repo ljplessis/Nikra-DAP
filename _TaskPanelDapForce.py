@@ -62,12 +62,6 @@ class TaskPanelDapForce:
 
         self.bodySelector = _BodySelector.BodySelector(self.form.bodySelection, self.obj)
 
-        # self.form.pushAdd.clicked.connect(self.buttonAddForceClicked)
-
-        # self.form.pushRemove.clicked.connect(self.buttonRemoveForceClicked)
-
-        # self.form.forceList.currentRowChanged.connect(self.forceListRowChanged)
-
         self.form.forceComboBox.currentIndexChanged.connect(self.comboTypeChanged)
 
         self.comboTypeChanged()
@@ -75,15 +69,12 @@ class TaskPanelDapForce:
         self.unitFunc()
 
         self.rebuildInputs()
-
-        self.bodySelectionPage()
-
+    
         return 
 
     def bodySelectionPage(self):
         if self.Type == "Spring":
-            index = 1 
-            self.bodySelector.Page(0)
+            self.bodySelector.Page1()
         else: 
             self.bodySelector.closing()
     
@@ -93,13 +84,10 @@ class TaskPanelDapForce:
         length = Units.Quantity(self.default_length)
         stiffness = Units.Quantity(self.default_stiffness)
 
-
         setQuantity(self.form.xIn,acceleration)
         setQuantity(self.form.yIn,acceleration)
         setQuantity(self.form.zIn,acceleration)
-
         setQuantity(self.form.undefIn,length)
-
         setQuantity(self.form.stiffnessIn,stiffness)
 
         return 
@@ -116,19 +104,6 @@ class TaskPanelDapForce:
         self.Body2 = self.obj.Body2
         self.Joint1 = self.obj.Joint1
         self.Joint2 = self.obj.Joint2
-       
-  
-
-    # def forceListRowChanged(self, row):
-    #     """ Actively select the forces to make it visible when viewing forces already in list """
-    #     if len(self.FORCE_TYPES)>0:
-    #         item = self.FORCE_TYPES[row]
-    #         docName = str(self.doc_name)
-    #         doc = FreeCAD.getDocument(docName)
-
-    #         selection_object = doc.getObjectsByLabel(item)[0]
-    #         FreeCADGui.Selection.clearSelection()
-    #         FreeCADGui.Selection.addSelection(selection_object)
     
     
     def accept(self):
@@ -138,6 +113,13 @@ class TaskPanelDapForce:
         if DapTools.gravityChecker():
             FreeCAD.Console.PrintError('Gravity has already been selected')
         else:
+            if self.Type == "Gravity":
+                self.bodySelector.closing()
+            elif self.Type == "Spring":
+                 self.bodySelector.accept(0)
+                 self.bodySelector.closing()
+
+
             self.obj.ForceTypes = self.Type
             self.obj.gx = getQuantity(self.form.xIn)
             self.obj.gy = getQuantity(self.form.yIn)
@@ -150,12 +132,6 @@ class TaskPanelDapForce:
             self.Z=self.obj.gz
             self.Stiff=self.obj.Stiffness
             self.UndefLen=self.obj.UndeformedLength
-            # self.obj.Body1, self.obj.Body2, self.obj.Joint1,self.obj.Joint2 = _BodySelector.BodySelector.accept(self)
-
-            self.bodySelector.accept()
-            
-        self.bodySelector.closing()
-
 
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
@@ -170,8 +146,9 @@ class TaskPanelDapForce:
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
-        self.obj.recompute()
+        # self.obj.recompute()
         doc.resetEdit()
+        self.bodySelector.reject()
         self.bodySelector.closing()
         return True
     
@@ -181,9 +158,9 @@ class TaskPanelDapForce:
         self.form.descriptionhelp.setText(DapForceSelection.FORCE_TYPE_HELPER_TEXT[type_index])
         self.Type = DapForceSelection.FORCE_TYPES[type_index]
 
-        self.form.inputWidget.setCurrentIndex(type_index)
+        self.form.inputForceWidget.setCurrentIndex(type_index)
+        self.bodySelectionPage()
 
-        
         if self.Type == "Gravity":
                 self.obj.setEditorMode("Stiffness", 2)
                 self.obj.setEditorMode("UndeformedLength", 2)
@@ -210,39 +187,3 @@ class TaskPanelDapForce:
                 self.obj.setEditorMode("JointCoord1", 0)
                 self.obj.setEditorMode("JointCoord2", 0)
         
-    # def buttonAddForceClicked(self):
-    #     sel = FreeCADGui.Selection.getSelection()
-
-    #     for item in sel:
-    #         #check to see if part is not of Type DapForce
-    #         if hasattr(item,"Proxy"):
-    #             if item.Proxy.Type == 'DapForce':
-    #                 DapForceFound = True
-    #         else:
-    #             DapForceFound = False
-    #         if hasattr(item, "Shape") and (not DapForceFound):
-    #             label = item.Label
-    #             if label not in self.forceList:
-    #                 self.forceList.append(label)
-    #         else:
-    #             FreeCAD.Console.PrintError("Selected force has not been selected properly \n")
-
-    #     self.rebuildforceList()
-    #     return
-
-    # def buttonRemoveForceClicked(self):
-    #     if not self.forceList:
-    #         FreeCAD.Console.PrintMessage("Here 1")
-    #         return
-    #     if not self.form.forceList.currentItem():
-    #         FreeCAD.Console.PrintMessage("Here 2")
-    #         return
-    #     row = self.form.forceList.currentRow()
-    #     self.forceList.pop(row)
-    #     self.rebuildforceList()
-
-
-    # def rebuildforceList(self):
-    #     self.form.forceList.clear()
-    #     for i in range(len(self.forceList)):
-    #         self.form.forceList.addItem(self.forceList[i])
