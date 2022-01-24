@@ -54,13 +54,13 @@ class DapSolverBuilder():
         
         self.material_dictionary = self.material_object.MaterialDictionary
         
-        
+        FreeCAD.Console.PrintMessage("Initialising dap solver builder \n")
+        FreeCAD.Console.PrintMessage("BUilder folder " + str(self.folder) + "\n")
         
         self.joints = DapTools.getListOfJointObjects()
         
         
-        from dapSolver import DapSolver
-        self.dapSolver = DapSolver(self.folder)
+        
         
         
         
@@ -126,12 +126,19 @@ class DapSolverBuilder():
         
         
         
-        #self.writeBodies()
-        #self.writePoints()
-        #self.writeJoints()
-        #self.writeForces()
-        #self.writeFunctions()
-        #self.writeUVectors()
+        self.writeBodies()
+        self.writePoints()
+        self.writeJoints()
+        self.writeForces()
+        self.writeFunctions()
+        self.writeUVectors()
+        
+        
+        from dapSolver import DapSolver
+        self.dapSolver = DapSolver(self.folder)
+        
+        
+        
         #self.solve()
         
         #cog = self.cog_of_body_projected["DapBody"]
@@ -423,6 +430,8 @@ class DapSolverBuilder():
         
     #TODO: find a more elegant way of writing the input files instead of line by line writing
     def writeBodies(self):
+        FreeCAD.Console.PrintMessage("Writing bodies \n")
+        
         bodies = [None]
         file_path = os.path.join(self.folder,"inBodies.py")
         fid = open(file_path, 'w')
