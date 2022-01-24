@@ -27,6 +27,7 @@ def getActiveAnalysis():
     return None
 
 
+
 def getListOfSolidsFromShape(obj, shape_label_list=[]):
     """ Recursively loops through assemblies or shape object to find all the
     sub shapes
@@ -86,6 +87,17 @@ def getListOfBodyObjects():
             if "DapBody" in i.Name:
                 body_object.append(i)
     return body_object
+
+
+def getListOfMovingBodies(list_of_body_labels, solver_document):
+    moving_bodies = []
+    
+    #for body in self.body_objects:
+    for i in range(len(list_of_body_labels)):
+        body_object = solver_document.getObjectsByLabel(list_of_body_labels[i])[0]
+        if body_object.BodyType == "Moving":
+            moving_bodies.append(list_of_body_labels[i])
+    return moving_bodies
 
 def getMaterialObject():
     active_analysis = getActiveAnalysis()
@@ -168,3 +180,11 @@ def getQuantity(inputField):
     """ Get the quantity as an unlocalised string from an inputField """
     q = inputField.property("quantity")
     return str(q)
+
+
+def projectPointOntoPlane(plane_norm, point, plane_origin = FreeCAD.Vector(0,0,0)):
+    """ Projects a given vector onto the plane defined by the norm of the plane, passing through the (0,0,0) """
+    projected_point = point - (plane_norm * (point - plane_origin)) * plane_norm
+    
+    #FreeCAD.Console.PrintMessage("Projected point " + str(point) + ": " + str(projected_point) + "\n")
+    return projected_point

@@ -28,7 +28,8 @@ class DapSolverBuilder():
     
     
     
-    def __init__(self):
+    def __init__(self, obj):
+        self.obj = obj
         self.active_analysis = DapTools.getActiveAnalysis()
         self.doc_name = self.active_analysis.Document.Name
         self.doc = FreeCAD.getDocument(self.doc_name)
@@ -128,18 +129,20 @@ class DapSolverBuilder():
         self.processJoints() #this includes processing points included within joints
         self.processForces()
         
+        self.obj.global_rotation_matrix = self.global_rotation_matrix
+        
+        #self.writeBodies()
+        #self.writePoints()
+        #self.writeJoints()
+        #self.writeForces()
+        #self.writeFunctions()
+        #self.writeUVectors()
         
         
-        self.writeBodies()
-        self.writePoints()
-        self.writeJoints()
-        self.writeForces()
-        self.writeFunctions()
-        self.writeUVectors()
         
         
-        from dapSolver import DapSolver
-        self.dapSolver = DapSolver(self.folder)
+        #from dapSolver import DapSolver
+        #self.dapSolver = DapSolver(self.folder)
         
         
         
@@ -156,6 +159,13 @@ class DapSolverBuilder():
         #FreeCAD.Console.PrintMessage("List of joints: " + str(self.joints) + "\n")
         #self.projectPointOntoPlane(FreeCAD.Vector(10,10,10))
     
+    def writeInputFiles(self):
+        self.writeBodies()
+        self.writePoints()
+        self.writeJoints()
+        self.writeForces()
+        self.writeFunctions()
+        self.writeUVectors()
     
     def processForces(self):
         for force_obj in self.list_of_force_ojects:
@@ -560,6 +570,8 @@ class DapSolverBuilder():
         
         self.dapResults = None
         self.resultsAvailable = False
+        self.obj.DapResults = None
+        
         
         #self.process.finished.connect(self.loadResults)
         
@@ -593,6 +605,9 @@ class DapSolverBuilder():
         #process.setReadChannelMode(ForwardedChannels);
         #env = QtCore.QProcessEnvironment.systemEnvironment()
         #process.setProcessEnvironment(env)
+        
+        FreeCAD.Console.PrintMessage("DAP solver started.\n")
+        
         self.process.start("python3",[str(dap_solver), str(self.folder)])
         ##proc.waitForStarted()
         #TODO need to overwrite waitForFinished to latch on to the output
@@ -609,19 +624,24 @@ class DapSolverBuilder():
         
         #print("T_Array from solve function",Tarray)
     def onFinished(self,  exitCode,  exitStatus):
-        FreeCAD.Console.PrintMessage("Solver finished on finished \n")
-        FreeCAD.Console.PrintMessage("Exit code " + str(exitCode) + " \n")
-        FreeCAD.Console.PrintMessage("exitStatus " + str(exitStatus) + " \n")
+        #FreeCAD.Console.PrintMessage("Solver finished on finished \n")
+        #FreeCAD.Console.PrintMessage("Exit code " + str(exitCode) + " \n")
+        #FreeCAD.Console.PrintMessage("exitStatus " + str(exitStatus) + " \n")
         
         if exitCode == 0:
+            FreeCAD.Console.PrintMessage("Solver completed Succesfully \n")
             self.loadResults()
             self.resultsAvailable = True
+        else:
+            FreeCAD.Console.PrintError("Solver Failed: error codes not yet included (in the TODO list)\n")
         
     def loadResults(self):
         results = os.path.join(self.folder, "dapResults.npy")
         self.dapResults = np.load(results)
-        
-        FreeCAD.Console.PrintMessage("Results loaded.\n")
+        self.obj.DapResults = self.dapResults.tolist()
+        #FreeCAD.Console.PrintMessage("Results: "+str(self.dapResults) + "\n")
+        #FreeCAD.Console.PrintMessage("Results (list): "+str(self.obj.DapResults) + "\n")
+        #FreeCAD.Console.PrintMessage("Results loaded.\n")
         
         
         

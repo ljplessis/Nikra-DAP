@@ -50,7 +50,7 @@ class TaskPanelDapSolver:
         return True
 
     def solveButtonClicked(self):
-        builder = DapSolverBuilder.DapSolverBuilder()
+        builder = DapSolverBuilder.DapSolverBuilder(self.obj)
         #builder.
         builder.t_initial = 0
         builder.t_final = 0.3
@@ -67,20 +67,13 @@ class TaskPanelDapSolver:
         elif platform == "win32":
             # Windows...
             builder.folder = "c:\windows\temp"
-        
-        
-        #builder.writeBodies()
-        #builder.writePoints()
-        #builder.writeJoints()
-        #builder.writeForces()
-        #builder.writeFunctions()
-        #builder.writeUVectors()
+
         
         FreeCAD.Console.PrintMessage("DAP SOLVER STARTED \n")
         
         
         
-        
+        builder.writeInputFiles()
         builder.solve()
         
         #builder.process.start("dolphin")
