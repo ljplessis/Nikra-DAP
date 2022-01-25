@@ -189,6 +189,7 @@ class TaskPanelDapJoint:
                     updated = True
         if updated:
             self.obj.recompute()
+            
 
     def addLCS2(self):
         sel = FreeCADGui.Selection.getSelectionEx()

@@ -108,8 +108,7 @@ class TaskPanelDapForce:
     
     def accept(self):
         """If this is missing, there won't be an OK button"""
-        doc = FreeCADGui.getDocument(self.obj.Document)
-        doc.resetEdit()
+        
         if DapTools.gravityChecker():
             FreeCAD.Console.PrintError('Gravity has already been selected')
         else:
@@ -118,7 +117,6 @@ class TaskPanelDapForce:
             elif self.Type == "Spring":
                  self.bodySelector.accept(0)
                  self.bodySelector.closing()
-
 
             self.obj.ForceTypes = self.Type
             self.obj.gx = getQuantity(self.form.xIn)
@@ -132,24 +130,26 @@ class TaskPanelDapForce:
             self.Z=self.obj.gz
             self.Stiff=self.obj.Stiffness
             self.UndefLen=self.obj.UndeformedLength
+            
+        self.bodySelector.execute(self.obj)
 
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
-        doc_name = str(self.obj.Document.Name)
-        FreeCAD.getDocument(doc_name).recompute()
+        doc.resetEdit()
+
         return
 
     def reject(self):
         """IF this is missing, there won't be a Cancel button"""
         FreeCADGui.Selection.removeObserver(self)
+        
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
-        doc_name = str(self.obj.Document.Name)
-        FreeCAD.getDocument(doc_name).recompute()
-        # self.obj.recompute()
-        doc.resetEdit()
+        doc_name = str(self.obj.Document.Name)        
         self.bodySelector.reject()
         self.bodySelector.closing()
+        FreeCAD.getDocument(doc_name).recompute()
+        doc.resetEdit()
         return True
     
 
@@ -160,6 +160,7 @@ class TaskPanelDapForce:
 
         self.form.inputForceWidget.setCurrentIndex(type_index)
         self.bodySelectionPage()
+        self.obj.recompute()
 
         if self.Type == "Gravity":
                 self.obj.setEditorMode("Stiffness", 2)

@@ -14,6 +14,12 @@ if FreeCAD.GuiUp:
     from PySide import QtCore
     from PySide import QtGui
     from PySide.QtCore import QTimer
+import Part
+import math
+from math import degrees,acos
+import _FreeCADVectorTools
+from _FreeCADVectorTools import dist, normalized, crossproduct,dotproduct, angle, length
+
 
 TYPES = ["two points and two bodies","One point and two bodies","One Point and associated point" ]
 
@@ -62,8 +68,8 @@ class BodySelector:
         self.form.lcsPush2.clicked.connect(self.addLCS2)
         
 
-        self.form.lcsName1.clicked.connect(lambda : self.selectLCSinGui(self.Joint1))
-        self.form.lcsName2.clicked.connect(lambda : self.selectLCSinGui(self.Joint2))        
+        self.form.lcsName1.clicked.connect(lambda : self.selectLCSinGui(self.obj.Joint1))
+        self.form.lcsName2.clicked.connect(lambda : self.selectLCSinGui(self.obj.Joint2))        
         
         self.form.body1Combo.currentIndexChanged.connect(self.selectedBody1)
         self.form.body2Combo.currentIndexChanged.connect(self.selectedBody2)
@@ -90,7 +96,7 @@ class BodySelector:
         self.form.body2Combo_2.setCurrentIndex(b1i)
         self.selectedBody2(index)
 
-        self.form.lcsName3.clicked.connect(lambda : self.selectLCSinGui(self.Joint1))
+        self.form.lcsName3.clicked.connect(lambda : self.selectLCSinGui(self.obj.Joint1))
         self.form.lcsPush3.clicked.connect(lambda : self.addLCS1(index))
 
         self.form.body1Combo_2.currentIndexChanged.connect(self.selectedBody1)
@@ -125,6 +131,7 @@ class BodySelector:
 
         return 
 
+   
     
     def PageInit(self,index):
         # self.index = self.form.inputWidget.currentIndex()
@@ -156,10 +163,31 @@ class BodySelector:
         self.JType = TYPES[type_index]
 
         
+    def execute(self, obj):
+        """ Create compound part at recompute. """
+
+        if obj.ForceTypes == "Spring":
+            p = 2
+            h = dist(obj.JointCoord1,obj.JointCoord2)
+            r = 1.5
+    
+            creation_axis = FreeCAD.Vector(0,0,1)
+            desired_direction = normalized(self.JointCoord2 - self.JointCoord1)
+            angle = degrees(acos(dotproduct(creation_axis, desired_direction)))
+            axis = crossproduct(creation_axis,desired_direction)
+            helix = Part.makeHelix(p,h,r)
+            helix.Placement.Base = self.JointCoord1
+            helix.rotate(self.JointCoord1,axis,angle) 
+            obj.Shape = helix
+        
+        else:
+            obj.Shape = Part.Shape()
+            
+        return 
+
     def rebuildInputs(self,index):
 
-        if index == 0:
-                
+        if index == 0:    
             self.Body1 = self.obj.Body1
             self.Body2 = self.obj.Body2
             self.Joint1 = self.obj.Joint1
@@ -169,6 +197,8 @@ class BodySelector:
 
             self.form.lcsName1.setText(self.Joint1)
             self.form.lcsName2.setText(self.Joint2)
+
+            self.execute(self.obj)
 
         elif index == 1:
             self.Body1 = self.obj.Body1
@@ -210,16 +240,19 @@ class BodySelector:
         
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
-    
+        self.obj.recompute()
+        doc_name = str(self.obj.Document.Name)        
+        FreeCAD.getDocument(doc_name).recompute()
         return 
 
     def reject(self):
         FreeCADGui.Selection.removeObserver(self)
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
-        doc_name = str(self.obj.Document.Name)
-        # FreeCAD.getDocument(doc_name).recompute()
         doc.resetEdit()
+        self.obj.recompute()
+        doc_name = str(self.obj.Document.Name)        
+        FreeCAD.getDocument(doc_name).recompute()
         return 
 
     def selectedBody1(self,_index):
@@ -295,51 +328,59 @@ class BodySelector:
             if "LCS" in sel[0].Object.Name:
                 if index == 0:
                     self.form.lcsName1.setText(sel[0].Object.Label)
-                elif index == 1:
-                    self.form.lcsName3.setText(sel[0].Object.Label)
-                updated = True
-
-                if index == 0 or 1:
                     self.Joint1 = sel[0].Object.Label
                     self.JointCoord1 = sel[0].Object.Placement.Base
-                    
+
+                elif index == 1:
+                    self.form.lcsName3.setText(sel[0].Object.Label)
+                    self.Joint1 = sel[0].Object.Label
+                    self.JointCoord1 = sel[0].Object.Placement.Base
+                    updated = True
+                if self.Joint2 != "":
+                    updated = True
+        if updated:
+            self.obj.recompute()
+            doc_name = str(self.obj.Document.Name)        
+            FreeCAD.getDocument(doc_name).recompute()
+            self.obj.recompute()
+        
             
     def addLCS2(self):
         sel = FreeCADGui.Selection.getSelectionEx()
-        updated = False
         if len(sel)>1 or len(sel[0].SubElementNames)>1:
             FreeCAD.Console.PrintError("Only a single face, or single LCS should be selected.")
         else:
             if "LCS" in sel[0].Object.Name:
-                self.form.lcsName2.setText(sel[0].Object.Label)
-                updated = True
+                self.form.lcsName2.setText(sel[0].Object.Label)       
                 self.Joint2 = sel[0].Object.Label
                 self.JointCoord2 = sel[0].Object.Placement.Base
 
+                if self.Joint1 != "":
+                    self.obj.recompute()
+                    doc_name = str(self.obj.Document.Name)        
+                    FreeCAD.getDocument(doc_name).recompute()
+                    self.obj.recompute()
 
     def addPoint(self):
         sel = FreeCADGui.Selection.getSelectionEx()
-        updated = False
+        
         if len(sel)>1 or len(sel[0].SubElementNames)>1:
             FreeCAD.Console.PrintError("Only a single point,LCS or Vertex needs to be selected")
         else:
             if "LCS" in sel[0].Object.Name:
                 self.form.pointName.setText(sel[0].Object.Label)
-                updated = True
                 self.Point = sel[0].Object.Label
                 self.PointCoord = sel[0].Object.Placement.Base
                 self.buttonName = "LCS"
                
             elif "Point" in sel[0].Object.Name:
                 self.form.pointName.setText(sel[0].Object.Label)
-                updated = True
                 self.Point = sel[0].Object.Label
                 self.PointCoord = sel[0].Object.Placement.Base
                 self.buttonName = "Point"
 
             elif "Vertex" in sel[0].SubElementNames[0]:
                 self.form.pointName.setText(sel[0].SubElementNames[0])
-                updated = True
                 self.BodyPoint = sel[0].Object.Label 
                 self.Point = sel[0].SubElementNames[0]
                 self.PointCoord = sel[0].SubObjects[0].Point

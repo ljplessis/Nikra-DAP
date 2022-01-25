@@ -13,6 +13,7 @@ from math import degrees,acos
 import os
 import DapTools
 from DapTools import addObjectProperty
+import _BodySelector
 from pivy import coin
 import Part
 
@@ -78,7 +79,7 @@ class _DapForce:
         obj.Proxy = self
         self.Type = "DapForce"
 
-        
+        self.bodySelector = _BodySelector.BodySelector
 
     def initProperties(self, obj):
         addObjectProperty(obj, 'ForceTypes', FORCE_TYPES, "App::PropertyEnumeration", "", "Types of Forces")    
@@ -104,22 +105,35 @@ class _DapForce:
 
     def execute(self, obj):
         """ Create compound part at recompute. """
-        if obj.ForceTypes == "Spring":
-            p = 2
-            h = dist(obj.JointCoord1,obj.JointCoord2)
-            r = 1.5
+        
+        # active_analysis = DapTools.getActiveAnalysis()
+        # if hasattr(active_analysis, 'Shape'):
+        #     x_lenght = active_analysis.Shape.BoundBox.XLength
+        #     y_lenght = active_analysis.Shape.BoundBox.YLength
+        #     area_dap_analyis_bound_box = x_lenght * y_lenght
+        #     scale_parameter_square_mm = 200000
+        #     scale_factor = area_dap_analyis_bound_box / scale_parameter_square_mm
+        # else:
+        #     scale_factor = 50
+
+        # if obj.ForceTypes == "Spring":
+        #     p = 2
+        #     h = dist(obj.JointCoord1,obj.JointCoord2)
+        #     r = 1.5
     
-            creation_axis = FreeCAD.Vector(0,0,1)
-            desired_direction = normalized(obj.JointCoord2 - obj.JointCoord1)
-            angle = degrees(acos(dotproduct(creation_axis, desired_direction)))
-            axis = crossproduct(creation_axis,desired_direction)
-            FreeCAD.Console.PrintError(angle)
-            helix = Part.makeHelix(p,h,r)
-            helix.Placement.Base = obj.JointCoord1
-            helix.rotate(obj.JointCoord1,axis,angle) 
-            Part.show(helix)
-            obj.Shape = helix
-        return 
+        #     creation_axis = FreeCAD.Vector(0,0,1)
+        #     desired_direction = normalized(obj.JointCoord2 - obj.JointCoord1)
+        #     angle = degrees(acos(dotproduct(creation_axis, desired_direction)))
+        #     axis = crossproduct(creation_axis,desired_direction)
+        #     helix = Part.makeHelix(p,h,r)
+        #     helix.Placement.Base = obj.JointCoord1
+        #     helix.rotate(obj.JointCoord1,axis,angle) 
+        #     obj.Shape = helix
+        
+        # else:
+        #     obj.Shape = Part.Shape()
+            
+        # return 
 
     def __getstate__(self):
         return None
@@ -185,7 +199,7 @@ class _ViewProviderDapForce:
     def getDefaultDisplayMode(self):
         # TODO choose default display style
         #return "Flat Lines"
-        return "Shaded"
+        return "Flat Lines"
 
     def setDisplayMode(self,mode):
         return mode
