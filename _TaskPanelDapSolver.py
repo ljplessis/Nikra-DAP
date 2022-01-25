@@ -17,6 +17,7 @@ from DapTools import indexOrDefault
 from DapTools import getQuantity, setQuantity
 import DapBodySelection
 import DapSolverBuilder
+import DapSolverRunner
 import numpy as np
 import math
 import time
@@ -221,7 +222,8 @@ class TaskPanelDapSolver:
             self.obj.setEditorMode("ZVector", 2)
 
 
-            # if (len(self.ObjectEntities) == 1) and ("Face" in self.ObjectEntities[0]):
+            if (len(self.ObjectEntities) == 1) and ("Face" in self.ObjectEntities[0]):
+                self.form.lblPlaneDefined.setText("Planar Motion successfully defined via coincident face")
             #     sel = FreeCADGui.Selection.getSelectionEx()[0]
             #     sel_entity = sel.Object.Name
             #     face_entity = sel.Object.SubElementNames[0]
