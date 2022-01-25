@@ -130,7 +130,7 @@ class TaskPanelDapForce:
             self.Z=self.obj.gz
             self.Stiff=self.obj.Stiffness
             self.UndefLen=self.obj.UndeformedLength
-            
+
         self.bodySelector.execute(self.obj)
 
         # Recompute document to update viewprovider based on the shapes

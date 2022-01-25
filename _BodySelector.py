@@ -34,8 +34,11 @@ class BodySelector:
 
         addObjectProperty(obj,"JointType",TYPES, "App::PropertyEnumeration", "", "Joint Types")
         
-        self.buttonName = None
         self.obj = obj
+        self.obj.setEditorMode("JointType", 2)
+        self.buttonName = None
+
+        
     
         self.doc_name = self.obj.Document.Name
         self.view_object = self.obj.ViewObject
@@ -106,7 +109,7 @@ class BodySelector:
 
         self.comboTypeChanged()
 
-        return 
+        return True
 
     # index == 2
     def Page3(self):
@@ -129,7 +132,7 @@ class BodySelector:
         
         self.comboTypeChanged()
 
-        return 
+        return True 
 
    
     
@@ -165,25 +168,29 @@ class BodySelector:
         
     def execute(self, obj):
         """ Create compound part at recompute. """
-
         if obj.ForceTypes == "Spring":
-            p = 2
-            h = dist(obj.JointCoord1,obj.JointCoord2)
-            r = 1.5
-    
-            creation_axis = FreeCAD.Vector(0,0,1)
-            desired_direction = normalized(self.JointCoord2 - self.JointCoord1)
-            angle = degrees(acos(dotproduct(creation_axis, desired_direction)))
-            axis = crossproduct(creation_axis,desired_direction)
-            helix = Part.makeHelix(p,h,r)
-            helix.Placement.Base = self.JointCoord1
-            helix.rotate(self.JointCoord1,axis,angle) 
-            obj.Shape = helix
+                p = 2
+                h = dist(obj.JointCoord1,obj.JointCoord2)
+                r = 1.5
         
+                creation_axis = FreeCAD.Vector(0,0,1)
+                desired_direction = normalized(self.JointCoord2 - self.JointCoord1)
+                angle = degrees(acos(dotproduct(creation_axis, desired_direction)))
+                axis = crossproduct(creation_axis,desired_direction)
+                helix = Part.makeHelix(p,h,r)
+                helix.Placement.Base = self.JointCoord1
+                helix.rotate(self.JointCoord1,axis,angle) 
+                obj.Shape = helix
         else:
             obj.Shape = Part.Shape()
             
-        return 
+        return None
+
+    def pointExecute(self,obj):
+        r = 0.1
+        point = Part.makeSphere(r)
+        point.Placement.Base = self.PointCoord
+        obj.Shape = point
 
     def rebuildInputs(self,index):
 
@@ -339,10 +346,12 @@ class BodySelector:
                 if self.Joint2 != "":
                     updated = True
         if updated:
+            self.execute(self.obj)
             self.obj.recompute()
             doc_name = str(self.obj.Document.Name)        
             FreeCAD.getDocument(doc_name).recompute()
-            self.obj.recompute()
+            
+            
         
             
     def addLCS2(self):
@@ -356,10 +365,12 @@ class BodySelector:
                 self.JointCoord2 = sel[0].Object.Placement.Base
 
                 if self.Joint1 != "":
+                    self.execute(self.obj)
                     self.obj.recompute()
                     doc_name = str(self.obj.Document.Name)        
                     FreeCAD.getDocument(doc_name).recompute()
-                    self.obj.recompute()
+                    
+
 
     def addPoint(self):
         sel = FreeCADGui.Selection.getSelectionEx()

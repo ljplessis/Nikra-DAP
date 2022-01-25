@@ -105,35 +105,7 @@ class _DapForce:
 
     def execute(self, obj):
         """ Create compound part at recompute. """
-        
-        # active_analysis = DapTools.getActiveAnalysis()
-        # if hasattr(active_analysis, 'Shape'):
-        #     x_lenght = active_analysis.Shape.BoundBox.XLength
-        #     y_lenght = active_analysis.Shape.BoundBox.YLength
-        #     area_dap_analyis_bound_box = x_lenght * y_lenght
-        #     scale_parameter_square_mm = 200000
-        #     scale_factor = area_dap_analyis_bound_box / scale_parameter_square_mm
-        # else:
-        #     scale_factor = 50
-
-        # if obj.ForceTypes == "Spring":
-        #     p = 2
-        #     h = dist(obj.JointCoord1,obj.JointCoord2)
-        #     r = 1.5
-    
-        #     creation_axis = FreeCAD.Vector(0,0,1)
-        #     desired_direction = normalized(obj.JointCoord2 - obj.JointCoord1)
-        #     angle = degrees(acos(dotproduct(creation_axis, desired_direction)))
-        #     axis = crossproduct(creation_axis,desired_direction)
-        #     helix = Part.makeHelix(p,h,r)
-        #     helix.Placement.Base = obj.JointCoord1
-        #     helix.rotate(obj.JointCoord1,axis,angle) 
-        #     obj.Shape = helix
-        
-        # else:
-        #     obj.Shape = Part.Shape()
-            
-        # return 
+        return None
 
     def __getstate__(self):
         return None

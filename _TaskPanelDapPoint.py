@@ -66,6 +66,7 @@ class TaskPanelDapPoint:
         self.obj.PointCoord = self.PointCoord
 
         self.bodySelector.accept(2)
+        self.bodySelector.pointExecute(self.obj)
             
         self.bodySelector.closing()
 
