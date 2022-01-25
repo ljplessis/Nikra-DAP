@@ -27,6 +27,7 @@ def getActiveAnalysis():
     return None
 
 
+
 def getListOfSolidsFromShape(obj, shape_label_list=[]):
     """ Recursively loops through assemblies or shape object to find all the
     sub shapes
@@ -41,13 +42,19 @@ def getListOfSolidsFromShape(obj, shape_label_list=[]):
             shape_label_list.append(obj.Label)
         elif len(solids)>1:
             if hasattr(obj, "Group"):
+                #This applies to assemlby 4 assemlbies
+                #TODO add in a formal checker for assemblies
                 for sub_object in obj.Group:
                     getListOfSolidsFromShape(sub_object, shape_label_list)
-    else:
-        if hasattr(obj, "Shape"):
-            solids = obj.Shape.Solids
-            if len(solids)>0:
-                shape_label_list = [obj.Label]
+            else:
+                if obj.Shape.ShapeType == 'Compound':
+                    shape_label_list.append(obj.Label)
+
+    #else:
+        #if hasattr(obj, "Shape"):
+            #solids = obj.Shape.Solids
+            #if len(solids)>0:
+                #shape_label_list = [obj.Label]
     return shape_label_list
 
 def addObjectProperty(obj, prop, init_val, type, *args):
@@ -81,6 +88,17 @@ def getListOfBodyObjects():
                 body_object.append(i)
     return body_object
 
+
+def getListOfMovingBodies(list_of_body_labels, solver_document):
+    moving_bodies = []
+    
+    #for body in self.body_objects:
+    for i in range(len(list_of_body_labels)):
+        body_object = solver_document.getObjectsByLabel(list_of_body_labels[i])[0]
+        if body_object.BodyType == "Moving":
+            moving_bodies.append(list_of_body_labels[i])
+    return moving_bodies
+
 def getMaterialObject():
     active_analysis = getActiveAnalysis()
     for i in active_analysis.Group:
@@ -95,6 +113,13 @@ def getSolverObject():
                 return i
     return None
 
+def getForcesObjects():
+    force_objects = []
+    active_analysis = getActiveAnalysis()
+    for i in active_analysis.Group:
+            if "DapForce" in i.Name:
+                force_objects.append(i)
+    return force_objects
 
 def getListOfJointObjects():
     joints = []
@@ -155,3 +180,11 @@ def getQuantity(inputField):
     """ Get the quantity as an unlocalised string from an inputField """
     q = inputField.property("quantity")
     return str(q)
+
+
+def projectPointOntoPlane(plane_norm, point, plane_origin = FreeCAD.Vector(0,0,0)):
+    """ Projects a given vector onto the plane defined by the norm of the plane, passing through the (0,0,0) """
+    projected_point = point - (plane_norm * (point - plane_origin)) * plane_norm
+    
+    #FreeCAD.Console.PrintMessage("Projected point " + str(point) + ": " + str(projected_point) + "\n")
+    return projected_point

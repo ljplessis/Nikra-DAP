@@ -17,7 +17,9 @@ from DapTools import indexOrDefault
 from DapTools import getQuantity, setQuantity
 import DapBodySelection
 import DapSolverBuilder
-import DapSolverRunner
+import numpy as np
+import math
+import time
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtGui
@@ -315,3 +317,115 @@ class TaskPanelDapSolver:
                 self.UnitVector = [round(num, 3) for num in unit_vec_unrounded]
                 self.form.lblUnitVecOut.setText(self.UnitVector)
         return
+        builder = DapSolverBuilder.DapSolverBuilder(self.obj)
+        #builder.
+        builder.t_initial = 0
+        builder.t_final = 0.3
+        builder.reporting_time = 0.01
+        builder.animate = False
+        
+        
+        #TODO: get the save folder from the freecad GUI
+        from sys import platform
+        if platform == "linux" or platform == "linux2":
+            builder.folder = "/tmp/"
+        #elif platform == "darwin":
+            ## OS X
+        elif platform == "win32":
+            # Windows...
+            builder.folder = "c:\windows\temp"
+
+        
+        FreeCAD.Console.PrintMessage("DAP SOLVER STARTED \n")
+        
+        
+        
+        builder.writeInputFiles()
+        builder.solve()
+        
+        #builder.process.start("dolphin")
+        #FreeCAD.Console.PrintMessage("solve command " +str(builder.solverCommand.poll()) + "\n")
+        #if self.solverCommand is 
+        #if self.dapSolverIsRunning
+        #builder.loadResults()
+        
+        
+        
+        
+        
+        
+        
+        
+        #Tspan  = np.arange(builder.t_initial, builder.t_final, builder.reporting_time)
+        ##Tarray = np.zeros( (len(Tspan), len(builder.dapResults)) )
+        
+        #FreeCAD.Console.PrintMessage("Time: " + str(Tspan) + "\n")
+        
+        #nt = len(Tspan)
+        #current_doc = FreeCADGui.getDocument(self.obj.Document)
+        
+        #body_objects = DapTools.getListOfBodyObjects()
+        
+        
+        
+        #animation_doc =  FreeCAD.newDocument("Animation")
+        #for body in body_objects:
+            #animation_doc.addObject("Part::Feature", body.Label)
+            #animation_doc.getObject(body.Label).Shape = body.Shape.copy()
+        
+        
+        #FreeCADGui.SendMsgToActiveView("ViewFit")
+        #animation_body_objects = animation_doc.Objects
+
+        #u = builder.dapResults[0,:].T
+        #builder.dapSolver.u_to_Bodies(u)
+        
+        ##FreeCAD.Console.PrintMessage("
+        #for i in range(1,nt):
+            ####builder.dapResults
+            
+            #u = builder.dapResults[i,:].T
+            
+            
+            
+            #original_pos = []
+            #for bN in range(len(builder.moving_bodies)):
+                #dap_pos = builder.dapSolver.Bodies[bN + 1,0].r
+                #dap_angle = builder.dapSolver.Bodies[bN + 1,0].p
+                #original_pos.append([dap_pos, dap_angle])
+            
+            #builder.dapSolver.u_to_Bodies(u)
+            
+            #for bN in range(len(builder.moving_bodies)):
+                #body_index = builder.list_of_bodies.index(builder.moving_bodies[bN])
+
+                #axis_of_rotation = builder.plane_norm
+                #animation_body_cog = animation_body_objects[body_index].Shape.CenterOfGravity
+                
+                ##NOTE: TODO dap solver is currently 1 indexing
+                #dap_pos = builder.dapSolver.Bodies[bN + 1,0].r
+                #dap_pos = FreeCAD.Vector(dap_pos[0], dap_pos[1], 0)
+                #dap_angle = builder.dapSolver.Bodies[bN + 1,0].p
+
+                #dap_angular_displacement = math.degrees(dap_angle - original_pos[bN][1])
+                
+
+                #animation_body_objects[body_index].Placement.rotate(animation_body_cog, 
+                                                           #axis_of_rotation, 
+                                                           #dap_angular_displacement)
+                
+                
+                
+                ##Determine the current CoG after the shape has been rotated, and then compute the difference
+                ##between the projected and rotated CoG compared to the computed/required CoG in the orthonormal basis
+                ##this then provides the required translation of the body
+                #rotated_cog = animation_body_objects[body_index].Shape.CenterOfGravity
+                #project_cog = builder.projectPointOntoPlane(rotated_cog)
+                #rotated_cog = builder.global_rotation_matrix * project_cog
+                
+                #orthonormal_displacement = dap_pos - rotated_cog
+                
+                #required_displacement = builder.global_rotation_matrix.transposed().multVec(orthonormal_displacement)
+                
+                #animation_body_objects[body_index].Placement.translate(required_displacement) 
+                

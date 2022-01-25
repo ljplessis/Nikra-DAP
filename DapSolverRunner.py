@@ -85,6 +85,20 @@ class _DapSolver:
         addObjectProperty(obj, 'YVector', 0.0, "App::PropertyFloat","","Vector in Y-Direction")
         addObjectProperty(obj, 'ZVector', 0.0, "App::PropertyFloat","","Vector in Z-Direction")
         addObjectProperty(obj, "UnitVector", FreeCAD.Vector(0, 0, 0), "App::PropertyVector", "", "Vector Normal to Planar Motion")
+        addObjectProperty(obj, 'DapResults', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Bodies_r', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Bodies_p', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Points_r', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Points_r_d', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Bodies_p_d', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Bodies_r_d', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Bodies_p_d_d', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'Bodies_r_d_d', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'kinetic_energy', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'potential_energy', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'total_energy', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'global_rotation_matrix', FreeCAD.Matrix(), "App::PropertyMatrix", "", "Global orthonormal rotation matrix")
+        #addObjectProperty(obj, 'MaterialDictionary', {}, "App::PropertyPythonObject", "", "Dictionary of parts and linked material properties")
         return
 
     def onDocumentRestored(self, obj):
