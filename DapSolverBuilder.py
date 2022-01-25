@@ -18,8 +18,6 @@ JOINT_TRANSLATION = {"Revolute": "rev",
 
 class DapSolverBuilder():
     
-    
-    
     def __init__(self):
         self.active_analysis = DapTools.getActiveAnalysis()
         self.doc_name = self.active_analysis.Document.Name
@@ -53,7 +51,9 @@ class DapSolverBuilder():
             ## OS X
         elif platform == "win32":
             # Windows...
-            self.folder = "c:\windows\temp"
+            cwd = os.getcwd()
+            self.folder = os.path.join(cwd)
+            FreeCAD.Console.PrintMessage("Current working directory: " + str(self.folder) + "\n")
         
         
         #TODO define the plane of movement using freecad gui
@@ -113,7 +113,7 @@ class DapSolverBuilder():
         self.global_rotation_matrix = self.computeRotationMatrix()
         self.computeCentreOfGravity()
         self.computeMomentOfInertia()
-        self.writeBodies()
+        # self.writeBodies()
         
         self.processJoints()
         
