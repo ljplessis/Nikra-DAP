@@ -15,6 +15,8 @@ import DapTools
 import numpy as np
 import sys
 import math
+from PySide import QtCore
+
 
 if FreeCAD.GuiUp:
     import FreeCADGui
@@ -44,6 +46,8 @@ class TaskPanelAnimate:
         self.Bodies_r = Bodies_r
         self.Bodies_p = Bodies_p
         
+
+        
         #TODO: link these variables to the properties already defined in dapSolver
         #NOTE: requires the code which is currently still under development
         self.t_initial = 0
@@ -52,6 +56,15 @@ class TaskPanelAnimate:
         self.folder = "/tmp"
         self.plane_norm = FreeCAD.Vector(0,0,1)
 
+        #Should we start of with real speed
+        #self.play_back_speed = self.reporting_time*1000 #msec
+        self.play_back_speed = 100 #msec
+        
+        self.n_time_steps = self.results.shape[0]-1
+
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(self.play_back_speed)
+        self.timer.timeout.connect(self.onTimerTimeout)
         
         self.list_of_bodies = list_of_bodies
         self.list_of_moving_bodies = DapTools.getListOfMovingBodies(self.list_of_bodies, self.solver_document)
@@ -59,10 +72,15 @@ class TaskPanelAnimate:
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelAnimate.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
         
-        self.form.horizontalSlider.setRange(0, self.results.shape[0]-1)
-        self.form.horizontalSlider.valueChanged.connect(self.sliderMoved)
+        self.form.horizontalSlider.setRange(0, self.n_time_steps)
+        self.form.horizontalSlider.valueChanged.connect(self.moveObjects)
         
-         
+        self.form.startButton.clicked.connect(self.playStart)
+        self.form.stopButton.clicked.connect(self.stopStop)
+        
+        self.form.playSpeed.valueChanged.connect(self.changePlaySpeed)
+        
+        self.form.timeStepLabel.setText(str(self.t_initial) + "s / " + str(self.t_final) +"s")
         
         from dapSolver import DapSolver
         
@@ -71,10 +89,10 @@ class TaskPanelAnimate:
         self.dapSolver = DapSolver(self.folder)
         
         u = self.results[0,:].T
-        self.current_pos = self.currentPos(u, 0)
+        self.current_pos = self.currentPos(0)
 
 
-    def currentPos(self, u, index):
+    def currentPos(self, index):
         pos = []
         for bN in range(len(self.Bodies_p[index])):
             dap_pos = self.Bodies_r[index][bN]
@@ -92,12 +110,33 @@ class TaskPanelAnimate:
     def getStandardButtons(self):
         return 0x00200000
 
-    #def moveObjects(self):
+    def playStart(self):
+        self.timer.start()
+    
+    def stopStop(self):
+        self.timer.stop()
+    
+    def onTimerTimeout(self):
+        tickPosition = self.form.horizontalSlider.value()
+        tickPosition += 1
+        if tickPosition >= self.n_time_steps:
+            if self.form.loopCheckBox.isChecked():
+                tickPosition = 0
+            else:
+                self.timer.stop()
+        self.form.horizontalSlider.setValue(tickPosition)
 
-    def sliderMoved(self, value):
-        u = self.results[value, :].T
+    
+
+    def changePlaySpeed(self, value):
+        self.timer.setInterval(self.play_back_speed * (1./value))
+
+    def moveObjects(self, value):
+        #u = self.results[value, :].T
         previous_pos = self.current_pos.copy()
-        self.current_pos = self.currentPos(u, value)
+        self.current_pos = self.currentPos(value)
+        
+        self.form.timeStepLabel.setText(str(self.reporting_time * value) + "s / " + str(self.t_final) +"s")
         for bN in range(len(previous_pos)):
             body_index = self.list_of_bodies.index(self.list_of_moving_bodies[bN])
             animation_body_cog = self.animation_body_objects[body_index].Shape.CenterOfGravity
