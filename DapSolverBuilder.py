@@ -636,19 +636,136 @@ class DapSolverBuilder():
             FreeCAD.Console.PrintError("Solver Failed: error codes not yet included (in the TODO list)\n")
         
     def loadResults(self):
-        results = os.path.join(self.folder, "dapResults.npy")
-        self.dapResults = np.load(results)
-        self.obj.DapResults = self.dapResults.tolist()
+        #results = os.path.join(self.folder, "dapResults.npy")
+        self.dapResults = True
         
-        import pickle
-        with open(os.path.join(self.folder,"Bodies_r"), "rb") as fp:   #Pickling
-            self.obj.Bodies_r = pickle.load(fp)
-        with open(os.path.join(self.folder,"Bodies_p"), "rb") as fp:   #Pickling
-            self.obj.Bodies_p = pickle.load(fp)
-        with open(os.path.join(self.folder,"Bodies_r_d"), "rb") as fp:   #Pickling
-            self.obj.Bodies_r_d = pickle.load(fp)
-        with open(os.path.join(self.folder,"Bodies_p_d"), "rb") as fp:   #Pickling
-            self.obj.Bodies_p_d = pickle.load(fp)
+        
+        
+        
+        #read body CoG positions
+        fid_DapBodyPositions = open(os.path.join(self.folder,"DapBodyPositions"))
+        Bodies_r = []
+        Bodies_p = []
+        DapBodyPositions_lines = fid_DapBodyPositions.readlines()
+        for line in DapBodyPositions_lines[1::]:
+            items = line.split()
+            r = []
+            p = []
+            for i in range(len(self.moving_bodies)):
+                x = float(items[i*3+1])
+                y = float(items[i*3+2])
+                phi = float(items[i*3+3])
+                r.append([x,y])
+                p.append(phi)
+            Bodies_r.append(r)
+            Bodies_p.append(p)
+        fid_DapBodyPositions.close()
+
+        #read body CoG velocities
+        fid = open(os.path.join(self.folder,"DapBodyVelocities"))
+        Bodies_r_d = []
+        Bodies_p_d = []
+        lines = fid.readlines()
+        for line in lines[1::]:
+            items = line.split()
+            for i in range(len(self.moving_bodies)):
+                x = float(items[i*3+1])
+                y = float(items[i*3+2])
+                phi = float(items[i*3+3])
+                r.append([x,y])
+                p.append(phi)
+            Bodies_r_d.append(r)
+            Bodies_p_d.append(p)
+        fid.close()
+        
+        #read body CoG accelerations
+        fid = open(os.path.join(self.folder,"DapBodyAccelerations"))
+        Bodies_r_d_d = []
+        Bodies_p_d_d = []
+        lines = fid.readlines()
+        for line in lines[1::]:
+            items = line.split()
+            for i in range(len(self.moving_bodies)):
+                x = float(items[i*3+1])
+                y = float(items[i*3+2])
+                phi = float(items[i*3+3])
+                r.append([x,y])
+                p.append(phi)
+            Bodies_r_d_d.append(r)
+            Bodies_p_d_d.append(p)
+        fid.close()
+        
+        #read point co-ordinate
+        fid = open(os.path.join(self.folder,"DapPointsPositions"))
+        Points_r = []
+        lines = fid.readlines()
+        for line in lines[1::]:
+            items = line.split()
+            for i in range(len(self.dap_points)):
+                x = float(items[i*2+1])
+                y = float(items[i*2+2])
+                r.append([x,y])
+            Points_r.append(r)
+        fid.close()
+        
+        #read point co-ordinate velocities
+        fid = open(os.path.join(self.folder,"DapPointsVelocities"))
+        Points_r_d = []
+        lines = fid.readlines()
+        for line in lines[1::]:
+            items = line.split()
+            for i in range(len(self.dap_points)):
+                x = float(items[i*2+1])
+                y = float(items[i*2+2])
+                r.append([x,y])
+            Points_r_d.append(r)
+        fid.close()
+        
+        #read body energies
+        fid = open(os.path.join(self.folder,"DapSystemEnergy"))
+        #Points_r_d = []
+        kinetic = []
+        potential = []
+        total = []
+        lines = fid.readlines()
+        for line in lines[1::]:
+            items = line.split()
+
+            kinetic.append(float(items[1]))
+            potential.append(float(items[2]))
+            total.append(float(items[3]))
+        fid.close()
+
+        
+        self.obj.DapResults = self.dapResults
+        self.obj.Bodies_r = Bodies_r
+        self.obj.Bodies_p = Bodies_p
+        self.obj.Bodies_r_d = Bodies_r_d
+        self.obj.Bodies_p_d = Bodies_p_d
+        self.obj.Bodies_r_d_d = Bodies_r_d_d
+        self.obj.Bodies_p_d_d = Bodies_p_d_d
+        self.obj.Points_r = Points_r
+        self.obj.Points_r_d = Points_r_d
+        self.obj.kinetic_energy = kinetic
+        self.obj.potential_energy = potential
+        self.obj.total_energy = total
+        #DapBodyAccelerations
+        #DapBodyPositions
+        #DapBodyVelocities
+        #DapPointsPositions
+        #DapPointsVelocities
+        #DapSystemEnergy
+        
+        
+        #import pickle
+        #with open(os.path.join(self.folder,"Bodies_r"), "rb") as fp:   #Pickling
+            #self.obj.Bodies_r = pickle.load(fp)
+        #with open(os.path.join(self.folder,"Bodies_p"), "rb") as fp:   #Pickling
+            #self.obj.Bodies_p = pickle.load(fp)
+        #with open(os.path.join(self.folder,"Bodies_r_d"), "rb") as fp:   #Pickling
+            #self.obj.Bodies_r_d = pickle.load(fp)
+        #with open(os.path.join(self.folder,"Bodies_p_d"), "rb") as fp:   #Pickling
+            #self.obj.Bodies_p_d = pickle.load(fp)
         
         #FreeCAD.Console.PrintMessage("Results: "+str(self.dapResults) + "\n")
         #FreeCAD.Console.PrintMessage("Results (list): "+str(self.obj.DapResults) + "\n")

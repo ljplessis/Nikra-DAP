@@ -60,7 +60,7 @@ class TaskPanelAnimate:
         #self.play_back_speed = self.reporting_time*1000 #msec
         self.play_back_speed = 100 #msec
         
-        self.n_time_steps = self.results.shape[0]-1
+        self.n_time_steps = len(self.Bodies_r) - 1
 
         self.timer = QtCore.QTimer()
         self.timer.setInterval(self.play_back_speed)
@@ -88,7 +88,7 @@ class TaskPanelAnimate:
         #then should just link to the already created instance of the dapsolver
         self.dapSolver = DapSolver(self.folder)
         
-        u = self.results[0,:].T
+        #u = self.results[0,:].T
         self.current_pos = self.currentPos(0)
 
 
@@ -142,13 +142,14 @@ class TaskPanelAnimate:
             animation_body_cog = self.animation_body_objects[body_index].Shape.CenterOfGravity
             axis_of_rotation = self.plane_norm
 
-            dap_angular_displacement = math.degrees(self.current_pos[bN][1] - previous_pos[bN][1])
+            current_pos = self.current_pos[bN]
+            dap_angular_displacement = math.degrees(current_pos[1] - previous_pos[bN][1])
             self.animation_body_objects[body_index].Placement.rotate(animation_body_cog, 
                                                                     axis_of_rotation, 
                                                                     dap_angular_displacement)
             
-            dap_pos = self.current_pos[bN][0]
-            dap_pos = FreeCAD.Vector(dap_pos[0][0], dap_pos[1][0], 0)
+            #current_pos = self.current_pos[bN]
+            dap_pos = FreeCAD.Vector(current_pos[0][0], current_pos[0][1], 0)
             
             rotated_cog = self.animation_body_objects[body_index].Shape.CenterOfGravity
             project_cog = DapTools.projectPointOntoPlane(self.plane_norm, rotated_cog)
