@@ -21,8 +21,13 @@ JOINT_TYPES = ["Rotation", "Linear Movement"]
 DEFINITION_MODES = [["1 Point + 2 Bodies",
                      "alt def mode"], ["2 Points + 2 Bodies"]]
 
-HELPER_TEXT = [["Choose a point and the two bodies attached at the point.",
-                "Alternative Deifinition Mode Description"], ["Choose two points and two bodies, (each point must be attached to its own body)"]]
+HELPER_TEXT = [["Choose a point (by picking an LCS) and the two bodies attached to the point.",\
+    "Alternative Deifinition Mode Description"],\
+    ["Choose two points (by picking two LCS's) and two bodies, (each point must be attached to its own body)"]]
+
+YES_NO = ["No", "Yes"]
+
+FUNCTION_TYPES = ["Function type 'a'", "Function type 'b'", "Function type 'c'"]
 
 def makeDapJoints(name="DapRelativeMovement"):
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", name)
@@ -85,6 +90,34 @@ class _DapJoint:
         addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Label: Body 2")
         addObjectProperty(obj, 'Point1RelMov', "", "App::PropertyString", "", "Label: Point 1 of Relative Movement")
         addObjectProperty(obj, 'Point2RelMov', "", "App::PropertyString", "", "Label: Point 2 of Relative Movement")
+        addObjectProperty(obj, 'DriverOn', YES_NO, "App::PropertyEnumeration","",\
+            "Is a 'driver' switched on to control the defined relative movement?")
+        addObjectProperty(obj, 'DriverFunctionType', FUNCTION_TYPES, "App::PropertyEnumeration", "",\
+            "Function type that the (switched on) 'driver' will use to control the defined relative movement." )
+        addObjectProperty(obj, 'tEndDriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: End time (t_end)")
+        addObjectProperty(obj, 'coefC1DriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: coefficient 'c_1'")
+        addObjectProperty(obj, 'coefC2DriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: coefficient 'c_2'")
+        addObjectProperty(obj, 'coefC3DriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: coefficient 'c_3'")
+        addObjectProperty(obj, 'tStartDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: Start time (t_start)")
+        addObjectProperty(obj, 'tEndDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: End time (t_end)")
+        addObjectProperty(obj, 'initialValueDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: initial function value")
+        addObjectProperty(obj, 'endValueDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: function value at t_end")
+        addObjectProperty(obj, 'tStartDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: Start time (t_start)")
+        addObjectProperty(obj, 'tEndDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: End time (t_end)")
+        addObjectProperty(obj, 'initialValueDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: initial function value")
+        addObjectProperty(obj, 'endDerivativeDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: function derivative at t_end")
         
         
 

@@ -24,6 +24,7 @@ class TaskPanelDapJoint:
     def __init__(self, obj):
         self.obj = obj
         self.TypeOfRelMov = self.obj.TypeOfRelMov
+        self.DriverOn = self.obj.DriverOn
         self.RelMovDefinitionMode = self.obj.RelMovDefinitionMode
         self.Body1 = self.obj.Body1
         self.Body2 = self.obj.Body2
@@ -40,6 +41,13 @@ class TaskPanelDapJoint:
         self.form.TypeOfRelMov.currentIndexChanged.connect(self.jointTypeChanged)
         self.form.TypeOfRelMov.setCurrentIndex(ji)
         self.jointTypeChanged()
+
+        self.form.DriverOn.addItems(DapJointSelection.YES_NO)
+        k = indexOrDefault(DapJointSelection.YES_NO, self.obj.DriverOn, 0)
+        self.form.DriverOn.currentIndexChanged.connect(self.DriverOnChanged)
+        self.form.DriverOn.setCurrentIndex(k)
+        self.DriverOnChanged()
+
 
         dmi = indexOrDefault(DapJointSelection.DEFINITION_MODES[ji], self.obj.RelMovDefinitionMode, 0)
         self.form.definitionMode.currentIndexChanged.connect(self.definitionModeChanged)
@@ -102,6 +110,7 @@ class TaskPanelDapJoint:
 
     def reject(self):
         self.obj.TypeOfRelMov = self.TypeOfRelMov
+        self.obj.DriverOn = self.DriverOn
         FreeCADGui.Selection.removeObserver(self)
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
@@ -113,10 +122,15 @@ class TaskPanelDapJoint:
         return True
 
     def jointTypeChanged(self):
-        index =  self.form.TypeOfRelMov.currentIndex()
+        index =  self.form.TypeOfRelMov.currentIndex()        
         self.form.definitionMode.clear()
         self.form.definitionMode.addItems(DapJointSelection.DEFINITION_MODES[index])
         self.obj.TypeOfRelMov = DapJointSelection.JOINT_TYPES[index]
+        self.obj.recompute()
+
+    def DriverOnChanged(self):
+        switch =  self.form.DriverOn.currentIndex()
+        self.obj.DriverOn = DapJointSelection.YES_NO[switch]
         self.obj.recompute()
         
     def definitionModeChanged(self):
