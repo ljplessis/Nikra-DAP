@@ -66,7 +66,17 @@ class DapSolverBuilder():
         
         
         
-        
+        #TODO: get the save folder from the freecad GUI
+        from sys import platform
+        if platform == "linux" or platform == "linux2":
+            self.folder = "/tmp"
+        #elif platform == "darwin":
+            ## OS X
+        elif platform == "win32":
+            # Windows...
+            cwd = os.getcwd()
+            self.folder = os.path.join(cwd)
+            FreeCAD.Console.PrintMessage("Current working directory: " + str(self.folder) + "\n")
         
         
         #TODO define the plane of movement using freecad gui
@@ -126,6 +136,7 @@ class DapSolverBuilder():
         self.global_rotation_matrix = self.computeRotationMatrix()
         self.computeCentreOfGravity()
         self.computeMomentOfInertia()
+        # self.writeBodies()
         self.processJoints() #this includes processing points included within joints
         self.processForces()
         
