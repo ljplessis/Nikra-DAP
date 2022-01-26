@@ -80,6 +80,7 @@ def getListOfBodyLabels():
                 body_labels.append(i.Label)
     return body_labels
 
+
 def getListOfBodyObjects():
     body_object = []
     active_analysis = getActiveAnalysis()
@@ -98,6 +99,23 @@ def getListOfMovingBodies(list_of_body_labels, solver_document):
         if body_object.BodyType == "Moving":
             moving_bodies.append(list_of_body_labels[i])
     return moving_bodies
+
+def getListOfBodyReferences():
+    body_references = []
+    active_analysis = getActiveAnalysis()
+    for i in active_analysis.Group:
+            if "DapBody" in i.Name:
+                body_references = body_references + i.References
+    return body_references
+
+def getListOfForces(): #Mod
+    forces = []
+    active_analysis = getActiveAnalysis()
+    for j in active_analysis.Group:
+        if "DapForce" in j.Name:
+            forces.append(j.ForceTypes)
+    return forces
+
 
 def getMaterialObject():
     active_analysis = getActiveAnalysis()

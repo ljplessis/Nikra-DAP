@@ -19,7 +19,6 @@ if FreeCAD.GuiUp:
     from PySide import QtGui
     from PySide.QtGui import QFormLayout
 
-
 class TaskPanelDapBody:
     """ Taskpanel for adding DAP Bodies """
     def __init__(self, obj):
@@ -32,7 +31,7 @@ class TaskPanelDapBody:
         self.initAngular = self.obj.InitialAngular
 
         self.default_velocity = "1 m/s"
-        self.defaulty_angVelocity = "1 rad/s"
+        self.default_angVelocity = "1 rad/s"
 
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelDapBodies.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
@@ -67,7 +66,7 @@ class TaskPanelDapBody:
     def unitFunc(self):
 
         velocity = Units.Quantity(self.default_velocity)
-        angVelocity = Units.Quantity(self.defaulty_angVelocity)
+        angVelocity = Units.Quantity(self.default_angVelocity)
         
 
         setQuantity(self.form.velocityAngular,angVelocity)
@@ -91,6 +90,7 @@ class TaskPanelDapBody:
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
+
         return #self.obj.InitialHorizontal, self.obj.InitialVertical, self.obj.InitialAngular
 
     def reject(self):
@@ -112,7 +112,6 @@ class TaskPanelDapBody:
             self.obj.InitialAngular = "0 rad/s"
         self.rebuildInitialConditions()
 
-        
     def buttonAddPartClicked(self):
         sel = FreeCADGui.Selection.getSelection()
 
@@ -135,10 +134,10 @@ class TaskPanelDapBody:
 
     def buttonRemovePartClicked(self):
         if not self.References:
-            #FreeCAD.Console.PrintMessage("Here 1")
+            FreeCAD.Console.PrintMessage("Here 1")
             return
         if not self.form.partList.currentItem():
-            #FreeCAD.Console.PrintMessage("Here 2")
+            FreeCAD.Console.PrintMessage("Here 2")
             return
         row = self.form.partList.currentRow()
         self.References.pop(row)
@@ -154,7 +153,6 @@ class TaskPanelDapBody:
         setQuantity(self.form.velocityHorizontal, self.obj.InitialHorizontal)
         setQuantity(self.form.velocityVertical, self.obj.InitialVertical)
         setQuantity(self.form.velocityAngular, self.obj.InitialAngular)
-
 
     def partListRowChanged(self, row):
         """ Actively select the part to make it visible when viewing parts already in list """

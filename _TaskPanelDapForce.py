@@ -116,21 +116,18 @@ class TaskPanelDapForce:
         """If this is missing, there won't be an OK button"""
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
-        if DapTools.gravityChecker():
-            FreeCAD.Console.PrintError('Gravity has already been selected')
-        else:
-            self.obj.ForceTypes = self.Type
-            self.obj.gx = getQuantity(self.form.xIn)
-            self.obj.gy = getQuantity(self.form.yIn)
-            self.obj.gz = getQuantity(self.form.zIn)
-            self.obj.Stiffness = getQuantity(self.form.stiffnessIn)
-            self.obj.UndeformedLength = getQuantity(self.form.undefIn)
+        self.obj.ForceTypes = self.Type
+        self.obj.gx = getQuantity(self.form.xIn)
+        self.obj.gy = getQuantity(self.form.yIn)
+        self.obj.gz = getQuantity(self.form.zIn)
+        self.obj.Stiffness = getQuantity(self.form.stiffnessIn)
+        self.obj.UndeformedLength = getQuantity(self.form.undefIn)
 
-            self.X=self.obj.gx
-            self.Y=self.obj.gy
-            self.Z=self.obj.gz
-            self.Stiff=self.obj.Stiffness
-            self.UndefLen=self.obj.UndeformedLength
+        self.X=self.obj.gx
+        self.Y=self.obj.gy
+        self.Z=self.obj.gz
+        self.Stiff=self.obj.Stiffness
+        self.UndefLen=self.obj.UndeformedLength
 
 
         # Recompute document to update viewprovider based on the shapes
