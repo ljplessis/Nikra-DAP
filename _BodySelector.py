@@ -195,30 +195,17 @@ class BodySelector:
             obj.Shape = Part.Shape()
 
         elif index == 2:
-            FreeCAD.Console.PrintError('Cool')
-            # docName = str(obj.Document.Name)
-            # doc = FreeCAD.getDocument(docName)
-            # shape_objects = []
-            # if len(obj.pointList)>0:
-            #     for i in range(len(obj.pointList)):
-            #         selection_object = doc.getObjectsByLabel(obj.pointList[i])[0]
-            #         shape_objects.append(selection_object.Shape)
-            #     shape = Part.makeCompound(shape_objects)
-            #     obj.Shape = shape
-            # else:
-            #     obj.Shape = Part.Shape()
-            
-            # r = 0.1
-            # point = Part.makeSphere(r)
-            # point.Placement.Base = self.PointCoord
-            # obj.Shape = point
+            shape_list=[]
+            r = 0.1 
+            if len(self.pointCoordList)>0:
+                for i in range(len(obj.pointList)):
+                     point = Part.makeSphere(r)
+                     point.Placement.Base = self.pointCoordList[i]
+                     shape_list.append(point)
+            shape = Part.makeCompound(shape_list)
+            obj.Shape = shape
+                
         return None
-
-    # def pointExecute(self,obj):
-    #     r = 0.1
-    #     point = Part.makeSphere(r)
-    #     point.Placement.Base = self.PointCoord
-    #     obj.Shape = point
 
     def rebuildInputs(self,index):
 
@@ -233,7 +220,7 @@ class BodySelector:
             self.form.lcsName1.setText(self.Joint1)
             self.form.lcsName2.setText(self.Joint2)
 
-            self.execute(self.obj,index)
+           
 
         elif index == 1:
             self.Body1 = self.obj.Body1
@@ -243,7 +230,7 @@ class BodySelector:
 
             self.form.lcsName3.setText(self.Joint1)
 
-            self.execute(self.obj,index)
+        
             
         elif index == 2:
             self.Point = self.obj.Point
@@ -257,7 +244,7 @@ class BodySelector:
 
             self.rebuildPointList()
 
-            self.execute(self.obj,index)
+        
 
         return
 
