@@ -31,6 +31,7 @@ sys.path.append(os.path.join(module_path, "dap_solver"))
 class TaskPanelAnimate:
     """ Taskpanel for adding DAP Bodies """
     def __init__(self, 
+                 solver_object,
                  solver_document, 
                  animation_document, 
                  results, 
@@ -38,6 +39,7 @@ class TaskPanelAnimate:
                  rotation_matrix,
                  Bodies_r,
                  Bodies_p):
+        self.obj = solver_object
         self.solver_document = solver_document
         self.animation_document = animation_document
         self.results = np.array(results)
@@ -46,15 +48,15 @@ class TaskPanelAnimate:
         self.Bodies_r = Bodies_r
         self.Bodies_p = Bodies_p
         
-
         
         #TODO: link these variables to the properties already defined in dapSolver
         #NOTE: requires the code which is currently still under development
-        self.t_initial = 0
-        self.t_final = 0.3
-        self.reporting_time = 0.01
-        self.folder = "/tmp"
-        self.plane_norm = FreeCAD.Vector(0,0,1)
+        self.t_initial = self.obj.StartTime
+        self.t_final = self.obj.EndTime
+        self.reporting_time = self.obj.ReportingTimeStep
+        self.folder = self.obj.FileDirectory
+        self.plane_norm = self.obj.UnitVector
+        self.reportedTimes = self.obj.ReportedTimes
 
         #Should we start of with real speed
         #self.play_back_speed = self.reporting_time*1000 #msec
@@ -80,7 +82,8 @@ class TaskPanelAnimate:
         
         self.form.playSpeed.valueChanged.connect(self.changePlaySpeed)
         
-        self.form.timeStepLabel.setText(str(self.t_initial) + "s / " + str(self.t_final) +"s")
+        self.form.timeStepLabel.setText("{0:5.3f}s / {1:5.3f}s".format(self.t_initial, self.t_final))
+            #str(self.t_initial) + "s / " + str(self.t_final) +"s")
         
         from dapSolver import DapSolver
         
@@ -135,7 +138,8 @@ class TaskPanelAnimate:
         previous_pos = self.current_pos.copy()
         self.current_pos = self.currentPos(value)
         
-        self.form.timeStepLabel.setText(str(self.reporting_time * value) + "s / " + str(self.t_final) +"s")
+        #self.form.timeStepLabel.setText(str(self.reportedTimes[value]) + "s / " + str(self.t_final) +"s")
+        self.form.timeStepLabel.setText("{0:5.3f}s / {1:5.3f}s".format(self.reportedTimes[value], self.t_final))
         for bN in range(len(self.list_of_moving_bodies)):
             body_index = self.list_of_bodies.index(self.list_of_moving_bodies[bN])
             animation_body_cog = self.animation_body_objects[body_index].Shape.CenterOfGravity

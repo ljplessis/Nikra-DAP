@@ -41,11 +41,11 @@ class DapSolverBuilder():
         
         
         
-        self.t_initial = 0
-        self.t_final = 1
-        self.reporting_time = 0.01
-        self.animate = True
-        self.folder = "/tmp/"
+        self.t_initial = self.obj.StartTime
+        self.t_final = self.obj.EndTime
+        self.reporting_time = self.obj.ReportingTimeStep
+        self.animate = False
+        self.folder = self.obj.FileDirectory
         
         self.list_of_bodies = DapTools.getListOfBodyLabels()
         self.body_objects = DapTools.getListOfBodyObjects()
@@ -59,47 +59,19 @@ class DapSolverBuilder():
         
         self.material_dictionary = self.material_object.MaterialDictionary
         
-        FreeCAD.Console.PrintMessage("Initialising dap solver builder \n")
-        FreeCAD.Console.PrintMessage("BUilder folder " + str(self.folder) + "\n")
+        #FreeCAD.Console.PrintMessage("Initialising dap solver builder \n")
+        #FreeCAD.Console.PrintMessage("BUilder folder " + str(self.folder) + "\n")
         
         self.joints = DapTools.getListOfJointObjects()
         
         
         
-        #TODO: get the save folder from the freecad GUI
-        from sys import platform
-        if platform == "linux" or platform == "linux2":
-            self.folder = "/tmp"
-        #elif platform == "darwin":
-            ## OS X
-        elif platform == "win32":
-            # Windows...
-            cwd = os.getcwd()
-            self.folder = os.path.join(cwd)
-            FreeCAD.Console.PrintMessage("Current working directory: " + str(self.folder) + "\n")
+        self.plane_norm = self.obj.UnitVector
         
-        
-        #TODO define the plane of movement using freecad gui
-        #either by defining a principle axis or selecting planar Face/sketch/plane
-        self.plane_norm = FreeCAD.Vector(0, 0, 1)
-        #self.plane_norm = FreeCAD.Vector(0.49999999999999994, -0.5, 0.7071067811865477)
-        
+        #NOTE: for calculations it does not matter what the origin of the projection planeis
         self.plane_origin = FreeCAD.Vector(0, 0, 0) #NOTE assuming for now that plane moves through global origina
         
-        
-        
-        #FreeCAD.Console.PrintMessage("Succesfully reloaded module \n")
-        #FreeCAD.Console.PrintMessage("The Material Object \n")
-        #FreeCAD.Console.PrintMessage(self.material_object.Label)
-        #FreeCAD.Console.PrintMessage("\n")
-        #FreeCAD.Console.PrintMessage("The Material Dictionary \n")
-        #FreeCAD.Console.PrintMessage(self.material_dictionary)
-        #FreeCAD.Console.PrintMessage("\n")
-        #FreeCAD.Console.PrintMessage("List of bodies \n")
-        #FreeCAD.Console.PrintMessage(self.list_of_bodies)
-        #FreeCAD.Console.PrintMessage("\n")
-        
-        
+
         #TODO run a number of checkers
         #Checkers to run:
         #1.) There are bodies defined
@@ -125,18 +97,10 @@ class DapSolverBuilder():
             self.parts_of_bodies[body_label] = shape_complete_list
 
 
-
-        #FreeCAD.Console.PrintMessage("List of shapes parts of bodies \n")
-        #FreeCAD.Console.PrintMessage(self.parts_of_bodies)
-        #FreeCAD.Console.PrintMessage("\n")
-        
-    
-        
         self.listOfMovingBodies()
         self.global_rotation_matrix = self.computeRotationMatrix()
         self.computeCentreOfGravity()
         self.computeMomentOfInertia()
-        # self.writeBodies()
         self.processJoints() #this includes processing points included within joints
         self.processForces()
         
@@ -567,11 +531,13 @@ class DapSolverBuilder():
         fid_DapBodyPositions = open(os.path.join(self.folder,"DapBodyPositions"))
         Bodies_r = []
         Bodies_p = []
+        reported_times = []
         DapBodyPositions_lines = fid_DapBodyPositions.readlines()
         for line in DapBodyPositions_lines[1::]:
             items = line.split()
             r = []
             p = []
+            reported_times.append(float(items[0]))
             for i in range(len(self.moving_bodies)):
                 x = float(items[i*3+1])
                 y = float(items[i*3+2])
@@ -589,6 +555,8 @@ class DapSolverBuilder():
         lines = fid.readlines()
         for line in lines[1::]:
             items = line.split()
+            r = []
+            p = []
             for i in range(len(self.moving_bodies)):
                 x = float(items[i*3+1])
                 y = float(items[i*3+2])
@@ -606,6 +574,8 @@ class DapSolverBuilder():
         lines = fid.readlines()
         for line in lines[1::]:
             items = line.split()
+            r = []
+            p = []
             for i in range(len(self.moving_bodies)):
                 x = float(items[i*3+1])
                 y = float(items[i*3+2])
@@ -622,6 +592,7 @@ class DapSolverBuilder():
         lines = fid.readlines()
         for line in lines[1::]:
             items = line.split()
+            r = []
             for i in range(len(self.dap_points)):
                 x = float(items[i*2+1])
                 y = float(items[i*2+2])
@@ -635,6 +606,7 @@ class DapSolverBuilder():
         lines = fid.readlines()
         for line in lines[1::]:
             items = line.split()
+            r = []
             for i in range(len(self.dap_points)):
                 x = float(items[i*2+1])
                 y = float(items[i*2+2])
@@ -670,6 +642,9 @@ class DapSolverBuilder():
         self.obj.kinetic_energy = kinetic
         self.obj.potential_energy = potential
         self.obj.total_energy = total
+        self.obj.ReportedTimes = reported_times
+        
+        
         #DapBodyAccelerations
         #DapBodyPositions
         #DapBodyVelocities

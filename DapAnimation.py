@@ -60,11 +60,11 @@ class _CommandDapAnimation:
         
         
         import _TaskPanelAnimate
-        ##testObject = DapTools.getSolverObject()
-        taskd = _TaskPanelAnimate.TaskPanelAnimate(solver_doc, 
-                                                   animation_doc, 
-                                                   results, 
-                                                   list_of_bodies, 
+        taskd = _TaskPanelAnimate.TaskPanelAnimate(solver_object,
+                                                   solver_doc,
+                                                   animation_doc,
+                                                   results,
+                                                   list_of_bodies,
                                                    rotation_matrix,
                                                    Bodies_r,
                                                    Bodies_p)

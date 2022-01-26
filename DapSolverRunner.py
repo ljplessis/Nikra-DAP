@@ -30,7 +30,7 @@ MOTION_PLANES_HELPER_TEXT = ["Planar Motion is in XY Plane",
 SELECTION_TYPE = ["Object Selection", 
                   "Normal Vector Definition"]
 
-SELECTION_TYPE_HELPER_TEXT = ["Select object entities to define plane of motion", 
+SELECTION_TYPE_HELPER_TEXT = ["Select object entities to define plane of motion. Valid selections include plane, face or sketch.", 
                               "Define the normal vector of the plane of motion"]
 
 def makeDapSolver(name="DapSolver"):
@@ -84,8 +84,13 @@ class _DapSolver:
         addObjectProperty(obj, 'XVector', 0.0, "App::PropertyFloat","","Vector in X-Direction")
         addObjectProperty(obj, 'YVector', 0.0, "App::PropertyFloat","","Vector in Y-Direction")
         addObjectProperty(obj, 'ZVector', 0.0, "App::PropertyFloat","","Vector in Z-Direction")
+        
+        addObjectProperty(obj, 'StartTime', 0.0, "App::PropertyFloat","","Start Time")
+        addObjectProperty(obj, 'EndTime', 0.5, "App::PropertyFloat","","Start Time")
+        addObjectProperty(obj, 'ReportingTimeStep', 0.01, "App::PropertyFloat","","Time intervals for the solution")
         addObjectProperty(obj, "UnitVector", FreeCAD.Vector(0, 0, 0), "App::PropertyVector", "", "Vector Normal to Planar Motion")
         addObjectProperty(obj, 'DapResults', None, "App::PropertyPythonObject", "", "")
+        addObjectProperty(obj, 'ReportedTimes', None, "App::PropertyPythonObject", "", "")
         addObjectProperty(obj, 'Bodies_r', None, "App::PropertyPythonObject", "", "")
         addObjectProperty(obj, 'Bodies_p', None, "App::PropertyPythonObject", "", "")
         addObjectProperty(obj, 'Points_r', None, "App::PropertyPythonObject", "", "")

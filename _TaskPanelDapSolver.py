@@ -71,6 +71,7 @@ class TaskPanelDapSolver:
         self.form.dsbVeci.valueChanged.connect(self.unitVector)
         self.form.dsbVecj.valueChanged.connect(self.unitVector)
         self.form.dsbVeck.valueChanged.connect(self.unitVector)
+        
 
         self.form.cmbPlaneofMotion.currentIndexChanged.connect(self.cmbPlaneChanged)
 
@@ -79,6 +80,8 @@ class TaskPanelDapSolver:
         self.rebuildObjectList()
 
         self.rebuildConditions()
+        
+        self.setTimeValueOnReload()
 
         self.checkPlane()
 
@@ -94,6 +97,15 @@ class TaskPanelDapSolver:
         FreeCAD.getDocument(doc_name).recompute()
 
         self.checkPlane()
+        
+        self.obj.MotionPlane = self.MotionPlane
+        self.obj.SelectionType = self.SelectionType
+        self.obj.ObjectEntities = self.ObjectEntities
+        self.obj.XVector = self.XVector
+        self.obj.YVector = self.YVector
+        self.obj.ZVector = self.ZVector
+        
+        self.getTimeValues()
 
         return
 
@@ -105,6 +117,22 @@ class TaskPanelDapSolver:
         doc.resetEdit()
         return True
 
+    def setTimeValueOnReload(self):
+        self.form.startTime.setValue(self.obj.StartTime)
+        self.form.endTime.setValue(self.obj.EndTime)
+        self.form.reportingTime.setValue(self.obj.ReportingTimeStep)
+
+    def getTimeValues(self):
+        self.obj.StartTime = self.form.startTime.value()
+        self.obj.EndTime = self.form.endTime.value()
+        self.obj.ReportingTimeStep = self.form.reportingTime.value()
+
+    def checkValidityOfTime(self):
+        if self.obj.StartTime > self.obj.EndTime:
+            raise RuntimeError("Start time is greater than end time")
+        if self.obj.ReportingTimeStep > self.obj.EndTime:
+            raise RuntimeError("Reporting time is greater than end time")
+
     def solveButtonClicked(self):
         #builder = DapSolverBuilder.DapSolverBuilder()
         self.obj.MotionPlane = self.MotionPlane
@@ -113,10 +141,10 @@ class TaskPanelDapSolver:
 
         self.obj.FileDirectory = self.form.lnedFileDirectory.text()
 
-        if self.obj.FileDirectory == "":
-            FreeCAD.Console.PrintError("\n Warning!!  No file directory chosen for saving Results \n")
-            self.defaultFileDirectory()
-            FreeCAD.Console.PrintError("\n The above folder has been chosen as the default directory \n")
+        #if self.obj.FileDirectory == "":
+            #FreeCAD.Console.PrintError("\n Warning!!  No file directory chosen for saving Results \n")
+            #self.defaultFileDirectory()
+            #FreeCAD.Console.PrintError("\n The above folder has been chosen as the default directory \n")
 
         self.checkPlane()
 
@@ -125,7 +153,19 @@ class TaskPanelDapSolver:
         self.obj.ZVector = self.ZVector
 
         self.form.lblUnitVecOut.setText(str(self.obj.UnitVector))
+        
+        self.getTimeValues()
+        self.checkValidityOfTime()
+        
+        
+        self.builder = DapSolverBuilder.DapSolverBuilder(self.obj)
 
+        
+        FreeCAD.Console.PrintMessage("DAP SOLVER STARTED \n")
+
+        self.builder.writeInputFiles()
+        self.builder.solve()
+        
         #builder.computeCentreOfGravity()
 
     def cmbPlaneChanged(self): #Mod
@@ -170,9 +210,9 @@ class TaskPanelDapSolver:
         return
 
     def defaultFileDirectory(self):
-        self.obj.FileDirectory = os.getcwd()
-        FreeCAD.Console.PrintMessage(self.obj.FileDirectory)
-        self.form.lnedFileDirectory.setText(self.obj.FileDirectory)
+        self.FileDirectory = os.getcwd()
+        #FreeCAD.Console.PrintMessage(self.obj.FileDirectory)
+        self.form.lnedFileDirectory.setText(self.FileDirectory)
         return
 
     def getFolderDirectory(self):
@@ -181,9 +221,27 @@ class TaskPanelDapSolver:
         return
 
     def checkPlane(self):
-
-        if self.MotionPlane == "X-Y Plane" or "Y-Z Plane" or "X-Z Plane":
-
+        if self.MotionPlane == "X-Y Plane" or self.MotionPlane == "Y-Z Plane" or self.MotionPlane == "X-Z Plane":
+            if self.MotionPlane == "X-Y Plane":
+                self.XVector = 0.0
+                self.YVector = 0.0
+                self.ZVector = 1.0
+            elif self.MotionPlane == "Y-Z Plane":
+                self.XVector = 1.0
+                self.YVector = 0.0
+                self.ZVector = 0.0
+            else:
+                self.XVector = 0.0
+                self.YVector = 1.0
+                self.ZVector = 0.0
+                
+            if (self.XVector != 0) or (self.YVector != 0) or (self.ZVector != 0):
+                mag = (self.XVector**2 + self.YVector**2 + self.ZVector**2)**0.5        
+                rounder = 3        
+                self.UnitVector = FreeCAD.Vector(round(self.XVector/mag, rounder), 
+                                                 round(self.YVector/mag, rounder),
+                                                 round(self.ZVector/mag, rounder))
+            
             self.form.lblPlaneSelectType.setHidden(True)
             self.form.cmbSelectType.setHidden(True)
             self.form.lblDescription2.setHidden(True)
@@ -278,13 +336,12 @@ class TaskPanelDapSolver:
             if (self.XVector != 0) or (self.YVector != 0) or (self.ZVector != 0):
                 mag = (self.XVector**2 + self.YVector**2 + self.ZVector**2)**0.5
                 rounder = 3
-                self.obj.UnitVector = FreeCAD.Vector(round(self.XVector/mag, rounder),
-                                                    round(self.YVector/mag, rounder),
-                                                    round(self.ZVector/mag, rounder))
+                self.UnitVector = FreeCAD.Vector(round(self.XVector/mag, rounder),
+                                                 round(self.YVector/mag, rounder),
+                                                 round(self.ZVector/mag, rounder))
             else:
                 FreeCAD.Console.PrintError("\n Error!!  No Unit Vector has been Defined.  Reverting to:   \n")
                 FreeCAD.Console.PrintMessage(self.obj.UnitVector)
-
             self.obj.setEditorMode("ObjectEntities", 2)
             self.obj.setEditorMode("XVector", 0)
             self.obj.setEditorMode("YVector", 0)
@@ -297,11 +354,18 @@ class TaskPanelDapSolver:
         return
 
     def rebuildConditions(self):
-        self.form.lnedFileDirectory.setText(self.obj.FileDirectory)
-        self.form.dsbVeci.setValue(self.obj.XVector)
-        self.form.dsbVecj.setValue(self.obj.YVector)
-        self.form.dsbVeck.setValue(self.obj.ZVector)
-        self.form.lblUnitVecOut.setText(str(self.obj.UnitVector))
+        #self.form.lnedFileDirectory.setText(self.obj.FileDirectory)
+        #self.form.dsbVeci.setValue(self.obj.XVector)
+        #self.form.dsbVecj.setValue(self.obj.YVector)
+        #self.form.dsbVeck.setValue(self.obj.ZVector)
+        #self.form.lblUnitVecOut.setText(str(self.obj.UnitVector))
+        if self.FileDirectory == "":
+            self.defaultFileDirectory()
+        self.form.lnedFileDirectory.setText(self.FileDirectory)
+        self.form.dsbVeci.setValue(self.XVector)
+        self.form.dsbVecj.setValue(self.YVector)
+        self.form.dsbVeck.setValue(self.ZVector)
+        self.form.lblUnitVecOut.setText(str(self.UnitVector))
         return
 
     def unitVector(self):
@@ -319,115 +383,5 @@ class TaskPanelDapSolver:
                 self.UnitVector = [round(num, 3) for num in unit_vec_unrounded]
                 self.form.lblUnitVecOut.setText(self.UnitVector)
         return
-        builder = DapSolverBuilder.DapSolverBuilder(self.obj)
-        #builder.
-        builder.t_initial = 0
-        builder.t_final = 0.3
-        builder.reporting_time = 0.01
-        builder.animate = False
         
         
-        #TODO: get the save folder from the freecad GUI
-        from sys import platform
-        if platform == "linux" or platform == "linux2":
-            builder.folder = "/tmp/"
-        #elif platform == "darwin":
-            ## OS X
-        elif platform == "win32":
-            # Windows...
-            builder.folder = "c:\windows\temp"
-
-        
-        FreeCAD.Console.PrintMessage("DAP SOLVER STARTED \n")
-        
-        
-        
-        builder.writeInputFiles()
-        builder.solve()
-        
-        #builder.process.start("dolphin")
-        #FreeCAD.Console.PrintMessage("solve command " +str(builder.solverCommand.poll()) + "\n")
-        #if self.solverCommand is 
-        #if self.dapSolverIsRunning
-        #builder.loadResults()
-        
-        
-        
-        
-        
-        
-        
-        
-        #Tspan  = np.arange(builder.t_initial, builder.t_final, builder.reporting_time)
-        ##Tarray = np.zeros( (len(Tspan), len(builder.dapResults)) )
-        
-        #FreeCAD.Console.PrintMessage("Time: " + str(Tspan) + "\n")
-        
-        #nt = len(Tspan)
-        #current_doc = FreeCADGui.getDocument(self.obj.Document)
-        
-        #body_objects = DapTools.getListOfBodyObjects()
-        
-        
-        
-        #animation_doc =  FreeCAD.newDocument("Animation")
-        #for body in body_objects:
-            #animation_doc.addObject("Part::Feature", body.Label)
-            #animation_doc.getObject(body.Label).Shape = body.Shape.copy()
-        
-        
-        #FreeCADGui.SendMsgToActiveView("ViewFit")
-        #animation_body_objects = animation_doc.Objects
-
-        #u = builder.dapResults[0,:].T
-        #builder.dapSolver.u_to_Bodies(u)
-        
-        ##FreeCAD.Console.PrintMessage("
-        #for i in range(1,nt):
-            ####builder.dapResults
-            
-            #u = builder.dapResults[i,:].T
-            
-            
-            
-            #original_pos = []
-            #for bN in range(len(builder.moving_bodies)):
-                #dap_pos = builder.dapSolver.Bodies[bN + 1,0].r
-                #dap_angle = builder.dapSolver.Bodies[bN + 1,0].p
-                #original_pos.append([dap_pos, dap_angle])
-            
-            #builder.dapSolver.u_to_Bodies(u)
-            
-            #for bN in range(len(builder.moving_bodies)):
-                #body_index = builder.list_of_bodies.index(builder.moving_bodies[bN])
-
-                #axis_of_rotation = builder.plane_norm
-                #animation_body_cog = animation_body_objects[body_index].Shape.CenterOfGravity
-                
-                ##NOTE: TODO dap solver is currently 1 indexing
-                #dap_pos = builder.dapSolver.Bodies[bN + 1,0].r
-                #dap_pos = FreeCAD.Vector(dap_pos[0], dap_pos[1], 0)
-                #dap_angle = builder.dapSolver.Bodies[bN + 1,0].p
-
-                #dap_angular_displacement = math.degrees(dap_angle - original_pos[bN][1])
-                
-
-                #animation_body_objects[body_index].Placement.rotate(animation_body_cog, 
-                                                           #axis_of_rotation, 
-                                                           #dap_angular_displacement)
-                
-                
-                
-                ##Determine the current CoG after the shape has been rotated, and then compute the difference
-                ##between the projected and rotated CoG compared to the computed/required CoG in the orthonormal basis
-                ##this then provides the required translation of the body
-                #rotated_cog = animation_body_objects[body_index].Shape.CenterOfGravity
-                #project_cog = builder.projectPointOntoPlane(rotated_cog)
-                #rotated_cog = builder.global_rotation_matrix * project_cog
-                
-                #orthonormal_displacement = dap_pos - rotated_cog
-                
-                #required_displacement = builder.global_rotation_matrix.transposed().multVec(orthonormal_displacement)
-                
-                #animation_body_objects[body_index].Placement.translate(required_displacement) 
-                

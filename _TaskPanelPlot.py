@@ -121,35 +121,107 @@ class TaskPanelPlot:
             parts_list.append(self.form.tableWidget.item(row,0).text())
             legend_list.append(self.form.tableWidget.item(row,1).text())
         return parts_list, legend_list
-    
+    def extractPlotDispVel(self, parts_list, times, type):
+        x_list = []
+        y_list = []
+        #legend_list = []
+        for i in range(len(parts_list)):
+            part = parts_list[i]
+            x = []
+            y = []
+            if part in list(self.solver_object.object_to_moving_body.keys()):
+                body_index = self.solver_object.object_to_moving_body[part]
+                for timeIndex in range(len(times)):
+                    if type == "Displacement" or type == "Path Trace":
+                        x.append(self.solver_object.Bodies_r[timeIndex][body_index][0])
+                        y.append(self.solver_object.Bodies_r[timeIndex][body_index][1])
+                    if type == "Velocity":
+                        x.append(self.solver_object.Bodies_r_d[timeIndex][body_index][0])
+                        y.append(self.solver_object.Bodies_r_d[timeIndex][body_index][1])
+            if part in list(self.solver_object.object_to_point.keys()):
+                point_index = self.solver_object.object_to_point[part]
+                for timeIndex in range(len(times)):
+                    if type == "Displacement" or type == "Path Trace":
+                        x.append(self.solver_object.Points_r[timeIndex][point_index][0])
+                        y.append(self.solver_object.Points_r[timeIndex][point_index][1])
+                    if type == "Velocity":
+                        x.append(self.solver_object.Points_r_d[timeIndex][point_index][0])
+                        y.append(self.solver_object.Points_r_d[timeIndex][point_index][1])
+            x_list.append(x)
+            y_list.append(y)
+            
+        return x_list, y_list
+
     def plotSelection(self):
         what_to_plot_index = self.form.whatToPlotBox.currentIndex()
-        if DapPlot.PLOT_ITEMS[what_to_plot_index] != "Energy":
+        what_to_plot = DapPlot.PLOT_ITEMS[what_to_plot_index]
+        if what_to_plot != "Energy":
             parts_list, legend_list = self.extractObjectsAndLegend()
+            times = self.solver_object.ReportedTimes
+            
+            if what_to_plot == "Displacement" or what_to_plot == "Velocity":
+                fig = Plot.figure(what_to_plot)
+                ax = fig.axes
+                
+                x_list, y_list = self.extractPlotDispVel(parts_list, times, what_to_plot)
+
+                ax.change_geometry(2,1,1)
+                ax.set_title(what_to_plot)
+                ax.set_ylabel("x [units?]")
+                for i in range(len(x_list)):
+                    ax.plot(times, x_list[i], label=legend_list[i])
+                ax.legend(loc='lower left')
+                
+                
+                
+                ax = fig.fig.add_subplot(2,1,2)
+                ax.change_geometry(2,1,2)
+                ax.set_xlabel("Time [s]")
+                ax.set_ylabel("y [units?]")
+                for i in range(len(y_list)):
+                    ax.plot(times, y_list[i], label=legend_list[i])
+                ax.legend(loc='lower left')
+                
+                fig.update()
+
+            elif what_to_plot == "Path Trace":
+                fig = Plot.figure("Path Trace")
+                
+                x_list, y_list = self.extractPlotDispVel(parts_list, times, what_to_plot)
+                
+                ax = fig.axes
+                
+                for i in range(len(x_list)):
+                    FreeCAD.Console.PrintMessage(x_list)
+                    ax.scatter(x_list[i], y_list[i], label=legend_list[i])
+                ax.legend(loc='lower left')
+                fig.update()
+                
+                    
         else:
-            
-            #NOTE: example code of how to make subplots
-            #self.fig = Plot.figure("Energy")
-            #ax = self.fig.axes
-            #ax.change_geometry(3,1,1)
-            
-            #potential_energy = self.solver_object.potential_energy
-            #ax.set_title("Potential Energy")
-            #ax.set_xlabel("Time [s]")
-            #ax.set_ylabel("Potential Energy")
-            #ax.plot(potential_energy)
-            #self.fig.update()
+            times = self.solver_object.ReportedTimes
             
             potential_energy = self.solver_object.potential_energy
-            self.fig = Plot.figure("Potential Energy")
-            self.fig.plot(potential_energy)
-            #self.fig.update()
+            fig = Plot.figure("Potential Energy")
+            fig.plot(times, potential_energy)
+            ax = fig.axes
+            ax.set_title("Potential Energy")
+            ax.set_xlabel("Time [s]")
+            ax.set_ylabel("Potential Energy [units?]")
             
+            kinetic_energy = self.solver_object.kinetic_energy
+            fig = Plot.figure("Kinetic Energy")
+            fig.plot(times, kinetic_energy)
+            ax = fig.axes
+            ax.set_title("Kinetic Energy")
+            ax.set_xlabel("Time [s]")
+            ax.set_ylabel("Kinetic Energy [units?]")
             
-            
-            #ax.
-            #self.fig = Plot.subplot(FreeCAD.ActiveDocument.Name + "Residuals")
-            #self.fig = Plot.figure(FreeCAD.ActiveDocument.Name + "Residuals")
-            #ax = self.fig.add_subplot(222)
-            #ax.plot([1,2],[1,2])
-            #self.fig = Plot.Plot("random")
+            total_energy = self.solver_object.total_energy
+            fig = Plot.figure("Total Energy")
+            fig.plot(times, total_energy)
+            ax = fig.axes
+            ax.set_title("Total Energy")
+            ax.set_xlabel("Time [s]")
+            ax.set_ylabel("Total Energy [units?]")
+
