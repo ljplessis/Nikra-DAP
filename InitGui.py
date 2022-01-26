@@ -23,6 +23,7 @@ class DapWorkbench(Workbench):
         from DapMaterialSelection import _CommandDapMaterial
         from DapSolverRunner import _CommandDapSolver
         from DapAnimation import _CommandDapAnimation
+        from DapPlot import _CommandDapPlot
         
         FreeCADGui.addCommand("Dap_analysis", _CommandDapAnalysis())
         cmdlst = ["Dap_analysis",
@@ -31,7 +32,8 @@ class DapWorkbench(Workbench):
                   "Dap_Material",
                   "Dap_Force",
                   "Dap_Solver",
-                  "Dap_Animation"
+                  "Dap_Animation",
+                  "Dap_Plot"
                   ]
         
         self.appendToolbar("My Commands",cmdlst) # creates a new toolbar with your commands

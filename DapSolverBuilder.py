@@ -211,7 +211,7 @@ class DapSolverBuilder():
 
                 body1_index = self.extractDAPBodyIndex(body1)
                 body2_index = self.extractDAPBodyIndex(body2)
-
+                
                 if body1_index == 0 and body2_index == 0:
                     raise RuntimeError("Both bodies attached to " + 
                                        str(self.joints[i].Label) + " were defined as ground.\n" +
@@ -219,17 +219,12 @@ class DapSolverBuilder():
                                        + str(body1) + " and " +str(body2))
                 
                 iIndex = self.addDapPointUsingJointCoordAndBodyLabel(body1_index, body1, joint1_coord)
-                
                 jIndex = self.addDapPointUsingJointCoordAndBodyLabel(body2_index, body2, joint1_coord)
                 
                 self.addJoint(joint_type, iIndex, jIndex)
-                #if the body is not ground, then the point coordinates should the local coordinate
-                #with respect to the body CoG
+
+                self.obj.object_to_point[self.joints[i].Label] = iIndex
                 
-                #FreeCAD.Console.PrintMessage("dapPoints " + str(self.dap_points) + "\n")
-                #FreeCAD.Console.PrintMessage("dapJoints " + str(self.dap_joints) + "\n")
-                #FreeCAD.Console.PrintMessage("body index 1 " + str(body1_index) +" \n")
-                #FreeCAD.Console.PrintMessage("body index 2 " + str(body2_index) +" \n")
 
     def addJoint(self, joint_type, iIndex, jIndex):
             joint = {}
@@ -263,9 +258,6 @@ class DapSolverBuilder():
             point['x'] = rotated_coord.x - bodyCoG.x
             point['y'] = rotated_coord.y - bodyCoG.y
             
-            #point['x'] =  bodyCoG.x - rotated_coord.x
-            #point['y'] =  bodyCoG.y - rotated_coord.y
-            
         self.dap_points.append(point)
         
         return len(self.dap_points)
@@ -281,11 +273,6 @@ class DapSolverBuilder():
             else:
                 body_index = self.moving_bodies.index(body) + 1  #NOTE DAP.py is not 0 indexing
         return body_index
-    #def collectAllPoints(self):
-        #""" Loops over all possible objects which may have points and generates list of points """
-
-
-
 
         #return
     
@@ -296,6 +283,8 @@ class DapSolverBuilder():
         for i in range(len(self.body_objects)):
             if self.body_objects[i].BodyType == "Moving":
                 self.moving_bodies.append(self.list_of_bodies[i])
+                
+                self.obj.object_to_moving_body[self.body_objects[i].Label] = i
     
     
     def computeRotationMatrix(self):
@@ -329,13 +318,6 @@ class DapSolverBuilder():
         rotation_matrix.A23 = u.y*u.z*(1 - cos(phi)) - u.x*sin(phi)
         rotation_matrix.A33 = cos(phi) + u.z**2*(1 - cos(phi))
         
-        #FreeCAD.Console.PrintMessage("Angle of rotation: " + str(phi) + "\n")
-        #FreeCAD.Console.PrintMessage("Length of u: " + str(u.Length) + "\n")
-        #FreeCAD.Console.PrintMessage("Length of planenorm: " + str(self.plane_norm.Length) + "\n")
-        #FreeCAD.Console.PrintMessage("Axis of rotation: " + str(u) + "\n")
-        #FreeCAD.Console.PrintMessage("Rotation Matrix: " + str(rotation_matrix) + "\n")
-        #FreeCAD.Console.PrintMessage(u.x*u.y*(1 - cos(phi)) - u.z*sin(phi))
-        #FreeCAD.Console.PrintMessage(self.plane_norm.Length)
         
         return rotation_matrix
     
@@ -343,7 +325,6 @@ class DapSolverBuilder():
         """ Projects a given vector onto the plane defined by the norm of the plane, passing through the (0,0,0) """
         projected_point = point - (self.plane_norm * (point - self.plane_origin)) * self.plane_norm
         
-        #FreeCAD.Console.PrintMessage("Projected point " + str(point) + ": " + str(projected_point) + "\n")
         return projected_point
     
     def computeMomentOfInertia(self):
@@ -352,10 +333,7 @@ class DapSolverBuilder():
         The global moment of inertia is then computed using the parallel axis theoram to sum the contribution
         of each local subshape within the global body container.
         """
-        #FreeCAD.Console.PrintMessage("==============\n")
-        #FreeCAD.Console.PrintMessage("Moment of intertia calculation: \n")
-        #self.J = {}
-        #self.J_projected = {}
+
         self.J = {}
         for body_label in self.list_of_bodies:
             J_global_body = 0
@@ -365,9 +343,6 @@ class DapSolverBuilder():
                 density = Units.Quantity(self.material_dictionary[shape_label]["density"]).Value
                 #Moment of inertia about axis of orientation (normal of plane)
                 J = Iij * self.plane_norm * self.plane_norm  * density
-                
-                #FreeCAD.Console.PrintMessage(str(Iij) + "\n")
-                #FreeCAD.Console.PrintMessage("Moment of intertia about axis of rotation through COG: " + str(J) + "\n")
                 
                 #Project CoG of shape onto plane and compute distance of projected CoG of current shape to projected
                 # body CoG
@@ -383,10 +358,6 @@ class DapSolverBuilder():
                 #multiple shapes
                 J_global_body += J + shape_mass * planar_dist_CoG_to_CogBody**2
                 
-                #FreeCAD.Console.PrintMessage("Planar distance of CoG to CoG: " + str(planar_dist_CoG_to_CogBody) + "\n")
-            
-            #FreeCAD.Console.PrintMessage("Total J: " + str(J_global_body) + "\n")
-            
             self.J[body_label] = J_global_body
             
             FreeCAD.Console.PrintMessage("Total J: " + str(self.J) + "\n")
@@ -399,19 +370,12 @@ class DapSolverBuilder():
         self.cog_of_body_projected = {}
         self.cog_of_body_rotated = {}
         self.total_mass_of_body = {}
-        #FreeCAD.Console.PrintMessage("======\nStarting centre of gravity computation\n")
+
         for body_label in self.list_of_bodies:
-            #FreeCAD.Console.PrintMessage(body_label + "\n")
-            #FreeCAD.Console.PrintMessage(str(self.parts_of_bodies[body_label]) + "\n")
-            
-            #total_mass = FreeCAD.Units.Quantity("0 kg")
             total_mass = 0
             centre_of_gravity_global = FreeCAD.Vector(0,0,0)
             for shape_label in self.parts_of_bodies[body_label]:
-                
-                #FreeCAD.Console.PrintMessage(shape_label)
-                #FreeCAD.Console.PrintMessage("\n")
-                
+
                 
                 shape_obj = self.doc.getObjectsByLabel(shape_label)[0]
                 centre_of_gravity = shape_obj.Shape.CenterOfMass
@@ -424,24 +388,12 @@ class DapSolverBuilder():
                 
                 centre_of_gravity_global += mass*centre_of_gravity
                 
-                #FreeCAD.Console.PrintMessage("Centre of gravity: " + str(centre_of_gravity) + "\n")
-                #FreeCAD.Console.PrintMessage("density: " + str(density) + "\n")
-                #FreeCAD.Console.PrintMessage("mass: " + str(mass) + "\n")
-                
             centre_of_gravity_global /= total_mass
             self.centre_of_gravity_of_body[body_label] =  centre_of_gravity_global
             self.cog_of_body_projected[body_label] = self.projectPointOntoPlane(centre_of_gravity_global)
             self.total_mass_of_body[body_label] = total_mass
             self.cog_of_body_rotated[body_label] = self.global_rotation_matrix * self.cog_of_body_projected[body_label]
             
-            #FreeCAD.Console.PrintMessage("Total mass: " +str(total_mass) + "\n")
-            #FreeCAD.Console.PrintMessage("Global centre of mass: " +str(centre_of_gravity_global) + "\n")
-
-        #FreeCAD.Console.PrintMessage("CoG: " + str(self.centre_of_gravity_of_body) + "\n")
-        #FreeCAD.Console.PrintMessage("CoG projected: " + str(self.cog_of_body_projected) + "\n")
-        #FreeCAD.Console.PrintMessage("Mass: " + str(self.total_mass_of_body) +"\n")
-        
-        
     #TODO: find a more elegant way of writing the input files instead of line by line writing
     def writeBodies(self):
         FreeCAD.Console.PrintMessage("Writing bodies \n")
@@ -572,39 +524,14 @@ class DapSolverBuilder():
         self.resultsAvailable = False
         self.obj.DapResults = None
         
-        
-        #self.process.finished.connect(self.loadResults)
-        
-        #cmd = "python3 " + str(dap_solver)
-        #args = [str(self.folder)]
-        
-        #cmd = "python3"
-        #args = [str(dap_solver),  str(self.folder)]
-        
-        #QString pythonCommand = "python3 " + str(dap_solver) + " " + str(self.folder)
+
         pythonCommand = "python3 " + str(dap_solver) + " " + str(self.folder)
-        #FreeCAD.Console.PrintMessage(["python3", str(dap_solver),str(self.folder)])
-        #FreeCAD.Console.PrintMessage(cmd + "\n")
-        #self.process.start("python3",str(dap_solver),str(self.folder))
-        
-        #self.process.start(cmd, args)
-        #self.process.start(pythonCommand)
-        #self.process.start("python3",[str(dap_solver), str(self.folder)])
+
         
         from PySide.QtCore import QProcess
         #process = QProcess()
         self.process = QtCore.QProcess()
         self.process.finished.connect(self.onFinished)
-        #process.
-        #process.startDetached("dolphin")
-        #process.start("dolphin"
-        
-        #F)
-        #FreeCAD.Console.PrintMessage("Finished " + str(process.finished()))
-        
-        #process.setReadChannelMode(ForwardedChannels);
-        #env = QtCore.QProcessEnvironment.systemEnvironment()
-        #process.setProcessEnvironment(env)
         
         FreeCAD.Console.PrintMessage("DAP solver started.\n")
         
@@ -613,21 +540,7 @@ class DapSolverBuilder():
         #TODO need to overwrite waitForFinished to latch on to the output
         self.process.waitForFinished()
         
-        #FreeCAD.Console.PrintMessage(process.waitForStarted())
-        #FreeCAD.Console.PrintMessage("Process started \n")
-        
-        #import subprocess
-        #self.solverCommand = subprocess.Popen(["python3", str(dap_solver),str(self.folder)])
-        #self.dapSolverIsRunning = solverCommand.poll() is None 
-        
-        #subprocess.call(["python3", str(dap_solver),str(self.folder)])
-        
-        #print("T_Array from solve function",Tarray)
     def onFinished(self,  exitCode,  exitStatus):
-        #FreeCAD.Console.PrintMessage("Solver finished on finished \n")
-        #FreeCAD.Console.PrintMessage("Exit code " + str(exitCode) + " \n")
-        #FreeCAD.Console.PrintMessage("exitStatus " + str(exitStatus) + " \n")
-        
         if exitCode == 0:
             FreeCAD.Console.PrintMessage("Solver completed Succesfully \n")
             self.loadResults()
@@ -638,9 +551,6 @@ class DapSolverBuilder():
     def loadResults(self):
         #results = os.path.join(self.folder, "dapResults.npy")
         self.dapResults = True
-        
-        
-        
         
         #read body CoG positions
         fid_DapBodyPositions = open(os.path.join(self.folder,"DapBodyPositions"))

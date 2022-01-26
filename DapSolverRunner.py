@@ -74,8 +74,12 @@ class _DapSolver:
         addObjectProperty(obj, 'kinetic_energy', None, "App::PropertyPythonObject", "", "")
         addObjectProperty(obj, 'potential_energy', None, "App::PropertyPythonObject", "", "")
         addObjectProperty(obj, 'total_energy', None, "App::PropertyPythonObject", "", "")
-        addObjectProperty(obj, 'global_rotation_matrix', FreeCAD.Matrix(), "App::PropertyMatrix", "", "Global orthonormal rotation matrix")
-        #addObjectProperty(obj, 'MaterialDictionary', {}, "App::PropertyPythonObject", "", "Dictionary of parts and linked material properties")
+        addObjectProperty(obj, 'object_to_point', {}, "App::PropertyPythonObject", "", 
+                          "Dictionary linking FC object (eg joint) to DAP point, required for postProcessing")
+        addObjectProperty(obj, 'object_to_moving_body', {}, "App::PropertyPythonObject", "", 
+                "Dictionary linking FC object to DAP body, required for postProcessing (only moving bodies used)")
+        addObjectProperty(obj, 'global_rotation_matrix', FreeCAD.Matrix(), 
+                          "App::PropertyMatrix", "", "Global orthonormal rotation matrix")
         return
         
 

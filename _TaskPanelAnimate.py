@@ -102,7 +102,6 @@ class TaskPanelAnimate:
 
     def reject(self):
         #Closes document and sets the active document back to the solver document
-        FreeCAD.Console.PrintMessage("Successfully called on close \n")
         FreeCADGui.Control.closeDialog()
         FreeCAD.closeDocument(self.animation_document.Name)
         FreeCAD.setActiveDocument(self.solver_document.Name)
@@ -137,7 +136,7 @@ class TaskPanelAnimate:
         self.current_pos = self.currentPos(value)
         
         self.form.timeStepLabel.setText(str(self.reporting_time * value) + "s / " + str(self.t_final) +"s")
-        for bN in range(len(previous_pos)):
+        for bN in range(len(self.list_of_moving_bodies)):
             body_index = self.list_of_bodies.index(self.list_of_moving_bodies[bN])
             animation_body_cog = self.animation_body_objects[body_index].Shape.CenterOfGravity
             axis_of_rotation = self.plane_norm
