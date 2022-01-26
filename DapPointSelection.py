@@ -76,6 +76,15 @@ class _DapPoint:
         addObjectProperty(obj, 'Body', "", "App::PropertyString", "", "Body label")
         addObjectProperty(obj, 'Point', "", "App::PropertyString", "", "Point label")
         addObjectProperty(obj, 'PointCoord', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Point Vector")
+        addObjectProperty(obj, 'pointCoordList', [], "App::PropertyVectorList", "", "List of Point Vectors")
+        addObjectProperty(obj, 'pointList', [], "App::PropertyStringList", "", "List of Points")
+        addObjectProperty(obj, 'bodyNameList', [], "App::PropertyStringList", "", "List of Points")
+        addObjectProperty(obj, 'pointAssignList', [], "App::PropertyStringList", "", "List of Points")
+
+        obj.setEditorMode('bodyNameList',2)
+        obj.setEditorMode('pointList',2)
+        obj.setEditorMode('Point',2)
+        obj.setEditorMode('PointCoord',2)
 
 
     def onDocumentRestored(self, obj):
@@ -90,7 +99,6 @@ class _DapPoint:
 
     def __setstate__(self, state):
         return None
-
 
     def onChanged(self, obj, prop):
         return None 

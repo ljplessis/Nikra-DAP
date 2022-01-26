@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>275</width>
-    <height>202</height>
+    <width>371</width>
+    <height>272</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -182,15 +182,12 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QPushButton" name="pointPush">
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>Add point</string>
+            <string>Point List </string>
            </property>
           </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QComboBox" name="bodyPointCombo"/>
          </item>
          <item row="1" column="0">
           <widget class="QPushButton" name="pointName">
@@ -199,6 +196,26 @@
            </property>
            <property name="flat">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPushButton" name="pointPush">
+           <property name="text">
+            <string>Add point</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="QListWidget" name="pointList"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="bodyPointCombo"/>
+         </item>
+         <item row="5" column="0" colspan="2">
+          <widget class="QPushButton" name="pointRemove">
+           <property name="text">
+            <string>Remove</string>
            </property>
           </widget>
          </item>

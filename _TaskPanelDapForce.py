@@ -131,7 +131,7 @@ class TaskPanelDapForce:
             self.Stiff=self.obj.Stiffness
             self.UndefLen=self.obj.UndeformedLength
 
-        self.bodySelector.execute(self.obj)
+        self.bodySelector.execute(self.obj,0)
 
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)

@@ -41,20 +41,20 @@ class TaskPanelDapPoint:
 
         self.bodySelector = _BodySelector.BodySelector(self.form.bodySelection, self.obj)
         
-        self.bodySelectionPage()
+        self.bodySelector.Page3()
 
         self.rebuildInputs()
         
         return 
 
     
-    def bodySelectionPage(self):
-        self.bodySelector.Page3()
 
     def rebuildInputs(self):
         self.Body = self.obj.Body
         self.Point = self.obj.Point 
         self.PointCoord = self.obj.PointCoord
+        
+        self.bodySelector.rebuildInputs(2)
         
 
     def accept(self):
@@ -64,9 +64,10 @@ class TaskPanelDapPoint:
         self.obj.Body = self.Body
         self.obj.Point = self.Point 
         self.obj.PointCoord = self.PointCoord
+        
 
         self.bodySelector.accept(2)
-        self.bodySelector.pointExecute(self.obj)
+        self.bodySelector.execute(self.obj,2)
             
         self.bodySelector.closing()
 
