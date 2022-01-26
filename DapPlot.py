@@ -12,7 +12,7 @@ if FreeCAD.GuiUp:
     from PySide import QtCore
     
 
-PLOT_ITEMS = ["Displacement",
+PLOT_ITEMS = ["Position",
               "Velocity",
               "Path Trace",
               "Energy"]

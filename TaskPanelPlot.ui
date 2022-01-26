@@ -47,7 +47,7 @@
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
          <item row="1" column="0">
-          <widget class="QRadioButton" name="radioButton">
+          <widget class="QRadioButton" name="orthonormalRadioButton">
            <property name="text">
             <string>Orthonomal co-ordinates</string>
            </property>
@@ -57,12 +57,12 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QRadioButton" name="radioButton_2">
+          <widget class="QRadioButton" name="realRadioButton">
            <property name="text">
-            <string>Real co-ordinates</string>
+            <string>3D co-ordinates</string>
            </property>
            <property name="checkable">
-            <bool>false</bool>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
