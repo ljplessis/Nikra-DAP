@@ -186,7 +186,7 @@ class TaskPanelDapForce:
         self.Type = DapForceSelection.FORCE_TYPES[type_index]
         
         
-        #self.form.inputForceWidget.setCurrentIndex(type_index)
+        self.form.inputForceWidget.setCurrentIndex(type_index)
         
         self.obj.recompute()
 
