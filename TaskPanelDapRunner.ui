@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>846</width>
+    <width>844</width>
     <height>744</height>
    </rect>
   </property>
@@ -29,20 +29,6 @@
        </property>
       </widget>
      </item>
-     <item row="11" column="0" colspan="2">
-      <widget class="QLabel" name="lblPlaneDefined">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="lblFileDirectory">
-       <property name="text">
-        <string>Select a Directory to Save Results to:</string>
-       </property>
-      </widget>
-     </item>
      <item row="10" column="0" colspan="2">
       <widget class="QStackedWidget" name="stWidg">
        <property name="sizePolicy">
@@ -58,7 +44,7 @@
         <enum>QFrame::Sunken</enum>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="pgObjectEntity">
         <layout class="QGridLayout" name="gridLayout_4">
@@ -179,19 +165,75 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="pgCustomNorm">
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="0" column="0">
+          <widget class="QFrame" name="frame_3">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="2" column="1">
+             <widget class="QPushButton" name="selectPlanarObjectButton">
+              <property name="text">
+               <string>Select</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="planarObjectLabel">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Select the object first, and then click on &quot;Select&quot;. If face selected on assembly 4 object it may be in its original undeform configuration.</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="2">
+             <widget class="QLabel" name="label_6">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Planar Object</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="lblFileDirectory">
+       <property name="text">
+        <string>Select a Directory to Save Results to:</string>
+       </property>
       </widget>
      </item>
      <item row="14" column="0" colspan="2">
       <widget class="QPushButton" name="solveButton">
        <property name="text">
         <string>Solve</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0" colspan="2">
-      <widget class="QLineEdit" name="lnedFileDirectory">
-       <property name="clearButtonEnabled">
-        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -217,10 +259,17 @@
         <enum>QFrame::Raised</enum>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_2">
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>Start time:</string>
+           <string>End time:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Reporting time</string>
           </property>
          </widget>
         </item>
@@ -231,10 +280,10 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>End time:</string>
+           <string>Start time:</string>
           </property>
          </widget>
         </item>
@@ -245,13 +294,6 @@
           </property>
           <property name="value">
            <double>0.500000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Reporting time</string>
           </property>
          </widget>
         </item>
@@ -281,6 +323,23 @@
        </layout>
       </widget>
      </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QLineEdit" name="lnedFileDirectory">
+       <property name="clearButtonEnabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="15" column="0">
+      <widget class="QLabel" name="lblPlaneDefined">
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
      <item row="8" column="0" colspan="2">
       <widget class="QFrame" name="frame_2">
        <property name="frameShape">
@@ -290,10 +349,32 @@
         <enum>QFrame::Raised</enum>
        </property>
        <layout class="QGridLayout" name="gridLayout_5">
-        <item row="4" column="0">
-         <widget class="QLabel" name="lblDescription2">
+        <item row="1" column="0">
+         <widget class="QLabel" name="lblPlaneofMotion">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>Description:</string>
+           <string>Select the Plane of Motion</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="lblEntitySelect">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -314,42 +395,6 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="lblEntitySelect">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="lblPlaneofMotion">
-          <property name="font">
-           <font>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Select the Plane of Motion</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="lblPlaneSelectType">
-          <property name="text">
-           <string>Selection Type:</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="1">
          <widget class="QLabel" name="lblPlaneDescr">
           <property name="text">
@@ -357,13 +402,27 @@
           </property>
          </widget>
         </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="lblDescription2">
+          <property name="text">
+           <string>Description:</string>
+          </property>
+         </widget>
+        </item>
         <item row="4" column="1">
          <widget class="QLabel" name="lblSelectDescr">
           <property name="text">
-           <string/>
+           <string>Text</string>
           </property>
           <property name="wordWrap">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="lblUnitVecDescr">
+          <property name="text">
+           <string>Norm of current plane:</string>
           </property>
          </widget>
         </item>
@@ -380,13 +439,6 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="lblUnitVecDescr">
-          <property name="text">
-           <string>Norm of current plane:</string>
-          </property>
-         </widget>
-        </item>
         <item row="6" column="1">
          <widget class="QLabel" name="lblUnitVecOut">
           <property name="sizePolicy">
@@ -396,7 +448,14 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string/>
+           <string>Text</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="lblPlaneSelectType">
+          <property name="text">
+           <string>Selection Type:</string>
           </property>
          </widget>
         </item>

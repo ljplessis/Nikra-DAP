@@ -27,11 +27,14 @@ MOTION_PLANES_HELPER_TEXT = ["Planar Motion is in XY Plane",
                              "Planar Motion is in XZ Plane", 
                              "User-defined Plane"]
 
-SELECTION_TYPE = ["Object Selection", 
-                  "Normal Vector Definition"]
+SELECTION_TYPE = ["Normal Vector Definition",
+                  "Object Selection", 
+                  ]
 
-SELECTION_TYPE_HELPER_TEXT = ["Select object entities to define plane of motion. Valid selections include plane, face or sketch.", 
-                              "Define the normal vector of the plane of motion"]
+SELECTION_TYPE_HELPER_TEXT = ["Define the normal vector of the plane of motion",
+                              "Experimental: select object entities to define plane of motion. \
+Valid selections include a plane, a face or a sketch."
+                              ]
 
 def makeDapSolver(name="DapSolver"):
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", name)
@@ -84,6 +87,8 @@ class _DapSolver:
         addObjectProperty(obj, 'XVector', 0.0, "App::PropertyFloat","","Vector in X-Direction")
         addObjectProperty(obj, 'YVector', 0.0, "App::PropertyFloat","","Vector in Y-Direction")
         addObjectProperty(obj, 'ZVector', 0.0, "App::PropertyFloat","","Vector in Z-Direction")
+        
+        addObjectProperty(obj, 'PlaneObjectName', "", "App::PropertyString","","Name of object to create custom plane of motion")
         
         addObjectProperty(obj, 'StartTime', 0.0, "App::PropertyFloat","","Start Time")
         addObjectProperty(obj, 'EndTime', 0.5, "App::PropertyFloat","","Start Time")

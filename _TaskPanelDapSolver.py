@@ -41,6 +41,7 @@ class TaskPanelDapSolver:
         self.YVector = self.obj.YVector
         self.ZVector = self.obj.ZVector
         self.UnitVector = self.obj.UnitVector
+        self.PlaneObjectName = self.obj.PlaneObjectName
 
         self.face_count = 0
 
@@ -68,14 +69,16 @@ class TaskPanelDapSolver:
 
         self.form.pbRemoveRef.clicked.connect(self.removeButtonClicked)
 
-        self.form.dsbVeci.valueChanged.connect(self.unitVector)
-        self.form.dsbVecj.valueChanged.connect(self.unitVector)
-        self.form.dsbVeck.valueChanged.connect(self.unitVector)
+        self.form.dsbVeci.valueChanged.connect(self.xChanged)
+        self.form.dsbVecj.valueChanged.connect(self.yChanged)
+        self.form.dsbVeck.valueChanged.connect(self.zChanged)
         
 
         self.form.cmbPlaneofMotion.currentIndexChanged.connect(self.cmbPlaneChanged)
 
         self.form.cmbSelectType.currentIndexChanged.connect(self.cmbSelectChanged)
+        
+        self.form.selectPlanarObjectButton.clicked.connect(self.customObjectSelection)
 
         self.rebuildObjectList()
 
@@ -101,9 +104,10 @@ class TaskPanelDapSolver:
         self.obj.MotionPlane = self.MotionPlane
         self.obj.SelectionType = self.SelectionType
         self.obj.ObjectEntities = self.ObjectEntities
-        self.obj.XVector = self.XVector
-        self.obj.YVector = self.YVector
-        self.obj.ZVector = self.ZVector
+        self.obj.XVector = self.UnitVector.x
+        self.obj.YVector = self.UnitVector.y
+        self.obj.ZVector = self.UnitVector.z
+        self.obj.UnitVector = self.UnitVector
         
         self.getTimeValues()
 
@@ -148,11 +152,12 @@ class TaskPanelDapSolver:
 
         self.checkPlane()
 
-        self.obj.XVector = self.XVector
-        self.obj.YVector = self.YVector
-        self.obj.ZVector = self.ZVector
+        self.obj.XVector = self.UnitVector.x
+        self.obj.YVector = self.UnitVector.y
+        self.obj.ZVector = self.UnitVector.z
+        self.obj.UnitVector = self.UnitVector
 
-        self.form.lblUnitVecOut.setText(str(self.obj.UnitVector))
+        self.printUnitVector()
         
         self.getTimeValues()
         self.checkValidityOfTime()
@@ -248,7 +253,7 @@ class TaskPanelDapSolver:
             self.form.lblSelectDescr.setHidden(True)
             self.form.lblEntitySelect.setHidden(True)
             self.form.stWidg.setHidden(True)
-            self.form.lblPlaneDefined.setText("Plane of Motion successfully defined")
+            #self.form.lblPlaneDefined.setText("Plane of Motion successfully defined")
             self.obj.setEditorMode("ObjectEntities", 2)
             self.obj.setEditorMode("XVector", 2)
             self.obj.setEditorMode("YVector", 2)
@@ -261,87 +266,143 @@ class TaskPanelDapSolver:
             self.form.stWidg.setHidden(False)
             self.form.lblSelectDescr.setHidden(False)
             self.form.lblEntitySelect.setHidden(False)
-            self.form.lblPlaneDefined.setText("No Plane of Motion could be Generated from the Information Provided")
+            #self.form.lblPlaneDefined.setText("No Plane of Motion could be Generated from the Information Provided")
             self.obj.setEditorMode("ObjectEntities", 0)
             self.checkSelectType()
 
         return
 
+    def customObjectSelection(self):
+        
+        sel = FreeCADGui.Selection.getSelectionEx()
+        if len(sel)>0:
+            if len(sel)>1 or len(sel[0].SubElementNames)>1:
+                FreeCAD.Console.PrintError("Only a single face, sketch or plane should be selected.\n")
+            else:
+                changed = False
+                if len(sel[0].SubElementNames) == 1:
+                    if 'Face' in sel[0].SubElementNames[0]:
+                        face = sel[0].Object.getSubObject(sel[0].SubElementNames[0])
+                        normal = face.normalAt(0,0)
+                        
+                        self.form.planarObjectLabel.setText(sel[0].Object.Label+":"+str(sel[0].SubElementNames[0]))
+                        
+                        changed = True
+                        
+                elif sel[0].Object.TypeId == 'Sketcher::SketchObject':
+                    support_name = sel[0].Object.Support[0][0].Name
+                    sub_shape = sel[0].Object.Support[0][1]
+                    if "XY_Plane" in support_name:
+                        #FreeCAD.Console.PrintMessage("YES XY PLANE \n")
+                        normal = FreeCAD.Vector(0,0,1)
+                        changed = True
+                    if "XZ_Plane" in support_name:
+                        normal = FreeCAD.Vector(0,1,0)
+                        changed = True
+                    if "YZ_Plane" in support_name:
+                        normal = FreeCAD.Vector(1,0,0)
+                        changed = True
+                    if "Face" in sub_shape[0]:
+                        face = sel[0].Object.Support[0][0].getSubObject(sub_shape[0])
+                        normal = face.normalAt(0,0)
+                        changed = True
+                elif sel[0].Object.TypeId == 'Part::Plane':
+                    normal = sel[0].Object.Shape.Faces[0].normalAt(0,0)
+                    changed = True
+                elif sel[0].Object.TypeId == 'App::Plane':
+                    role = sel[0].Object.Role
+                    if "XY_Plane" in role:
+                        normal = FreeCAD.Vector(0,0,1)
+                        changed = True
+                    if "XZ_Plane" in role:
+                        normal = FreeCAD.Vector(0,1,0)
+                        changed = True
+                    if "YZ_Plane" in role:
+                        normal = FreeCAD.Vector(1,0,0)
+                        changed = True
+                else:
+                    FreeCAD.Console.PrintError("Can not idenitfy normal from " + str(sel[0].Object.Label) + "object \n")
+                    
+                if changed:
+                    self.XVector = normal.x
+                    self.YVector = normal.y
+                    self.ZVector = normal.z
+                    #vector = FreeCAD.Vector(self.XVector, self.YVector, self.ZVector)
+                    self.UnitVector = normal
+                    
+                    self.printUnitVector()
+        else:
+            FreeCAD.Console.PrintMessage("Nothing was selected \n")
+
     def checkSelectType(self):
         """Determine the planar properties from either the features selected or the normal vector definition"""
         self.form.stWidg.setCurrentIndex(0)
+        self.form.planarObjectLabel.setText(self.PlaneObjectName)
+        
+         # NOTE: Previous object selection written by Dewald.
+         # simplifying selection for now to only allow face, plane or sketch
+        #if self.SelectionType == "Object Selection":
+            #self.form.stWidg.setCurrentIndex(0)
+
+            #self.obj.setEditorMode("ObjectEntities", 0)
+            #self.obj.setEditorMode("XVector", 2)
+            #self.obj.setEditorMode("YVector", 2)
+            #self.obj.setEditorMode("ZVector", 2)
+
+
+            #if (len(self.ObjectEntities) == 1) and ("Face" in self.ObjectEntities[0]):
+                #self.form.lblPlaneDefined.setText("Planar Motion successfully defined via coincident face")
+            ##     sel = FreeCADGui.Selection.getSelectionEx()[0]
+            ##     sel_entity = sel.Object.Name
+            ##     face_entity = sel.Object.SubElementNames[0]
+            ##     FreeCAD.Console.PrintMessage(face_entity)
+            ##     FreeCAD.Console.PrintMessage("\n \n")
+            ##     FreeCAD.Console.PrintMessage(sel_entity)
+            ##     element_char = FreeCAD.ActiveDocument.getObject(str(sel_entity)).Shape.face_entity
+            ##     elt_planar = element_char.Surface.isPlanar()
+            ##     if elt_planar:
+            ##         self.form.lblPlaneDefined.setText("Planar motion successfully defined via coincident face")
+            ##     else:
+            ##         self.form.lblPlaneDefined.setText("Selected face is non-planar.  Cannot generate coincident plane")
+
+            #if len(self.ObjectEntities) > 1:
+                #face_counter = 0
+                #for i in range(0, len(self.ObjectEntities)):
+                    #if "Face" in self.ObjectEntities[i]:
+                        #face_counter = face_counter + 1
+                #if face_counter > 0:
+                    #FreeCAD.Console.PrintError("\n Error!!  Face has been defined in tandem with other features \n")
+                    #FreeCAD.Console.PrintError(self.ObjectEntities)
+                    #FreeCAD.Console.PrintError("\n Review above object list for redundancy")
+                    #self.form.lblPlaneDefined.setText("Planar motion could not be defined.  Check error messages")
+
+
+                #if face_counter == 0:
+                    #edge_counter = 0
+                    #vertex_counter = 0
+                    #for j in range(0, len(self.ObjectEntities)):
+                        #if "Edge" in self.ObjectEntities[j]:
+                            #edge_counter = edge_counter + 1
+                        #elif "Vertex" in self.ObjectEntities[j]:
+                            #vertex_counter = vertex_counter + 1
+                    #if (edge_counter == 2) and (len(self.ObjectEntities) == 2):
+                        #self.form.lblPlaneDefined.setText("Planar motion set to be coincident with two lines")
+                    #elif (edge_counter == 1) and (vertex_counter == 1) and(len(self.ObjectEntities) == 2):
+                        #self.form.lblPlaneDefined.setText("Planar motion set to be coincident with a line and point")
+                    #elif (vertex_counter == 3) and (len(self.ObjectEntities) == 3):
+                        #self.form.lblPlaneDefined.setText("Planar motion set to be coincident with a set of 3 points")
+                    #else:
+                        #self.form.lblPlaneDefined.setText("Planar motion could not be defined from the given entities")
+                        #FreeCAD.Console.PrintError("\n Plane of motion could not be defined from the given entites \n")
+                        #FreeCAD.Console.PrintWarning(self.ObjectEntities)
+                        #FreeCAD.Console.PrintError("\n Select face, 2 lines, line and point or set of three points \n")
 
         if self.SelectionType == "Object Selection":
-            self.form.stWidg.setCurrentIndex(0)
-
-            self.obj.setEditorMode("ObjectEntities", 0)
-            self.obj.setEditorMode("XVector", 2)
-            self.obj.setEditorMode("YVector", 2)
-            self.obj.setEditorMode("ZVector", 2)
-
-
-            if (len(self.ObjectEntities) == 1) and ("Face" in self.ObjectEntities[0]):
-                self.form.lblPlaneDefined.setText("Planar Motion successfully defined via coincident face")
-            #     sel = FreeCADGui.Selection.getSelectionEx()[0]
-            #     sel_entity = sel.Object.Name
-            #     face_entity = sel.Object.SubElementNames[0]
-            #     FreeCAD.Console.PrintMessage(face_entity)
-            #     FreeCAD.Console.PrintMessage("\n \n")
-            #     FreeCAD.Console.PrintMessage(sel_entity)
-            #     element_char = FreeCAD.ActiveDocument.getObject(str(sel_entity)).Shape.face_entity
-            #     elt_planar = element_char.Surface.isPlanar()
-            #     if elt_planar:
-            #         self.form.lblPlaneDefined.setText("Planar motion successfully defined via coincident face")
-            #     else:
-            #         self.form.lblPlaneDefined.setText("Selected face is non-planar.  Cannot generate coincident plane")
-
-            if len(self.ObjectEntities) > 1:
-                face_counter = 0
-                for i in range(0, len(self.ObjectEntities)):
-                    if "Face" in self.ObjectEntities[i]:
-                        face_counter = face_counter + 1
-                if face_counter > 0:
-                    FreeCAD.Console.PrintError("\n Error!!  Face has been defined in tandem with other features \n")
-                    FreeCAD.Console.PrintError(self.ObjectEntities)
-                    FreeCAD.Console.PrintError("\n Review above object list for redundancy")
-                    self.form.lblPlaneDefined.setText("Planar motion could not be defined.  Check error messages")
-
-
-                if face_counter == 0:
-                    edge_counter = 0
-                    vertex_counter = 0
-                    for j in range(0, len(self.ObjectEntities)):
-                        if "Edge" in self.ObjectEntities[j]:
-                            edge_counter = edge_counter + 1
-                        elif "Vertex" in self.ObjectEntities[j]:
-                            vertex_counter = vertex_counter + 1
-                    if (edge_counter == 2) and (len(self.ObjectEntities) == 2):
-                        self.form.lblPlaneDefined.setText("Planar motion set to be coincident with two lines")
-                    elif (edge_counter == 1) and (vertex_counter == 1) and(len(self.ObjectEntities) == 2):
-                        self.form.lblPlaneDefined.setText("Planar motion set to be coincident with a line and point")
-                    elif (vertex_counter == 3) and (len(self.ObjectEntities) == 3):
-                        self.form.lblPlaneDefined.setText("Planar motion set to be coincident with a set of 3 points")
-                    else:
-                        self.form.lblPlaneDefined.setText("Planar motion could not be defined from the given entities")
-                        FreeCAD.Console.PrintError("\n Plane of motion could not be defined from the given entites \n")
-                        FreeCAD.Console.PrintWarning(self.ObjectEntities)
-                        FreeCAD.Console.PrintError("\n Select face, 2 lines, line and point or set of three points \n")
-
+            self.form.stWidg.setCurrentIndex(2)
+            
         else:
             self.form.stWidg.setCurrentIndex(1)
-            self.XVector = self.form.dsbVeci.value()
-            self.YVector = self.form.dsbVecj.value()
-            self.ZVector = self.form.dsbVeck.value()
 
-            if (self.XVector != 0) or (self.YVector != 0) or (self.ZVector != 0):
-                mag = (self.XVector**2 + self.YVector**2 + self.ZVector**2)**0.5
-                rounder = 3
-                self.UnitVector = FreeCAD.Vector(round(self.XVector/mag, rounder),
-                                                 round(self.YVector/mag, rounder),
-                                                 round(self.ZVector/mag, rounder))
-            else:
-                FreeCAD.Console.PrintError("\n Error!!  No Unit Vector has been Defined.  Reverting to:   \n")
-                FreeCAD.Console.PrintMessage(self.obj.UnitVector)
             self.obj.setEditorMode("ObjectEntities", 2)
             self.obj.setEditorMode("XVector", 0)
             self.obj.setEditorMode("YVector", 0)
@@ -354,34 +415,41 @@ class TaskPanelDapSolver:
         return
 
     def rebuildConditions(self):
-        #self.form.lnedFileDirectory.setText(self.obj.FileDirectory)
-        #self.form.dsbVeci.setValue(self.obj.XVector)
-        #self.form.dsbVecj.setValue(self.obj.YVector)
-        #self.form.dsbVeck.setValue(self.obj.ZVector)
-        #self.form.lblUnitVecOut.setText(str(self.obj.UnitVector))
         if self.FileDirectory == "":
             self.defaultFileDirectory()
         self.form.lnedFileDirectory.setText(self.FileDirectory)
         self.form.dsbVeci.setValue(self.XVector)
         self.form.dsbVecj.setValue(self.YVector)
         self.form.dsbVeck.setValue(self.ZVector)
-        self.form.lblUnitVecOut.setText(str(self.UnitVector))
+        self.printUnitVector()
         return
+
+    def xChanged(self):
+        self.XVector = self.form.dsbVeci.value()
+        self.unitVector()
+    
+    def yChanged(self):
+        self.YVector = self.form.dsbVecj.value()
+        self.unitVector()
+    
+    def zChanged(self):
+        self.ZVector = self.form.dsbVeck.value()
+        self.unitVector()
 
     def unitVector(self):
         """ Calculate the unit vector based on user inputs"""
-        if self.checkSelectType == 1:
-            if (self.XVector != 0) or (self.YVector != 0) or (self.ZVector != 0):
-                x_vec = self.XVector
-                y_vec = self.YVector
-                z_vec = self.ZVector
-                mag = (x_vec**2 + y_vec**2 + z_vec**2)**0.5
-                i_vec = x_vec/mag
-                j_vec = y_vec/mag
-                k_vec = z_vec/mag
-                unit_vec_unrounded = [i_vec, j_vec, k_vec]
-                self.UnitVector = [round(num, 3) for num in unit_vec_unrounded]
-                self.form.lblUnitVecOut.setText(self.UnitVector)
+        vector = FreeCAD.Vector(self.XVector,self.YVector,self.ZVector)
+        if vector.Length != 0:
+            vector.normalize()
+            self.UnitVector = vector
+            self.printUnitVector()
+        else:
+            FreeCAD.Console.PrintError("Vector of 0 length specified. \n")
+
         return
         
+    def printUnitVector(self):
+        self.form.lblUnitVecOut.setText("{:5.2f}{:5.2f}{:5.2f}".format(self.UnitVector.x,
+                                                                        self.UnitVector.y,
+                                                                        self.UnitVector.z))
         
