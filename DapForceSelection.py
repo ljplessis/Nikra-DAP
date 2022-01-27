@@ -121,6 +121,7 @@ class _DapForce:
         
 
     def onChanged(self, obj, prop):
+        
         if prop == "ForceTypes":
             # FreeCAD.Console.PrintError('This is working')
 

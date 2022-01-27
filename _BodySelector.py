@@ -55,16 +55,18 @@ class BodySelector:
 
     # index == 0
     def Page1(self):
-        """init page 1 of widget """
+        """2 Points 2 Bodies """
         index = 0
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
 
+        self.form.body1Combo.clear()
         self.form.body1Combo.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body1, 0)
         self.form.body1Combo.setCurrentIndex(b1i)
         self.selectedBody1(index)
 
+        self.form.body2Combo.clear()
         self.form.body2Combo.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body2, 0)
         self.form.body2Combo.setCurrentIndex(b1i)
@@ -76,8 +78,8 @@ class BodySelector:
         self.form.lcsName1.clicked.connect(lambda : self.selectLCSinGui(self.obj.Joint1))
         self.form.lcsName2.clicked.connect(lambda : self.selectLCSinGui(self.obj.Joint2))        
         
-        self.form.body1Combo.currentIndexChanged.connect(self.selectedBody1)
-        self.form.body2Combo.currentIndexChanged.connect(self.selectedBody2)
+        self.form.body1Combo.currentIndexChanged.connect(lambda: self.selectedBody1(_index = index))
+        self.form.body2Combo.currentIndexChanged.connect(lambda: self.selectedBody2(_index = index))
 
         self.rebuildInputs(index)
         
@@ -88,16 +90,18 @@ class BodySelector:
         
 # index == 1
     def Page2(self):
-        """init page 2 of widget """
+        """1 point 2 bodies """
         index = 1
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
 
+        self.form.body1Combo_2.clear()
         self.form.body1Combo_2.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body1, 0)
         self.form.body1Combo_2.setCurrentIndex(b1i)
         self.selectedBody1(index)
-
+        
+        self.form.body2Combo_2.clear()
         self.form.body2Combo_2.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body2, 0)
         self.form.body2Combo_2.setCurrentIndex(b1i)
@@ -106,8 +110,9 @@ class BodySelector:
         self.form.lcsName3.clicked.connect(lambda : self.selectLCSinGui(self.obj.Joint1))
         self.form.lcsPush3.clicked.connect(lambda : self.addLCS1(index))
 
-        self.form.body1Combo_2.currentIndexChanged.connect(self.selectedBody1)
-        self.form.body2Combo_2.currentIndexChanged.connect(self.selectedBody2)
+        #NOTE to Varnu, when indexChanged even is called, an index is passed through to the function
+        self.form.body1Combo_2.currentIndexChanged.connect(lambda: self.selectedBody1(_index = index))
+        self.form.body2Combo_2.currentIndexChanged.connect(lambda: self.selectedBody2(_index = index))
 
         self.rebuildInputs(index)
 
@@ -117,7 +122,7 @@ class BodySelector:
 
     # index == 2
     def Page3(self):
-        """init page 3 of widget """
+        """Points selection """
         index = 2
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
@@ -135,6 +140,10 @@ class BodySelector:
         self.comboTypeChanged()
 
         return 
+    def emptyPage(self):
+        """ Empty page if nothing should be selected"""
+        index = 3
+        self.form.inputWidget.setCurrentIndex(index)
 
     def PageInit(self,index):
         """assign local variables depending on the page selected """
@@ -292,8 +301,7 @@ class BodySelector:
         FreeCAD.getDocument(doc_name).recompute()
         return 
 
-    def selectedBody1(self,_index):
-        
+    def selectedBody1(self, _index=0):
         if _index == 0:
             index = self.form.body1Combo.currentIndex()
             self.Body1 = self.body_labels[index]
@@ -308,8 +316,7 @@ class BodySelector:
 
         self.selectObjectInGui(index)
 
-    def selectedBody2(self,_index):
-    
+    def selectedBody2(self,_index=0):
         if _index == 0:
             index = self.form.body2Combo.currentIndex()
             self.Body2 = self.body_labels[index]
@@ -318,6 +325,8 @@ class BodySelector:
             self.Body2 = self.body_labels[index]
 
         self.selectObjectInGui(index)
+
+        
 
     def selectObjectInGui(self, index):
         """shows body selections in gui"""

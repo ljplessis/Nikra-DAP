@@ -137,34 +137,34 @@ class TaskPanelDapForce:
     def accept(self):
         """If this is missing, there won't be an OK button"""
         
-        if DapTools.gravityChecker():
+        if self.Type == 'Gravity' and  DapTools.gravityChecker():
             FreeCAD.Console.PrintError('Gravity has already been selected')
-        else:
-            if self.Type == "Spring" or self.Type == "Linear Spring Damper":
-                self.bodySelector.accept(0)
-                self.bodySelector.execute(self.obj,0)
-            elif self.Type == "Rotational Spring" or self.Type == "Rotational Spring Damper":
-                self.bodySelector.accept(1)
-                self.bodySelector.execute(self.obj,1)
+        
+        if self.Type == "Spring" or self.Type == "Linear Spring Damper":
+            self.bodySelector.accept(0)
+            #self.bodySelector.execute(self.obj,0)
+        elif self.Type == "Rotational Spring" or self.Type == "Rotational Spring Damper":
+            self.bodySelector.accept(1)
+            #self.bodySelector.execute(self.obj,1)
             
-            self.bodySelector.closing()
-
-            self.obj.ForceTypes = self.Type
-            self.obj.gx = getQuantity(self.form.xIn)
-            self.obj.gy = getQuantity(self.form.yIn)
-            self.obj.gz = getQuantity(self.form.zIn)
-            self.obj.Stiffness = getQuantity(self.form.stiffnessIn)
-            self.obj.UndeformedLength = getQuantity(self.form.undefIn)
-            self.obj.LinDampCoeff = getQuantity(self.form.linDampIn)
-            self.obj.RotDampCoeff = getQuantity(self.form.rotDampIn)
-            self.obj.RotStiffness = getQuantity(self.form.rotStiffIn)
-            self.obj.UndeformedAngle = getQuantity(self.form.undefAngIn)
-
+        
+        
+        self.obj.ForceTypes = self.Type
+        self.obj.gx = getQuantity(self.form.xIn)
+        self.obj.gy = getQuantity(self.form.yIn)
+        self.obj.gz = getQuantity(self.form.zIn)
+        self.obj.Stiffness = getQuantity(self.form.stiffnessIn)
+        self.obj.UndeformedLength = getQuantity(self.form.undefIn)
+        self.obj.LinDampCoeff = getQuantity(self.form.linDampIn)
+        self.obj.RotDampCoeff = getQuantity(self.form.rotDampIn)
+        self.obj.RotStiffness = getQuantity(self.form.rotStiffIn)
+        self.obj.UndeformedAngle = getQuantity(self.form.undefAngIn)
+        
+        self.bodySelector.closing()
 
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
-
         return
 
     def reject(self):
@@ -184,18 +184,22 @@ class TaskPanelDapForce:
         type_index = self.form.forceComboBox.currentIndex()
         self.form.descriptionhelp.setText(DapForceSelection.FORCE_TYPE_HELPER_TEXT[type_index])
         self.Type = DapForceSelection.FORCE_TYPES[type_index]
-
-        self.form.inputForceWidget.setCurrentIndex(type_index)
+        
+        
+        #self.form.inputForceWidget.setCurrentIndex(type_index)
         
         self.obj.recompute()
 
         if self.Type == "Spring" or self.Type == "Linear Spring Damper":
+            self.form.bodySelection.setVisible(True)
             self.bodySelector.Page1()
 
         elif self.Type == "Rotational Spring" or self.Type == "Rotational Spring Damper" :
+            self.form.bodySelection.setVisible(True)
             self.bodySelector.Page2()
         
-        elif self.Type == "Gravity":
-            self.bodySelector.close()
-
+        #elif self.Type == "Gravity":
+            #self.bodySelector.close()
+        else:
+            self.form.bodySelection.setVisible(False)
 

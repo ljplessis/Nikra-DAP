@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>239</width>
-    <height>267</height>
+    <width>429</width>
+    <height>747</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,11 +20,21 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QGridLayout" name="gridLayout_4">
-      <item row="2" column="0" colspan="2">
-       <layout class="QVBoxLayout" name="bodySelection"/>
+      <item row="0" column="0">
+       <widget class="QLabel" name="forceType">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Force Type</string>
+        </property>
+       </widget>
       </item>
       <item row="0" column="1">
        <widget class="QComboBox" name="forceComboBox">
@@ -33,19 +43,6 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="descriptionhelp">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Help Text </string>
         </property>
        </widget>
       </item>
@@ -62,17 +59,25 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="forceType">
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>25</height>
-         </size>
+      <item row="1" column="1">
+       <widget class="QLabel" name="descriptionhelp">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="text">
-         <string>Force Type</string>
+         <string>Help Text </string>
         </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <layout class="QVBoxLayout" name="bodySelectionorig"/>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QWidget" name="bodySelection" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout"/>
        </widget>
       </item>
      </layout>
@@ -216,6 +221,13 @@
       </widget>
       <widget class="QWidget" name="page_3">
        <layout class="QGridLayout" name="gridLayout_9">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>Damping Coefficient </string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="label_13">
           <property name="sizePolicy">
@@ -229,32 +241,12 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_14">
-          <property name="text">
-           <string>Damping Coefficient </string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="1">
          <widget class="Gui::InputField" name="rotDampIn"/>
         </item>
        </layout>
       </widget>
      </widget>
-    </item>
-    <item>
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
     </item>
    </layout>
   </widget>
@@ -263,8 +255,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>239</width>
-     <height>17</height>
+     <width>429</width>
+     <height>32</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDAP_Force_Selection">
