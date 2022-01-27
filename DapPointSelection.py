@@ -73,7 +73,6 @@ class _DapPoint:
 
     def initProperties(self, obj):
 
-        addObjectProperty(obj, 'Body', "", "App::PropertyString", "", "Body label")
         addObjectProperty(obj, 'Point', "", "App::PropertyString", "", "Point label")
         addObjectProperty(obj, 'PointCoord', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Point Vector")
         addObjectProperty(obj, 'pointCoordList', [], "App::PropertyVectorList", "", "List of Point Vectors")

@@ -36,7 +36,6 @@ class BodySelector:
         
         self.obj = obj
         self.obj.setEditorMode("JointType", 2)
-        self.buttonName = None
 
             
         self.doc_name = self.obj.Document.Name
@@ -49,9 +48,14 @@ class BodySelector:
             if "DapBody" in i.Name:
                 self.body_labels.append(i.Label)
                 self.body_objects.append(i)
-    
+
+    def close(self):
+        """closes the widget"""
+        self.form.inputWidget.setCurrentIndex(-1) 
+
     # index == 0
     def Page1(self):
+        """init page 1 of widget """
         index = 0
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
@@ -68,7 +72,6 @@ class BodySelector:
 
         self.form.lcsPush1.clicked.connect(lambda: self.addLCS1(index))
         self.form.lcsPush2.clicked.connect(self.addLCS2)
-        
 
         self.form.lcsName1.clicked.connect(lambda : self.selectLCSinGui(self.obj.Joint1))
         self.form.lcsName2.clicked.connect(lambda : self.selectLCSinGui(self.obj.Joint2))        
@@ -77,13 +80,15 @@ class BodySelector:
         self.form.body2Combo.currentIndexChanged.connect(self.selectedBody2)
 
         self.rebuildInputs(index)
+        
         self.comboTypeChanged()
 
-        return True
+        return 
     
         
 # index == 1
     def Page2(self):
+        """init page 2 of widget """
         index = 1
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
@@ -108,18 +113,14 @@ class BodySelector:
 
         self.comboTypeChanged()
 
-        return True
+        return 
 
     # index == 2
     def Page3(self):
+        """init page 3 of widget """
         index = 2
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
-
-        self.form.bodyPointCombo.addItems(self.body_labels)
-        b1i = indexOrDefault(self.body_labels, self.obj.Body, 0)
-        self.form.bodyPointCombo.setCurrentIndex(b1i)
-        self.selectedBody1(index)
         
         self.form.pointPush.clicked.connect(self.addPoint)
 
@@ -129,18 +130,17 @@ class BodySelector:
 
         self.form.pointRemove.clicked.connect(self.buttonRemovePointClicked)
 
-        self.form.bodyPointCombo.currentIndexChanged.connect(self.selectedBody1)
-
         self.rebuildInputs(index)
 
         self.comboTypeChanged()
 
-        return True 
+        return 
 
     def PageInit(self,index):
+        """assign local variables depending on the page selected """
         # self.index = self.form.inputWidget.currentIndex()
         if index == 0:
-            self.JType = self.obj.JointType 
+            # self.JType = self.obj.JointType 
             self.Body1 = self.obj.Body1
             self.Body2 = self.obj.Body2
             self.Joint1 = self.obj.Joint1
@@ -149,15 +149,14 @@ class BodySelector:
             self.JointCoord2 = self.obj.JointCoord2
 
         elif index == 1:
-            self.JType = self.obj.JointType
+            # self.JType = self.obj.JointType
             self.Joint1 = self.obj.Joint1
             self.Body1 = self.obj.Body1
             self.Body2 = self.obj.Body2
 
         elif index == 2:
-            self.JType = self.obj.JointType
+            # self.JType = self.obj.JointType
             self.Point = self.obj.Point 
-            self.Body = self.obj.Body
             self.PointCoord = self.obj.PointCoord
             self.pointList = self.obj.pointList
             self.bodyNameList = self.obj.bodyNameList
@@ -165,6 +164,7 @@ class BodySelector:
             self.pointCoordList = self.obj.pointCoordList 
 
     def comboTypeChanged(self):
+        """used to change the helper text of body selected"""
         type_index = self.form.inputWidget.currentIndex()
         self.form.labelHelperText.setText(HELPER_TEXT[type_index])
         self.JType = TYPES[type_index]
@@ -202,12 +202,16 @@ class BodySelector:
                      point = Part.makeSphere(r)
                      point.Placement.Base = self.pointCoordList[i]
                      shape_list.append(point)
-            shape = Part.makeCompound(shape_list)
-            obj.Shape = shape
+                shape = Part.makeCompound(shape_list)
+                obj.Shape = shape
+                
+            else:
+                obj.Shape = Part.Shape()
                 
         return None
 
     def rebuildInputs(self,index):
+        """place previous inputs back into selection windows"""
 
         if index == 0:    
             self.Body1 = self.obj.Body1
@@ -220,8 +224,6 @@ class BodySelector:
             self.form.lcsName1.setText(self.Joint1)
             self.form.lcsName2.setText(self.Joint2)
 
-           
-
         elif index == 1:
             self.Body1 = self.obj.Body1
             self.Body2 = self.obj.Body2
@@ -231,21 +233,17 @@ class BodySelector:
             self.form.lcsName3.setText(self.Joint1)
 
         
-            
         elif index == 2:
             self.Point = self.obj.Point
-            self.Body = self.obj.Body 
             self.PointCoord = self.obj.PointCoord
             self.bodyNameList = self.obj.bodyNameList
             self.pointAssignList = self.obj.pointAssignList
             self.pointCoordList = self.obj.pointCoordList
 
-            self.form.pointName.setText(self.Point)
+            self.form.pointName.setText("Select the LCS,point or vertex")
 
             self.rebuildPointList()
-
-        
-
+            
         return
 
 
@@ -258,20 +256,22 @@ class BodySelector:
             self.obj.JointCoord1 = self.JointCoord1
             self.obj.JointCoord2 = self.JointCoord2
 
+
         elif index == 1:
             self.obj.Body1 = self.Body1
             self.obj.Body2 = self.Body2
             self.obj.Joint1 = self.Joint1
-            self.obj.JointCoord1 = self.JointCoord1        
+            self.obj.JointCoord1 = self.JointCoord1
+       
 
         elif index == 2:       
             self.obj.Point = self.Point
-            self.obj.Body = self.Body
             self.obj.PointCoord = self.PointCoord
             self.obj.pointList = self.pointList 
             self.obj.bodyNameList = self.bodyNameList
             self.obj.pointAssignList = self.pointAssignList
             self.obj.pointCoordList = self.pointCoordList
+
         
         
         doc = FreeCADGui.getDocument(self.obj.Document)
@@ -279,6 +279,7 @@ class BodySelector:
         self.obj.recompute()
         doc_name = str(self.obj.Document.Name)        
         FreeCAD.getDocument(doc_name).recompute()
+        
         return 
 
     def reject(self):
@@ -319,6 +320,7 @@ class BodySelector:
         self.selectObjectInGui(index)
 
     def selectObjectInGui(self, index):
+        """shows body selections in gui"""
         FreeCADGui.Selection.clearSelection()
         #FreeCAD.Console.PrintMessage(self.body_labels[index])
         if self.body_objects[index] != None:
@@ -327,6 +329,7 @@ class BodySelector:
     
     
     def selectInGui2(self):
+        """shows the points chosen from a combo box"""
 
         if "LCS" in self.form.pointList.currentItem().text() or "Point" in self.form.pointList.currentItem().text():
 
@@ -353,6 +356,7 @@ class BodySelector:
     
 
     def selectInGui(self):
+        """shows the points chosen from the selection window"""
         
         if "LCS" in self.Point or "Point" in self.Point:
 
@@ -375,6 +379,7 @@ class BodySelector:
             FreeCADGui.Selection.addSelection(selection_object,self.Point)
 
     def selectLCSinGui(self,joint):
+        "used to show the LCS from a selection window"
 
         FreeCADGui.Selection.clearSelection()
 
@@ -475,7 +480,7 @@ class BodySelector:
 
                 if (self.Point + "" + self.BodyName) not in self.pointAssignList:
                     self.pointList.append(self.Point)
-                    self.pointAssignList.append(self.Point + self.BodyName)
+                    self.pointAssignList.append(self.Point + "" + self.BodyName)
                     self.bodyNameList.append(self.BodyName)
                     self.pointCoordList.append(self.PointCoord)
 
@@ -504,6 +509,7 @@ class BodySelector:
 
     def closing(self):
         """ Call this on close to let the widget to its proper cleanup """
+        self.form.inputWidget.setCurrentIndex(-1)
         FreeCADGui.Selection.removeObserver(self)
 
 

@@ -22,10 +22,10 @@ if FreeCAD.GuiUp:
     from PySide import QtCore
 
 
-FORCE_TYPES = ["Gravity", "Spring"]
+FORCE_TYPES = ["Gravity", "Spring", "Linear Spring Damper", "Rotational Spring", "Rotational Spring Damper"]
 
 FORCE_TYPE_HELPER_TEXT = ["Universal force of attraction between all matter",
-"Spring connecting two points with stiffness and undeformed length"]
+"Linear Spring connecting two points with stiffness and undeformed length", "A device used to limit or retard vibration ", "Device that stores energy when twisted and exerts a toraue in the opposite direction", "Device used to limit movemement and vibration through continous rotation"]
 
 # container 
 def makeDapForce(name="DapForce"):
@@ -79,24 +79,30 @@ class _DapForce:
         obj.Proxy = self
         self.Type = "DapForce"
 
-        self.bodySelector = _BodySelector.BodySelector
-
     def initProperties(self, obj):
         addObjectProperty(obj, 'ForceTypes', FORCE_TYPES, "App::PropertyEnumeration", "", "Types of Forces")    
         addObjectProperty(obj, 'gx', "", "App::PropertyAcceleration", "", "X Component")
         addObjectProperty(obj, 'gy', "-9.81 m/s^2", "App::PropertyAcceleration", "", "Y Component")
         addObjectProperty(obj, 'gz', "", "App::PropertyAcceleration", "", "Z Component")
-        addObjectProperty(obj, 'Stiffness', "", "App::PropertyQuantity", "", "Stiffness")
-        addObjectProperty(obj, 'UndeformedLength', "", "App::PropertyLength", "", "Undeformed Length")
-        addObjectProperty(obj, 'Body1', "Randomness", "App::PropertyString", "", "Body 1 label")
+        addObjectProperty(obj, 'Stiffness', "", "App::PropertyQuantity", "", "Linear Spring Stiffness")
+        addObjectProperty(obj, 'RotStiffness', "", "App::PropertyQuantity", "", "Rotational Spring Stiffness")
+        addObjectProperty(obj, 'LinDampCoeff', "", "App::PropertyQuantity", "", "Linear damping coefficient")
+        addObjectProperty(obj, 'RotDampCoeff', "", "App::PropertyQuantity", "", "Rotational damping coefficient")
+        addObjectProperty(obj, 'UndeformedLength', "", "App::PropertyLength", "", "Linear undeformed Length")
+        addObjectProperty(obj, 'UndeformedAngle', "", "App::PropertyAngle", "", "Undeformed angle")
+        addObjectProperty(obj, 'Body1', "", "App::PropertyString", "", "Body 1 label")
         addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
         addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
         addObjectProperty(obj, 'Joint2', "", "App::PropertyString", "", "Joint 2 label")
+        addObjectProperty(obj, 'DampCondition', "", "App::PropertyString", "", "Displays the damping condition")
         addObjectProperty(obj, 'JointCoord1', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
         addObjectProperty(obj, 'JointCoord2', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
         
 
         obj.Stiffness=Units.Unit('kg/s^2')
+        obj.RotStiffness=Units.Unit('((kg/s^2)*m)/rad')
+        obj.LinDampCoeff=Units.Unit('kg/s')
+        obj.RotDampCoeff=Units.Unit('(kg*m)/(s^2*rad)')
 
         
         
@@ -126,6 +132,11 @@ class _DapForce:
                 obj.setEditorMode("Body2", 2)
                 obj.setEditorMode("Joint1", 2)
                 obj.setEditorMode("Joint2", 2)
+                obj.setEditorMode("RotStiffness", 2)
+                obj.setEditorMode("LinDampCoeff", 2)
+                obj.setEditorMode("UndeformedAngle", 2)
+                obj.setEditorMode("RotDampCoeff", 2)
+                obj.setEditorMode("Joint2", 2)
                 obj.setEditorMode("gx", 0)
                 obj.setEditorMode("gy", 0)
                 obj.setEditorMode("gz", 0)
@@ -136,13 +147,60 @@ class _DapForce:
                 obj.setEditorMode("gz", 2)
                 obj.setEditorMode("Stiffness", 0)
                 obj.setEditorMode("UndeformedLength", 0)
+                obj.setEditorMode("RotStiffness", 2)
+                obj.setEditorMode("LinDampCoeff", 2)
+                obj.setEditorMode("UndeformedAngle", 2)
+                obj.setEditorMode("RotDampCoeff", 2)
                 obj.setEditorMode("Body1", 0)
                 obj.setEditorMode("Body2", 0)
                 obj.setEditorMode("Joint1", 0)
                 obj.setEditorMode("Joint2", 0)
-                
+            
+            elif obj.ForceTypes == "Linear Spring Damper":
+                obj.setEditorMode("gx", 2)
+                obj.setEditorMode("gy", 2)
+                obj.setEditorMode("gz", 2)
+                obj.setEditorMode("Stiffness", 2)
+                obj.setEditorMode("UndeformedLength", 2)
+                obj.setEditorMode("RotStiffness", 2)
+                obj.setEditorMode("LinDampCoeff", 0)
+                obj.setEditorMode("UndeformedAngle", 2)
+                obj.setEditorMode("RotDampCoeff", 2)
+                obj.setEditorMode("Body1", 0)
+                obj.setEditorMode("Body2", 0)
+                obj.setEditorMode("Joint1", 0)
+                obj.setEditorMode("Joint2", 0)
 
+            elif obj.ForceTypes == "Rotational Spring":
+                obj.setEditorMode("gx", 2)
+                obj.setEditorMode("gy", 2)
+                obj.setEditorMode("gz", 2)
+                obj.setEditorMode("Stiffness", 2)
+                obj.setEditorMode("UndeformedLength", 2)
+                obj.setEditorMode("RotStiffness", 0)
+                obj.setEditorMode("LinDampCoeff", 2)
+                obj.setEditorMode("UndeformedAngle", 0)
+                obj.setEditorMode("RotDampCoeff", 2)
+                obj.setEditorMode("Body1", 0)
+                obj.setEditorMode("Body2", 0)
+                obj.setEditorMode("Joint1", 0)
+                obj.setEditorMode("Joint2", 2)
 
+            elif obj.ForceTypes == "Rotational Spring Damper":
+                obj.setEditorMode("gx", 2)
+                obj.setEditorMode("gy", 2)
+                obj.setEditorMode("gz", 2)
+                obj.setEditorMode("Stiffness", 2)
+                obj.setEditorMode("UndeformedLength", 2)
+                obj.setEditorMode("RotStiffness", 2)
+                obj.setEditorMode("LinDampCoeff", 2)
+                obj.setEditorMode("UndeformedAngle", 2)
+                obj.setEditorMode("RotDampCoeff", 0)
+                obj.setEditorMode("Body1", 0)
+                obj.setEditorMode("Body2", 0)
+                obj.setEditorMode("Joint1", 0)
+                obj.setEditorMode("Joint2", 2)
+               
     
 class _ViewProviderDapForce:
 
@@ -165,8 +223,6 @@ class _ViewProviderDapForce:
     def getDisplayModes(self, obj):
         modes = []
         return modes
-
-   
 
     def getDefaultDisplayMode(self):
         # TODO choose default display style

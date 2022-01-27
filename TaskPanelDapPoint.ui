@@ -22,25 +22,25 @@
   <widget class="QWidget" name="random">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="bodySelection"/>
+     <layout class="QVBoxLayout" name="bodySelection_1"/>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
+  <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>268</width>
-     <height>21</height>
+     <height>17</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuDAP_Force_Selection">
+   <widget class="QMenu" name="menuDAP_Point_Selection">
     <property name="title">
-     <string>DAP Force Selection </string>
+     <string>DAP Point Selection</string>
     </property>
    </widget>
-   <addaction name="menuDAP_Force_Selection"/>
+   <addaction name="menuDAP_Point_Selection"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionDAP_Force">

@@ -30,7 +30,6 @@ class TaskPanelDapPoint:
 
     def __init__(self, obj):
         self.obj = obj
-        self.Body = self.obj.Body
         self.Point = self.obj.Point 
         self.PointCoord = self.obj.PointCoord 
  
@@ -39,7 +38,7 @@ class TaskPanelDapPoint:
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelDapPoint.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
 
-        self.bodySelector = _BodySelector.BodySelector(self.form.bodySelection, self.obj)
+        self.bodySelector = _BodySelector.BodySelector(self.form.bodySelection_1, self.obj)
         
         self.bodySelector.Page3()
 
@@ -50,7 +49,6 @@ class TaskPanelDapPoint:
     
 
     def rebuildInputs(self):
-        self.Body = self.obj.Body
         self.Point = self.obj.Point 
         self.PointCoord = self.obj.PointCoord
         
@@ -61,7 +59,6 @@ class TaskPanelDapPoint:
         """If this is missing, there won't be an OK button"""
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
-        self.obj.Body = self.Body
         self.obj.Point = self.Point 
         self.obj.PointCoord = self.PointCoord
         
