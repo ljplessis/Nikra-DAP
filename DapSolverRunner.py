@@ -80,13 +80,15 @@ class _DapSolver:
 
     def initProperties(self, obj):
 
-        addObjectProperty(obj, 'FileDirectory', "", "App::PropertyString", "", "Location where Solver Results will be Stored")
-        addObjectProperty(obj, 'MotionPlane', MOTION_PLANES, "App::PropertyEnumeration", "", "Plane of Motion")
-        addObjectProperty(obj, 'SelectionType', SELECTION_TYPE, "App::PropertyEnumeration", "", "Type of Custom Plane Selection")
-        addObjectProperty(obj, 'ObjectEntities', [], "App::PropertyStringList","","Objects used for Plane Definition")
         addObjectProperty(obj, 'XVector', 0.0, "App::PropertyFloat","","Vector in X-Direction")
         addObjectProperty(obj, 'YVector', 0.0, "App::PropertyFloat","","Vector in Y-Direction")
         addObjectProperty(obj, 'ZVector', 0.0, "App::PropertyFloat","","Vector in Z-Direction")
+        
+        addObjectProperty(obj, 'FileDirectory', "", "App::PropertyString", "", "Location where Solver Results will be Stored")
+        addObjectProperty(obj, 'MotionPlane', MOTION_PLANES, "App::PropertyEnumeration", "", "Plane of Motion")
+        addObjectProperty(obj, 'SelectionType', SELECTION_TYPE, "App::PropertyEnumeration", "", "Type of Custom Plane Selection")
+        #addObjectProperty(obj, 'ObjectEntities', [], "App::PropertyStringList","","Objects used for Plane Definition")
+        
         
         addObjectProperty(obj, 'PlaneObjectName', "", "App::PropertyString","","Name of object to create custom plane of motion")
         
@@ -133,12 +135,12 @@ class _DapSolver:
 
         if prop == "MotionPlane":
             if obj.MotionPlane in standard_planes:
-                obj.setEditorMode("XVector", 2)
-                obj.setEditorMode("YVector", 2)
-                obj.setEditorMode("ZVector", 2)
-                obj.setEditorMode("SelectionType", 2)
-                obj.setEditorMode("ObjectEntities", 2)
-                obj.setEditorMode("UnitVector", 1)
+                if hasattr(obj, "XVector"):
+                    obj.setEditorMode("XVector", 2)
+                    obj.setEditorMode("YVector", 2)
+                    obj.setEditorMode("ZVector", 2)
+                    obj.setEditorMode("SelectionType", 2)
+                    obj.setEditorMode("UnitVector", 1)
 
                 if obj.MotionPlane == "X-Y Plane":
                     obj.XVector = 0.0
@@ -156,12 +158,12 @@ class _DapSolver:
                     obj.ZVector = 0.0
 
             else:
-                obj.setEditorMode("XVector", 2)
-                obj.setEditorMode("YVector", 2)
-                obj.setEditorMode("ZVector", 2)
-                obj.setEditorMode("ObjectEntities", 0)
-                obj.setEditorMode("SelectionType", 0)
-                obj.setEditorMode("UnitVector", 1)
+                if hasattr(obj, "XVector"):
+                    obj.setEditorMode("XVector", 2)
+                    obj.setEditorMode("YVector", 2)
+                    obj.setEditorMode("ZVector", 2)
+                    obj.setEditorMode("SelectionType", 0)
+                    obj.setEditorMode("UnitVector", 1)
 
             if (obj.XVector != 0) or (obj.YVector != 0) or (obj.ZVector != 0):
                 mag = (obj.XVector**2 + obj.YVector**2 + obj.ZVector**2)**0.5        
@@ -172,29 +174,30 @@ class _DapSolver:
 
         if prop == "SelectionType":
             if obj.SelectionType == "Object Selection":
-                obj.setEditorMode("XVector", 2)
-                obj.setEditorMode("YVector", 2)
-                obj.setEditorMode("ZVector", 2)
-                obj.setEditorMode("ObjectEntities", 0)
-                obj.setEditorMode("UnitVector", 1)
+                if hasattr(obj, "XVector"):
+                    obj.setEditorMode("XVector", 2)
+                    obj.setEditorMode("YVector", 2)
+                    obj.setEditorMode("ZVector", 2)
+                    obj.setEditorMode("UnitVector", 1)
 
                 #insert code here to determine the positioning of the vector normal to the selection
 
             else:
-                obj.setEditorMode("XVector", 0)
-                obj.setEditorMode("YVector", 0)
-                obj.setEditorMode("ZVector", 0)
-                obj.setEditorMode("ObjectEntities", 2)
-                obj.setEditorMode("UnitVector", 1)
+                if hasattr(obj, "XVector"):
+                    obj.setEditorMode("XVector", 0)
+                    obj.setEditorMode("YVector", 0)
+                    obj.setEditorMode("ZVector", 0)
+                    obj.setEditorMode("UnitVector", 1)
+        
+        if hasattr(obj, "XVector") and hasattr(obj, "YVector") and hasattr(obj, "ZVector"):
+            if prop == "XVector" or prop == "YVector" or prop == "ZVector":
 
-                if prop == "XVector" or "YVector" or "ZVector":
-
-                    if (obj.XVector != 0) or (obj.YVector != 0) or (obj.ZVector != 0):
-                        mag = (obj.XVector**2 + obj.YVector**2 + obj.ZVector**2)**0.5
-                        rounder = 3        
-                        obj.UnitVector = FreeCAD.Vector(round(obj.XVector/mag, rounder), 
-                                                        round(obj.YVector/mag, rounder),
-                                                        round(obj.ZVector/mag, rounder))
+                if (obj.XVector != 0) or (obj.YVector != 0) or (obj.ZVector != 0):
+                    mag = (obj.XVector**2 + obj.YVector**2 + obj.ZVector**2)**0.5
+                    rounder = 3        
+                    obj.UnitVector = FreeCAD.Vector(round(obj.XVector/mag, rounder), 
+                                                    round(obj.YVector/mag, rounder),
+                                                    round(obj.ZVector/mag, rounder))
 
     def __setstate__(self, state):
         return None

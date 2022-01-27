@@ -36,7 +36,7 @@ class TaskPanelDapSolver:
         self.FileDirectory = self.obj.FileDirectory
         self.MotionPlane = self.obj.MotionPlane
         self.SelectionType = self.obj.SelectionType
-        self.ObjectEntities = self.obj.ObjectEntities
+        #self.ObjectEntities = self.obj.ObjectEntities
         self.XVector = self.obj.XVector
         self.YVector = self.obj.YVector
         self.ZVector = self.obj.ZVector
@@ -65,9 +65,9 @@ class TaskPanelDapSolver:
 
         self.form.pbBrowseFileDirectory.clicked.connect(self.getFolderDirectory)
 
-        self.form.pbAddRef.clicked.connect(self.addButtonClicked)
+        #self.form.pbAddRef.clicked.connect(self.addButtonClicked)
 
-        self.form.pbRemoveRef.clicked.connect(self.removeButtonClicked)
+        #self.form.pbRemoveRef.clicked.connect(self.removeButtonClicked)
 
         self.form.dsbVeci.valueChanged.connect(self.xChanged)
         self.form.dsbVecj.valueChanged.connect(self.yChanged)
@@ -80,7 +80,7 @@ class TaskPanelDapSolver:
         
         self.form.selectPlanarObjectButton.clicked.connect(self.customObjectSelection)
 
-        self.rebuildObjectList()
+        #self.rebuildObjectList()
 
         self.rebuildConditions()
         
@@ -103,7 +103,7 @@ class TaskPanelDapSolver:
         
         self.obj.MotionPlane = self.MotionPlane
         self.obj.SelectionType = self.SelectionType
-        self.obj.ObjectEntities = self.ObjectEntities
+        #self.obj.ObjectEntities = self.ObjectEntities
         self.obj.XVector = self.UnitVector.x
         self.obj.YVector = self.UnitVector.y
         self.obj.ZVector = self.UnitVector.z
@@ -141,7 +141,7 @@ class TaskPanelDapSolver:
         #builder = DapSolverBuilder.DapSolverBuilder()
         self.obj.MotionPlane = self.MotionPlane
         self.obj.SelectionType = self.SelectionType
-        self.obj.ObjectEntities = self.ObjectEntities
+        #self.obj.ObjectEntities = self.ObjectEntities
 
         self.obj.FileDirectory = self.form.lnedFileDirectory.text()
 
@@ -188,31 +188,31 @@ class TaskPanelDapSolver:
         self.rebuildConditions()
         return
 
-    def addButtonClicked(self):
-        sel = FreeCADGui.Selection.getSelectionEx()[0]
-        sel_name = sel.SubElementNames
+    #def addButtonClicked(self):
+        #sel = FreeCADGui.Selection.getSelectionEx()[0]
+        #sel_name = sel.SubElementNames
 
-        for i in range(0, len(sel_name)):
-            if sel_name[i] in self.ObjectEntities:
-                FreeCAD.Console.PrintError("\n Error:  The selected object has already been referenced \n")
-            else:
-                self.ObjectEntities.append(sel_name[i])
+        ##for i in range(0, len(sel_name)):
+            ##if sel_name[i] in self.ObjectEntities:
+                ##FreeCAD.Console.PrintError("\n Error:  The selected object has already been referenced \n")
+            ##else:
+                ##self.ObjectEntities.append(sel_name[i])
 
-        self.rebuildObjectList()
-        return
+        #self.rebuildObjectList()
+        #return
 
-    def removeButtonClicked(self):
-        if not self.ObjectEntities:
-            FreeCAD.Console.PrintMessage("Here 1")
-            return
-        if not self.form.lstObjectEntities.currentItem():
-            FreeCAD.Console.PrintMessage("Here 2")
-            return
-        row = self.form.lstObjectEntities.currentRow()
-        self.ObjectEntities.pop(row)
-        self.rebuildObjectList()
-        self.rebuildConditions()
-        return
+    #def removeButtonClicked(self):
+        #if not self.ObjectEntities:
+            #FreeCAD.Console.PrintMessage("Here 1")
+            #return
+        #if not self.form.lstObjectEntities.currentItem():
+            #FreeCAD.Console.PrintMessage("Here 2")
+            #return
+        #row = self.form.lstObjectEntities.currentRow()
+        #self.ObjectEntities.pop(row)
+        #self.rebuildObjectList()
+        #self.rebuildConditions()
+        #return
 
     def defaultFileDirectory(self):
         self.FileDirectory = os.getcwd()
@@ -254,7 +254,7 @@ class TaskPanelDapSolver:
             self.form.lblEntitySelect.setHidden(True)
             self.form.stWidg.setHidden(True)
             #self.form.lblPlaneDefined.setText("Plane of Motion successfully defined")
-            self.obj.setEditorMode("ObjectEntities", 2)
+            #self.obj.setEditorMode("ObjectEntities", 2)
             self.obj.setEditorMode("XVector", 2)
             self.obj.setEditorMode("YVector", 2)
             self.obj.setEditorMode("ZVector", 2)
@@ -267,7 +267,7 @@ class TaskPanelDapSolver:
             self.form.lblSelectDescr.setHidden(False)
             self.form.lblEntitySelect.setHidden(False)
             #self.form.lblPlaneDefined.setText("No Plane of Motion could be Generated from the Information Provided")
-            self.obj.setEditorMode("ObjectEntities", 0)
+            #self.obj.setEditorMode("ObjectEntities", 0)
             self.checkSelectType()
 
         return
@@ -403,16 +403,16 @@ class TaskPanelDapSolver:
         else:
             self.form.stWidg.setCurrentIndex(1)
 
-            self.obj.setEditorMode("ObjectEntities", 2)
+            #self.obj.setEditorMode("ObjectEntities", 2)
             self.obj.setEditorMode("XVector", 0)
             self.obj.setEditorMode("YVector", 0)
             self.obj.setEditorMode("ZVector", 0)
 
-    def rebuildObjectList(self):
-        self.form.lstObjectEntities.clear()
-        for i in range(0, len(self.ObjectEntities)):
-            self.form.lstObjectEntities.addItem(self.ObjectEntities[i])
-        return
+    #def rebuildObjectList(self):
+        #self.form.lstObjectEntities.clear()
+        #for i in range(0, len(self.ObjectEntities)):
+            #self.form.lstObjectEntities.addItem(self.ObjectEntities[i])
+        #return
 
     def rebuildConditions(self):
         if self.FileDirectory == "":
