@@ -14,6 +14,7 @@ if FreeCAD.GuiUp:
     from PySide import QtCore
     from PySide import QtGui
     from PySide.QtCore import QTimer
+    import PySide
 import Part
 import math
 from math import degrees,acos
@@ -57,8 +58,16 @@ class BodySelector:
     def Page1(self):
         """2 Points 2 Bodies """
         index = 0
+        self.form.page1.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Preferred)
+        self.form.page2.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
+        self.form.page3.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
+        self.form.page4.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
+        #self.form.inputWidget.adjustSize()
+        
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
+        
+        
 
         self.form.body1Combo.clear()
         self.form.body1Combo.addItems(self.body_labels)
@@ -92,8 +101,16 @@ class BodySelector:
     def Page2(self):
         """1 point 2 bodies """
         index = 1
+        self.form.page1.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
+        self.form.page2.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Preferred)
+        self.form.page3.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
+        self.form.page4.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
+        #self.form.inputWidget.adjustSize()
+        
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
+        
+        
 
         self.form.body1Combo_2.clear()
         self.form.body1Combo_2.addItems(self.body_labels)
@@ -124,8 +141,16 @@ class BodySelector:
     def Page3(self):
         """Points selection """
         index = 2
+        self.form.page1.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
+        self.form.page2.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
+        self.form.page3.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Preferred)
+        self.form.page4.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
+        #self.form.inputWidget.adjustSize()
+        
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
+        
+        
         
         self.form.pointPush.clicked.connect(self.addPoint)
 
@@ -157,11 +182,14 @@ class BodySelector:
             self.JointCoord1 = self.obj.JointCoord1
             self.JointCoord2 = self.obj.JointCoord2
 
+            #adjustSize()
+
         elif index == 1:
             # self.JType = self.obj.JointType
             self.Joint1 = self.obj.Joint1
             self.Body1 = self.obj.Body1
             self.Body2 = self.obj.Body2
+            
 
         elif index == 2:
             # self.JType = self.obj.JointType
@@ -171,6 +199,7 @@ class BodySelector:
             self.bodyNameList = self.obj.bodyNameList
             self.pointAssignList = self.obj.pointAssignList 
             self.pointCoordList = self.obj.pointCoordList 
+            
 
     def comboTypeChanged(self):
         """used to change the helper text of body selected"""
