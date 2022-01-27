@@ -20,8 +20,8 @@ if FreeCAD.GuiUp:
 BODY_TYPES = ["Ground",
               "Moving"]
 
-BODY_TYPE_HELPER_TEXT = ["A fixed body",
-                         "A free moving body"]
+BODY_TYPE_HELPER_TEXT = ["A fixed body which does not move.",
+                         "A free moving body."]
 
 def makeDapBody(name="DapBody"):
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", name)

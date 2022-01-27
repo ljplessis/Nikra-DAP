@@ -86,7 +86,6 @@ class TaskPanelPlot:
         table_row = self.form.tableWidget.currentRow()
         self.form.tableWidget.removeRow(table_row)
         
-    #def getPlottableItems(self):
     def plottableIndexChanged(self, index):
         selection_object = self.doc.getObjectsByLabel(self.plottableList[index])[0]
         FreeCADGui.Selection.clearSelection()
@@ -121,6 +120,7 @@ class TaskPanelPlot:
             parts_list.append(self.form.tableWidget.item(row,0).text())
             legend_list.append(self.form.tableWidget.item(row,1).text())
         return parts_list, legend_list
+
     def extractPlotDispVel(self, parts_list, times, type):
         x_list = []
         y_list = []
@@ -153,6 +153,9 @@ class TaskPanelPlot:
         return x_list, y_list
     
     def convertOrthonormalToReal(self, x_list, y_list):
+        """ This function takes the list of x and y coordinates/velocities
+        and rotates them into the 3D space using the inverse of the orthonormal rotation matrix.
+        """
         x = []
         y = []
         z = []
@@ -217,6 +220,7 @@ class TaskPanelPlot:
                         ax.scatter(x_list[i], y_list[i], label=legend_list[i])
                     ax.legend(loc='lower left')
                     fig.update()
+
             if self.form.realRadioButton.isChecked():
                 if what_to_plot == "Position" or what_to_plot == "Velocity":
                     fig = Plot.figure(what_to_plot)
@@ -232,8 +236,6 @@ class TaskPanelPlot:
                         ax.plot(times, x_list[i], label=legend_list[i])
                     ax.legend(loc='lower left')
                     
-                    
-                    
                     ax = fig.fig.add_subplot(3,1,2)
                     ax.set_xlabel("Time [s]")
                     ax.set_ylabel("y [units?]")
@@ -247,7 +249,6 @@ class TaskPanelPlot:
                         ax.plot(times, z_list[i], label=legend_list[i])
 
                     ax.legend(loc='lower left')
-                    
                     fig.update()
                     
                 if what_to_plot == "Path Trace":
@@ -257,7 +258,8 @@ class TaskPanelPlot:
                     x_list, y_list, z_list = self.convertOrthonormalToReal(x_list, y_list)
                     from mpl_toolkits.mplot3d import Axes3D
                     #NOTE: to get around the deprecated warning, creating new axis
-                    #instance, and hiding previous isntance. Pehaps until FreeCAD.plot has been updated
+                    #instance, and hiding previous isntance. Pehaps until FreeCAD.plot 
+                    #module has been updated to custom create a new axis on init
                     ax1 = fig.axes
                     ax1.set_visible(False)
                     
