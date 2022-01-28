@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_9">
+  <layout class="QGridLayout" name="gridLayout_6">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
@@ -366,10 +366,10 @@
       <enum>QFrame::Box</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="pageTypeFunctionA">
-      <layout class="QGridLayout" name="gridLayout_6">
+      <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="0" colspan="3">
         <widget class="QLabel" name="label_16">
          <property name="text">
@@ -388,7 +388,7 @@
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="Gui:InputField" name="tEndFuncA"/>
+        <widget class="Gui::InputField" name="tEndFuncA"/>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_20">
@@ -398,7 +398,7 @@
         </widget>
        </item>
        <item row="2" column="1" colspan="2">
-        <widget class="Gui:InputField" name="FuncACoefC1"/>
+        <widget class="Gui::InputField" name="FuncACoefC1"/>
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_21">
@@ -408,7 +408,7 @@
         </widget>
        </item>
        <item row="3" column="1" colspan="2">
-        <widget class="Gui:InputField" name="FuncACoefC2"/>
+        <widget class="Gui::InputField" name="FuncACoefC2"/>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_22">
@@ -418,7 +418,7 @@
         </widget>
        </item>
        <item row="4" column="1" colspan="2">
-        <widget class="Gui:InputField" name="FuncACoefC3">
+        <widget class="Gui::InputField" name="FuncACoefC3">
          <property name="text">
           <string/>
          </property>
@@ -443,7 +443,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="Gui:InputField" name="tStartFuncB"/>
+        <widget class="Gui::InputField" name="tStartFuncB"/>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_24">
@@ -453,7 +453,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="Gui:InputField" name="tEndFuncB"/>
+        <widget class="Gui::InputField" name="tEndFuncB"/>
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_25">
@@ -463,7 +463,7 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="Gui:InputField" name="startValueFuncB"/>
+        <widget class="Gui::InputField" name="startValueFuncB"/>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_26">
@@ -473,7 +473,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="Gui:InputField" name="endValueFuncB"/>
+        <widget class="Gui::InputField" name="endValueFuncB"/>
        </item>
       </layout>
      </widget>
@@ -494,7 +494,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="Gui:InputField" name="tStartFuncC"/>
+        <widget class="Gui::InputField" name="tStartFuncC"/>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_28">
@@ -504,7 +504,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="Gui:InputField" name="tEndFuncC"/>
+        <widget class="Gui::InputField" name="tEndFuncC"/>
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_29">
@@ -514,7 +514,7 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="Gui:InputField" name="startValueFuncC"/>
+        <widget class="Gui::InputField" name="startValueFuncC"/>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_30">
@@ -524,7 +524,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="Gui:InputField" name="endDerivativeFuncC"/>
+        <widget class="Gui::InputField" name="endDerivativeFuncC"/>
        </item>
       </layout>
      </widget>
@@ -547,7 +547,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Gui:InputField</class>
+   <class>Gui::InputField</class>
    <extends>QLineEdit</extends>
    <header>gui:inputfield.h</header>
   </customwidget>

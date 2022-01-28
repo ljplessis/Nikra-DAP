@@ -10,6 +10,8 @@ import os.path
 import DapTools
 from DapTools import indexOrDefault
 from DapTools import addObjectProperty
+from DapTools import getQuantity, setQuantity
+from FreeCAD import Units
 import DapJointSelection
 if FreeCAD.GuiUp:
     import FreeCADGui
@@ -24,7 +26,6 @@ class TaskPanelDapJoint:
     def __init__(self, obj):
         self.obj = obj
         self.TypeOfRelMov = self.obj.TypeOfRelMov
-        self.DriverOn = self.obj.DriverOn
         self.RelMovDefinitionMode = self.obj.RelMovDefinitionMode
         self.Body1 = self.obj.Body1
         self.Body2 = self.obj.Body2
@@ -32,6 +33,10 @@ class TaskPanelDapJoint:
         self.Point2RelMov = self.obj.Point2RelMov
         self.CoordPoint1RelMov = self.obj.CoordPoint1RelMov
         self.CoordPoint2RelMov = self.obj.CoordPoint2RelMov
+        self.DriverOn = self.obj.DriverOn
+        self.DriverFunctionType = self.obj.DriverFunctionType
+        self.emptyunit = ""
+        
 
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelDapJoints.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
@@ -41,13 +46,6 @@ class TaskPanelDapJoint:
         self.form.TypeOfRelMov.currentIndexChanged.connect(self.jointTypeChanged)
         self.form.TypeOfRelMov.setCurrentIndex(ji)
         self.jointTypeChanged()
-
-        self.form.DriverOn.addItems(DapJointSelection.YES_NO)
-        k = indexOrDefault(DapJointSelection.YES_NO, self.obj.DriverOn, 0)
-        self.form.DriverOn.currentIndexChanged.connect(self.DriverOnChanged)
-        self.form.DriverOn.setCurrentIndex(k)
-        self.DriverOnChanged()
-
 
         dmi = indexOrDefault(DapJointSelection.DEFINITION_MODES[ji], self.obj.RelMovDefinitionMode, 0)
         self.form.definitionMode.currentIndexChanged.connect(self.definitionModeChanged)
@@ -92,7 +90,50 @@ class TaskPanelDapJoint:
         self.form.chooseCoordinateButton.clicked.connect(self.addLCS1)
         self.form.PushButtonLCS1LinMov.clicked.connect(self.addLCS1)
         self.form.PushButtonLCS2LinMov.clicked.connect(self.addLCS2)
-      
+        
+        self.form.DriverOn.addItems(DapJointSelection.YES_NO)
+        self.DriverOnIndex = indexOrDefault(DapJointSelection.YES_NO, self.obj.DriverOn, 0)
+        self.form.DriverOn.currentIndexChanged.connect(self.DriverOnChanged)
+        self.form.DriverOn.setCurrentIndex(self.DriverOnIndex)
+        #self.DriverOnChanged()
+
+        self.DriverFuncIndex = indexOrDefault(DapJointSelection.FUNCTION_TYPES, self.obj.DriverFunctionType, 0)
+        
+        self.form.radioButtonFuncTypeA.toggled.connect(self.DriverFuncChanged)
+        if self.DriverFuncIndex == 1:
+            self.form.radioButtonFuncTypeA.setChecked(True)
+        self.form.radioButtonFuncTypeB.toggled.connect(self.DriverFuncChanged)
+        if self.DriverFuncIndex == 2:
+            self.form.radioButtonFuncTypeB.setChecked(True)
+        self.form.radioButtonFuncTypeC.toggled.connect(self.DriverFuncChanged)
+        if self.DriverFuncIndex == 3:
+            self.form.radioButtonFuncTypeC.setChecked(True)
+        self.DriverFuncChanged()
+                
+        emptyunit = Units.Quantity(self.emptyunit)
+        
+        FreeCAD.Console.PrintMessage(f"\n")
+        FreeCAD.Console.PrintMessage(f"\n")
+        FreeCAD.Console.PrintMessage(f"emptyunit = {emptyunit}")
+        
+        setQuantity(self.form.tEndFuncA, emptyunit)
+        setQuantity(self.form.FuncACoefC1, emptyunit)
+        setQuantity(self.form.FuncACoefC2, emptyunit)
+        setQuantity(self.form.FuncACoefC3, emptyunit)
+
+        setQuantity(self.form.tStartFuncB, emptyunit)
+        setQuantity(self.form.tEndFuncB, emptyunit)
+        setQuantity(self.form.startValueFuncB, emptyunit)
+        setQuantity(self.form.endValueFuncB, emptyunit)
+
+        setQuantity(self.form.tStartFuncC, emptyunit)
+        setQuantity(self.form.tEndFuncC, emptyunit)
+        setQuantity(self.form.startValueFuncC, emptyunit)
+        setQuantity(self.form.endDerivativeFuncC, emptyunit)
+        
+        self.rebuildInputs()
+
+              
     def accept(self):        
         self.obj.RelMovDefinitionMode = self.RelMovDefinitionMode
         self.obj.Body1 = self.Body1
@@ -102,8 +143,25 @@ class TaskPanelDapJoint:
             FreeCAD.Console.PrintError("  Please update the incorrect relative movement so that it is defined between 2 different bodies.")
         
         self.obj.Point1RelMov = self.Point1RelMov
-        self.obj.Point2RelMov = self.Point2RelMov
+        self.obj.Point2RelMov = self.Point2RelMov        
         
+        self.obj.DriverFunctionType = self.DriverFunctionType
+        
+        self.obj.tEndDriverFuncTypeA = getQuantity(self.form.tEndFuncA)
+        self.obj.coefC1DriverFuncTypeA = getQuantity(self.form.FuncACoefC1)
+        self.obj.coefC2DriverFuncTypeA = getQuantity(self.form.FuncACoefC2)
+        self.obj.coefC3DriverFuncTypeA = getQuantity(self.form.FuncACoefC3)
+
+        self.obj.tStartDriverFuncTypeB = getQuantity(self.form.tStartFuncB)
+        self.obj.tEndDriverFuncTypeB = getQuantity(self.form.tEndFuncB)
+        self.obj.initialValueDriverFuncTypeB = getQuantity(self.form.startValueFuncB)
+        self.obj.endValueDriverFuncTypeB = getQuantity(self.form.endValueFuncB)
+
+        self.obj.tStartDriverFuncTypeC = getQuantity(self.form.tStartFuncC)
+        self.obj.tEndDriverFuncTypeC = getQuantity(self.form.tEndFuncC)
+        self.obj.initialValueDriverFuncTypeC = getQuantity(self.form.startValueFuncC)
+        self.obj.endDerivativeDriverFuncTypeC = getQuantity(self.form.endDerivativeFuncC)
+       
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
         return
@@ -121,16 +179,17 @@ class TaskPanelDapJoint:
         doc.resetEdit()
         return True
 
+        FreeCAD.Console.PrintMessage(f"\n")
+        FreeCAD.Console.PrintMessage(f"\n")
+        FreeCAD.Console.PrintMessage(f"reject self.DriverFunctionType = {self.DriverFunctionType}")
+        FreeCAD.Console.PrintMessage(f"\n")
+        FreeCAD.Console.PrintMessage(f"reject self.obj.DriverFunctionType = {self.obj.DriverFunctionType}")
+
     def jointTypeChanged(self):
         index =  self.form.TypeOfRelMov.currentIndex()        
         self.form.definitionMode.clear()
         self.form.definitionMode.addItems(DapJointSelection.DEFINITION_MODES[index])
         self.obj.TypeOfRelMov = DapJointSelection.JOINT_TYPES[index]
-        self.obj.recompute()
-
-    def DriverOnChanged(self):
-        switch =  self.form.DriverOn.currentIndex()
-        self.obj.DriverOn = DapJointSelection.YES_NO[switch]
         self.obj.recompute()
         
     def definitionModeChanged(self):
@@ -215,3 +274,78 @@ class TaskPanelDapJoint:
                     
                     if self.Point1RelMov != "":
                         self.obj.recompute()
+
+    def DriverOnChanged(self):
+        self.DriverSwitch =  self.form.DriverOn.currentIndex()
+        self.obj.DriverOn = DapJointSelection.YES_NO[self.DriverSwitch]
+
+        #if self.DriverSwitch == 0:
+            #self.form.frameFunctionType.setEnabled(False)
+
+
+        
+        if self.DriverSwitch == 1 and self.DriverOnIndex == 0:
+            self.form.radioButtonFuncTypeA.setChecked(True)
+            
+        #elif self.DriverSwitch == 0 and self.DriverOnIndex == 1:
+            
+            
+            #FreeCAD.Console.PrintMessage(f"\n")        
+            #FreeCAD.Console.PrintMessage(f"\n")        
+            #FreeCAD.Console.PrintMessage(f"\n")        
+            #FreeCAD.Console.PrintMessage(f"func DriverOnChanged self.DriverOnIndex = {self.DriverOnIndex}")
+        
+        
+            #FreeCAD.Console.PrintMessage(f"\n")        
+            #FreeCAD.Console.PrintMessage(f"func DriverOnChanged self.DriverSwitch = {self.DriverSwitch}")
+
+            
+            #self.form.radioButtonFuncTypeA.setChecked(False)
+            #self.form.radioButtonFuncTypeB.setChecked(False)
+            #self.form.radioButtonFuncTypeC.setChecked(False)
+
+
+        #if self.DriverSwitch == 0:
+            #self.form.stackedWidgetFuncTypeInputs.removeWidget(self.form.pageTypeFunctionA)
+            #self.form.stackedWidgetFuncTypeInputs.removeWidget(self.form.pageTypeFunctionB)
+            #self.form.stackedWidgetFuncTypeInputs.removeWidget(self.form.pageTypeFunctionC)
+            
+
+        self.DriverFuncChanged()
+        self.obj.recompute()
+        
+    def DriverFuncChanged(self):
+        if self.form.radioButtonFuncTypeA.isChecked():
+            self.DriverFuncIndex = 1
+            self.DriverFunctionType = DapJointSelection.FUNCTION_TYPES[self.DriverFuncIndex]
+        elif self.form.radioButtonFuncTypeB.isChecked():
+            self.DriverFuncIndex = 2
+            self.DriverFunctionType = DapJointSelection.FUNCTION_TYPES[self.DriverFuncIndex]
+        elif self.form.radioButtonFuncTypeC.isChecked():
+            self.DriverFuncIndex = 3
+            self.DriverFunctionType = DapJointSelection.FUNCTION_TYPES[self.DriverFuncIndex]
+        #else:
+            #self.DriverFuncIndex = 0            
+        self.form.stackedWidgetFuncTypeInputs.setCurrentIndex(self.DriverFuncIndex-1)
+        
+    def rebuildInputs(self):
+                
+        setQuantity(self.form.tEndFuncA, self.obj.tEndDriverFuncTypeA)
+        setQuantity(self.form.FuncACoefC1, self.obj.coefC1DriverFuncTypeA)
+        setQuantity(self.form.FuncACoefC2, self.obj.coefC2DriverFuncTypeA)
+        setQuantity(self.form.FuncACoefC3, self.obj.coefC3DriverFuncTypeA)
+
+        setQuantity(self.form.tStartFuncB, self.obj.tStartDriverFuncTypeB)
+        setQuantity(self.form.tEndFuncB, self.obj.tEndDriverFuncTypeB)
+        setQuantity(self.form.startValueFuncB, self.obj.initialValueDriverFuncTypeB)
+        setQuantity(self.form.endValueFuncB, self.obj.endValueDriverFuncTypeB)
+
+        setQuantity(self.form.tStartFuncC, self.obj.tStartDriverFuncTypeC)
+        setQuantity(self.form.tEndFuncC, self.obj.tEndDriverFuncTypeC)
+        setQuantity(self.form.startValueFuncC, self.obj.initialValueDriverFuncTypeC)
+        setQuantity(self.form.endDerivativeFuncC, self.obj.endDerivativeDriverFuncTypeC)
+
+        
+        
+
+            

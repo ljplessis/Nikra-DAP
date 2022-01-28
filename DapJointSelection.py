@@ -8,6 +8,7 @@ import os
 import DapTools
 from DapTools import addObjectProperty
 from pivy import coin
+from FreeCAD import Units
 import Part
 from math import sin, cos, pi
 
@@ -27,7 +28,7 @@ HELPER_TEXT = [["Choose a point (by picking an LCS) and the two bodies attached 
 
 YES_NO = ["No", "Yes"]
 
-FUNCTION_TYPES = ["Function type 'a'", "Function type 'b'", "Function type 'c'"]
+FUNCTION_TYPES = ["Not Applicable", "Function type 'a'", "Function type 'b'", "Function type 'c'"]
 
 def makeDapJoints(name="DapRelativeMovement"):
     obj = FreeCAD.ActiveDocument.addObject("Part::FeaturePython", name)
@@ -119,7 +120,21 @@ class _DapJoint:
         addObjectProperty(obj, 'endDerivativeDriverFuncTypeC', "", "App::PropertyQuantity", "",\
             "Driver Function Type C: function derivative at t_end")
         
+        obj.tEndDriverFuncTypeA = Units.Unit("")
+        obj.coefC1DriverFuncTypeA = Units.Unit("")
+        obj.coefC2DriverFuncTypeA = Units.Unit("")
+        obj.coefC3DriverFuncTypeA = Units.Unit("")
         
+        obj.tStartDriverFuncTypeB = Units.Unit("")
+        obj.tEndDriverFuncTypeB = Units.Unit("")
+        obj.initialValueDriverFuncTypeB = Units.Unit("")
+        obj.endValueDriverFuncTypeB = Units.Unit("")
+
+        obj.tStartDriverFuncTypeC = Units.Unit("")
+        obj.tEndDriverFuncTypeC = Units.Unit("")
+        obj.initialValueDriverFuncTypeC = Units.Unit("")
+        obj.endDerivativeDriverFuncTypeC = Units.Unit("")
+
 
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
