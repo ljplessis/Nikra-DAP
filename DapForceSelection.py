@@ -131,8 +131,8 @@ class _DapForce:
                 #First reset the placement in case multiple recomputes are performed
                 obj.Placement.Base = FreeCAD.Vector(0,0,0)
                 obj.Placement.Rotation = FreeCAD.Rotation(0,0,0,1)
-                obj.Placement.Base = obj.JointCoord1
-                obj.Placement.rotate(obj.JointCoord1, axis, angle)
+                obj.Placement.rotate(FreeCAD.Vector(0,0,0), axis, angle)
+                obj.Placement.translate(obj.JointCoord1)
             else:
                 obj.Shape = Part.Shape()
                 
