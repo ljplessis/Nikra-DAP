@@ -31,6 +31,7 @@ class TaskPanelDapForce:
     def __init__(self, obj):
         self.obj = obj
         self.Type = self.obj.ForceTypes
+        self.TypeReset = self.obj.ForceTypes #copy for reset, type gets used alot
 
         self.X = self.obj.gx
         self.Y = self.obj.gy
@@ -49,6 +50,7 @@ class TaskPanelDapForce:
         self.Body2 = self.obj.Body2
         self.Joint1 = self.obj.Joint1
         self.Joint2 = self.obj.Joint2
+        
 
         self.doc_name = self.obj.Document.Name
 
@@ -171,12 +173,25 @@ class TaskPanelDapForce:
         """IF this is missing, there won't be a Cancel button"""
         FreeCADGui.Selection.removeObserver(self)
         
+        ##Do the reject checker before reseting the force type to previous selection
+        #if self.obj.ForceTypes == "Spring" or self.obj.ForceTypes == "Linear Spring Damper":
+            #self.bodySelector.reject(0)
+            ##self.bodySelector.execute(self.obj,0)
+        #elif self.obj.ForceTypes == "Rotational Spring" or self.obj.ForceTypes == "Rotational Spring Damper":
+            #self.bodySelector.reject(1)
+        
+        
+        self.obj.ForceTypes = self.TypeReset
+        
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc_name = str(self.obj.Document.Name)        
-        self.bodySelector.reject()
-        FreeCAD.getDocument(doc_name).recompute()
-        doc.resetEdit()
+        #self.bodySelector.reject()
+        
+        
+        #FreeCAD.getDocument(doc_name).recompute()
+        #doc.resetEdit()
+        self.obj.recompute()
         return True
     
 
@@ -184,6 +199,9 @@ class TaskPanelDapForce:
         type_index = self.form.forceComboBox.currentIndex()
         self.form.descriptionhelp.setText(DapForceSelection.FORCE_TYPE_HELPER_TEXT[type_index])
         self.Type = DapForceSelection.FORCE_TYPES[type_index]
+        
+        #TODO reset type on reject
+        self.obj.ForceTypes = self.Type
         
         
         self.form.inputForceWidget.setCurrentIndex(type_index)

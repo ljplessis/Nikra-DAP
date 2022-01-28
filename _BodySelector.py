@@ -62,7 +62,6 @@ class BodySelector:
         self.form.page2.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
         self.form.page3.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
         self.form.page4.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
-        #self.form.inputWidget.adjustSize()
         
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
@@ -105,7 +104,6 @@ class BodySelector:
         self.form.page2.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Preferred)
         self.form.page3.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
         self.form.page4.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
-        #self.form.inputWidget.adjustSize()
         
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
@@ -145,7 +143,6 @@ class BodySelector:
         self.form.page2.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
         self.form.page3.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Preferred)
         self.form.page4.setSizePolicy(PySide.QtGui.QSizePolicy.Expanding, PySide.QtGui.QSizePolicy.Ignored)
-        #self.form.inputWidget.adjustSize()
         
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
@@ -208,45 +205,45 @@ class BodySelector:
         self.JType = TYPES[type_index]
 
         
-    def execute(self, obj,index):
-        """ Create compound part at recompute. """
-        if index == 0:
+    #def execute(self, obj,index):
+        #""" Create compound part at recompute. """
+        #if index == 0:
 
-            if obj.ForceTypes == "Spring":
-                p = 2
-                h = dist(obj.JointCoord1,obj.JointCoord2)
-                r = 1.5
+            #if obj.ForceTypes == "Spring":
+                #p = 2
+                #h = dist(obj.JointCoord1,obj.JointCoord2)
+                #r = 1.5
         
-                creation_axis = FreeCAD.Vector(0,0,1)
-                desired_direction = normalized(self.JointCoord2 - self.JointCoord1)
-                angle = degrees(acos(dotproduct(creation_axis, desired_direction)))
-                axis = crossproduct(creation_axis,desired_direction)
-                helix = Part.makeHelix(p,h,r)
-                helix.Placement.Base = self.JointCoord1
-                helix.rotate(self.JointCoord1,axis,angle) 
-                obj.Shape = helix
+                #creation_axis = FreeCAD.Vector(0,0,1)
+                #desired_direction = normalized(self.JointCoord2 - self.JointCoord1)
+                #angle = degrees(acos(dotproduct(creation_axis, desired_direction)))
+                #axis = crossproduct(creation_axis,desired_direction)
+                #helix = Part.makeHelix(p,h,r)
+                #helix.Placement.Base = self.JointCoord1
+                #helix.rotate(self.JointCoord1,axis,angle) 
+                #obj.Shape = helix
 
-            else:
-                obj.Shape = Part.Shape()
+            #else:
+                #obj.Shape = Part.Shape()
 
-        elif index == 1:
-            obj.Shape = Part.Shape()
+        #elif index == 1:
+            #obj.Shape = Part.Shape()
 
-        elif index == 2:
-            shape_list=[]
-            r = 0.1 
-            if len(self.pointCoordList)>0:
-                for i in range(len(obj.pointList)):
-                     point = Part.makeSphere(r)
-                     point.Placement.Base = self.pointCoordList[i]
-                     shape_list.append(point)
-                shape = Part.makeCompound(shape_list)
-                obj.Shape = shape
+        #elif index == 2:
+            #shape_list=[]
+            #r = 0.1 
+            #if len(self.pointCoordList)>0:
+                #for i in range(len(obj.pointList)):
+                     #point = Part.makeSphere(r)
+                     #point.Placement.Base = self.pointCoordList[i]
+                     #shape_list.append(point)
+                #shape = Part.makeCompound(shape_list)
+                #obj.Shape = shape
                 
-            else:
-                obj.Shape = Part.Shape()
+            #else:
+                #obj.Shape = Part.Shape()
                 
-        return None
+        #return None
 
     def rebuildInputs(self,index):
         """place previous inputs back into selection windows"""
@@ -291,15 +288,15 @@ class BodySelector:
             self.obj.Body2 = self.Body2
             self.obj.Joint1 = self.Joint1
             self.obj.Joint2 = self.Joint2
-            self.obj.JointCoord1 = self.JointCoord1
-            self.obj.JointCoord2 = self.JointCoord2
+            #self.obj.JointCoord1 = self.JointCoord1
+            #self.obj.JointCoord2 = self.JointCoord2
 
 
         elif index == 1:
             self.obj.Body1 = self.Body1
             self.obj.Body2 = self.Body2
             self.obj.Joint1 = self.Joint1
-            self.obj.JointCoord1 = self.JointCoord1
+            #self.obj.JointCoord1 = self.JointCoord1
        
 
         elif index == 2:       
@@ -314,20 +311,27 @@ class BodySelector:
         
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
-        self.obj.recompute()
-        doc_name = str(self.obj.Document.Name)        
-        FreeCAD.getDocument(doc_name).recompute()
+        #self.obj.recompute()
+        #doc_name = str(self.obj.Document.Name)        
+        #FreeCAD.getDocument(doc_name).recompute()
         
         return 
 
-    def reject(self):
+    def reject(self, index = None):
         FreeCADGui.Selection.removeObserver(self)
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
+        if index == 0:
+            self.obj.JointCoord1 = self.JointCoord1
+            self.obj.JointCoord2 = self.JointCoord2
+        elif index == 1:
+            self.obj.JointCoord1 = self.JointCoord1
+            
         self.obj.recompute()
-        doc_name = str(self.obj.Document.Name)        
-        FreeCAD.getDocument(doc_name).recompute()
+        
+        #doc_name = str(self.obj.Document.Name)        
+        #FreeCAD.getDocument(doc_name).recompute()
         return 
 
     def selectedBody1(self, _index=0):
@@ -442,21 +446,23 @@ class BodySelector:
                 if index == 0:
                     self.form.lcsName1.setText(sel[0].Object.Label)
                     self.Joint1 = sel[0].Object.Label
-                    self.JointCoord1 = sel[0].Object.Placement.Base
+                    self.obj.JointCoord1 = sel[0].Object.Placement.Base
 
                 elif index == 1:
                     self.form.lcsName3.setText(sel[0].Object.Label)
                     self.Joint1 = sel[0].Object.Label
-                    self.JointCoord1 = sel[0].Object.Placement.Base
+                    self.obj.JointCoord1 = sel[0].Object.Placement.Base
                     updated = True
                 if self.Joint2 != "":
                     updated = True
 
         if updated:
-            self.execute(self.obj,0)
+            #self.execute(self.obj,0)
+            #TODO reset the coord on cancel
+            #self.obj.JointCoord1 = self.JointCoord1
             self.obj.recompute()
-            doc_name = str(self.obj.Document.Name)        
-            FreeCAD.getDocument(doc_name).recompute()
+            #doc_name = str(self.obj.Document.Name)        
+            #FreeCAD.getDocument(doc_name).recompute()
             
     def addLCS2(self):
 
@@ -469,13 +475,15 @@ class BodySelector:
             if "LCS" in sel[0].Object.Name:
                 self.form.lcsName2.setText(sel[0].Object.Label)       
                 self.Joint2 = sel[0].Object.Label
-                self.JointCoord2 = sel[0].Object.Placement.Base
+                self.obj.JointCoord2 = sel[0].Object.Placement.Base
 
                 if self.Joint1 != "":
-                    self.execute(self.obj,0)
+                    #self.execute(self.obj,0)
+                    #TODO reset the coord on cancel
+                    #self.obj.JointCoord2 = self.JointCoord2
                     self.obj.recompute()
-                    doc_name = str(self.obj.Document.Name)        
-                    FreeCAD.getDocument(doc_name).recompute()
+                    #doc_name = str(self.obj.Document.Name)        
+                    #FreeCAD.getDocument(doc_name).recompute()
     
     def addPoint(self):
         sel = FreeCADGui.Selection.getSelectionEx()
