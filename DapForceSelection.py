@@ -5,12 +5,13 @@
 
 
 import FreeCAD
-from FreeCAD import Units 
+from FreeCAD import Units, Base
 import _FreeCADVectorTools
 from _FreeCADVectorTools import dist, normalized, crossproduct,dotproduct, angle, length
 import math 
 from math import degrees,acos
 import os
+import Arch
 import DapTools
 from DapTools import addObjectProperty
 import _BodySelector
@@ -99,13 +100,63 @@ class _DapForce:
         addObjectProperty(obj, 'JointCoord2', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
         
 
+        addObjectProperty(obj, 'tEndDriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: End time (t_end)")
+        addObjectProperty(obj, 'coefC1DriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: coefficient 'c_1'")
+        addObjectProperty(obj, 'coefC2DriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: coefficient 'c_2'")
+        addObjectProperty(obj, 'coefC3DriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: coefficient 'c_3'")
+        addObjectProperty(obj, 'tStartDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: Start time (t_start)")
+        addObjectProperty(obj, 'tEndDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: End time (t_end)")
+        addObjectProperty(obj, 'initialValueDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: initial function value")
+        addObjectProperty(obj, 'endValueDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: function value at t_end")
+        addObjectProperty(obj, 'tStartDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: Start time (t_start)")
+        addObjectProperty(obj, 'tEndDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: End time (t_end)")
+        addObjectProperty(obj, 'initialValueDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: initial function value")
+        addObjectProperty(obj, 'endDerivativeDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: function derivative at t_end")
+
+        addObjectProperty(obj, 'Checker', False , "App::PropertyBool", "", "")
+        addObjectProperty(obj, 'a_Checker', False , "App::PropertyBool", "", "")
+        addObjectProperty(obj, 'b_Checker', False , "App::PropertyBool", "", "")
+        addObjectProperty(obj, 'c_Checker', False , "App::PropertyBool", "", "")
+
+        obj.setEditorMode("Checker", 2)
+        obj.setEditorMode("a_Checker", 2)
+        obj.setEditorMode("b_Checker", 2)
+        obj.setEditorMode("c_Checker", 2)
+
         obj.Stiffness=Units.Unit('kg/s^2')
         obj.RotStiffness=Units.Unit('((kg/s^2)*m)/rad')
         obj.LinDampCoeff=Units.Unit('kg/s')
         obj.RotDampCoeff=Units.Unit('(kg*m)/(s^2*rad)')
 
+        obj.tEndDriverFuncTypeA = Units.Unit("")
+        obj.coefC1DriverFuncTypeA = Units.Unit("")
+        obj.coefC2DriverFuncTypeA = Units.Unit("")
+        obj.coefC3DriverFuncTypeA = Units.Unit("")
         
+        obj.tStartDriverFuncTypeB = Units.Unit("")
+        obj.tEndDriverFuncTypeB = Units.Unit("")
+        obj.initialValueDriverFuncTypeB = Units.Unit("")
+        obj.endValueDriverFuncTypeB = Units.Unit("")
+
+        obj.tStartDriverFuncTypeC = Units.Unit("")
+        obj.tEndDriverFuncTypeC = Units.Unit("")
+        obj.initialValueDriverFuncTypeC = Units.Unit("")
+        obj.endDerivativeDriverFuncTypeC = Units.Unit("")
+
         
+ 
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
 
@@ -116,6 +167,7 @@ class _DapForce:
             h = (obj.JointCoord1-obj.JointCoord2).Length
             p = h/10
             r = h/10
+            r_1 = 0.35
             
             
             creation_axis = FreeCAD.Vector(0,0,1)
@@ -126,8 +178,11 @@ class _DapForce:
                 angle = degrees(acos(desired_direction*creation_axis))
                 axis = creation_axis.cross(desired_direction)
                 helix = Part.makeHelix(p,h,r)
+                circle = Part.makeCircle(r_1, Base.Vector(r,0,0), Base.Vector(0,1,0))
+                circle = Part.Wire([circle])
+                pipe = Part.Wire(helix).makePipe(circle) 
                 
-                obj.Shape = helix
+                obj.Shape = pipe 
                 #First reset the placement in case multiple recomputes are performed
                 obj.Placement.Base = FreeCAD.Vector(0,0,0)
                 obj.Placement.Rotation = FreeCAD.Rotation(0,0,0,1)
@@ -135,7 +190,23 @@ class _DapForce:
                 obj.Placement.translate(obj.JointCoord1)
             else:
                 obj.Shape = Part.Shape()
-                
+
+        elif obj.ForceTypes == "Rotational Spring":
+            p = 1
+            h= 15
+            r = h/10
+            r_1 = 0.35
+            helix=Part.makeHelix(p,h,r)
+            circle = Part.makeCircle(r_1,Base.Vector(r,0,0),Base.Vector(0,1,0))
+            circle = Part.Wire([circle])
+            pipe = Part.Wire(helix).makePipe(circle)
+            cylinder = Part.makeCylinder(r_1,h/2,Base.Vector(r,0,0))
+            cylinder.rotate(Base.Vector(r,0,0), Base.Vector(1,0,0),90)
+            cylinder2 = Part.makeCylinder(r_1,h/2,Base.Vector(r,0,h))
+            cylinder2.rotate(Base.Vector(r,0,h), Base.Vector(-1,0,0),90)
+            full = Part.makeCompound([helix,circle,pipe,cylinder,cylinder2])
+            obj.Shape = full
+
         else:
             obj.Shape = Part.Shape()
             
@@ -151,10 +222,8 @@ class _DapForce:
     def onChanged(self, obj, prop):
         
         if prop == "ForceTypes":
-            # FreeCAD.Console.PrintError('This is working')
 
             if obj.ForceTypes == "Gravity":
-                # FreeCAD.Console.PrintError('This is also working')
                 obj.setEditorMode("Stiffness", 2)
                 obj.setEditorMode("UndeformedLength", 2)
                 obj.setEditorMode("Body1", 2)
@@ -169,6 +238,7 @@ class _DapForce:
                 obj.setEditorMode("gx", 0)
                 obj.setEditorMode("gy", 0)
                 obj.setEditorMode("gz", 0)
+
                 
             elif obj.ForceTypes == "Spring":
                 obj.setEditorMode("gx", 2)

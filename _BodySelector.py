@@ -55,6 +55,7 @@ class BodySelector:
         self.form.inputWidget.setCurrentIndex(-1) 
 
     # index == 0
+
     def Page1(self):
         """2 Points 2 Bodies """
         index = 0
@@ -65,8 +66,6 @@ class BodySelector:
         
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
-        
-        
 
         self.form.body1Combo.clear()
         self.form.body1Combo.addItems(self.body_labels)
@@ -146,9 +145,7 @@ class BodySelector:
         
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
-        
-        
-        
+       
         self.form.pointPush.clicked.connect(self.addPoint)
 
         self.form.pointName.clicked.connect(self.selectInGui)
@@ -162,6 +159,7 @@ class BodySelector:
         self.comboTypeChanged()
 
         return 
+
     def emptyPage(self):
         """ Empty page if nothing should be selected"""
         index = 3
@@ -176,14 +174,14 @@ class BodySelector:
             self.Body2 = self.obj.Body2
             self.Joint1 = self.obj.Joint1
             self.Joint2 = self.obj.Joint2
-            self.JointCoord1 = self.obj.JointCoord1
-            self.JointCoord2 = self.obj.JointCoord2
+            # self.JointCoord1 = self.obj.JointCoord1
+            # self.JointCoord2 = self.obj.JointCoord2
 
             #adjustSize()
 
         elif index == 1:
             # self.JType = self.obj.JointType
-            self.Joint1 = self.obj.Joint1
+            # self.Joint1 = self.obj.Joint1
             self.Body1 = self.obj.Body1
             self.Body2 = self.obj.Body2
             
@@ -253,8 +251,8 @@ class BodySelector:
             self.Body2 = self.obj.Body2
             self.Joint1 = self.obj.Joint1
             self.Joint2 = self.obj.Joint2
-            self.JointCoord1 = self.obj.JointCoord1
-            self.JointCoord2 = self.obj.JointCoord2
+            # self.JointCoord1 = self.obj.JointCoord1
+            # self.JointCoord2 = self.obj.JointCoord2
 
             self.form.lcsName1.setText(self.Joint1)
             self.form.lcsName2.setText(self.Joint2)
@@ -263,7 +261,7 @@ class BodySelector:
             self.Body1 = self.obj.Body1
             self.Body2 = self.obj.Body2
             self.Joint1 = self.obj.Joint1
-            self.JointCoord1 = self.obj.JointCoord1
+            # self.JointCoord1 = self.obj.JointCoord1
 
             self.form.lcsName3.setText(self.Joint1)
 
@@ -323,10 +321,12 @@ class BodySelector:
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
         if index == 0:
-            self.obj.JointCoord1 = self.JointCoord1
-            self.obj.JointCoord2 = self.JointCoord2
+            # self.obj.JointCoord1 = self.JointCoord1
+            a =1
+            # self.obj.JointCoord2 = self.JointCoord2
         elif index == 1:
-            self.obj.JointCoord1 = self.JointCoord1
+            a = 1
+            # self.obj.JointCoord1 = self.JointCoord1
             
         self.obj.recompute()
         
@@ -447,6 +447,7 @@ class BodySelector:
                     self.form.lcsName1.setText(sel[0].Object.Label)
                     self.Joint1 = sel[0].Object.Label
                     self.obj.JointCoord1 = sel[0].Object.Placement.Base
+                    FreeCAD.Console.PrintError(self.obj.JointCoord1)
 
                 elif index == 1:
                     self.form.lcsName3.setText(sel[0].Object.Label)
@@ -476,6 +477,7 @@ class BodySelector:
                 self.form.lcsName2.setText(sel[0].Object.Label)       
                 self.Joint2 = sel[0].Object.Label
                 self.obj.JointCoord2 = sel[0].Object.Placement.Base
+                FreeCAD.Console.PrintError(self.obj.JointCoord2)
 
                 if self.Joint1 != "":
                     #self.execute(self.obj,0)
