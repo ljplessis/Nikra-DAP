@@ -64,7 +64,7 @@ class TaskPanelDapPoint:
         
 
         self.bodySelector.accept(2)
-        self.bodySelector.execute(self.obj,2)
+
             
         self.bodySelector.closing()
 

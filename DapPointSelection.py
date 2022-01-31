@@ -91,6 +91,17 @@ class _DapPoint:
 
     def execute(self, obj):
         """ Create compound part at recompute. """
+        shape_list=[]
+        r = 0.1 
+        if len(obj.pointCoordList)>0:
+            for i in range(len(obj.pointList)):
+                point = Part.makeSphere(r)
+                point.Placement.Base = obj.pointCoordList[i]
+                shape_list.append(point)
+            shape = Part.makeCompound(shape_list)
+            obj.Shape = shape
+        else:
+            obj.Shape = Part.Shape()
         return None 
 
     def __getstate__(self):
