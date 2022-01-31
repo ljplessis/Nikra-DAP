@@ -177,7 +177,6 @@ class DapSolverBuilder():
                 body1 = force_obj.Body1
                 body2 = force_obj.Body2
 
-                FreeCAD.Console.PrintMessage("Body1 in process force: " + str(body1) + "\n")
                 body1_index = self.extractDAPBodyIndex(body1)
                 body2_index = self.extractDAPBodyIndex(body2)
                 
@@ -208,6 +207,22 @@ class DapSolverBuilder():
                 undeformed_angle = force_obj.UndeformedAngle.getValueAs("rad")
                 rot_stiffness = force_obj.RotStiffness.getValueAs("m^2*kg/(s^2*rad)")
                 
+                body1_index = self.extractDAPBodyIndex(body1)
+                body2_index = self.extractDAPBodyIndex(body2)
+                
+                #iIndex = self.addDapPointUsingJointCoordAndBodyLabel(body1_index, body1, force_coord_1)
+                
+                #if body1_index != 0:
+                    #self.obj.object_to_point[str(force_obj.Label)] = iIndex - 1
+                
+                #jIndex = self.addDapPointUsingJointCoordAndBodyLabel(body2_index, body2, force_coord_1)
+                force['type'] = 'rot_sda'
+                force['iBindex'] = body1_index
+                force['jBindex'] = body2_index
+                force['k'] = rot_stiffness
+                force['theta0'] = undeformed_angle
+                if force_obj.ForceTypes == "Rotational Spring Damper":
+                    force['dc'] = force_obj.RotDampCoeff.getValueAs("(J*s)/rad")
                 
             self.dap_forces.append(force)
     
@@ -564,7 +579,13 @@ class DapSolverBuilder():
                 if 'dc'  in self.dap_forces[i]:
                     fid.write("F"+str(i+1)+".dc = " + str(self.dap_forces[i]["dc"]) + "\n")
             #TODO add uVectors if translational joint
-            
+            elif self.dap_forces[i]["type"] == 'rot_sda':
+                fid.write("F"+str(i+1)+".iBindex = " + str(self.dap_forces[i]["iBindex"]) + "\n")
+                fid.write("F"+str(i+1)+".jBindex = " + str(self.dap_forces[i]["jBindex"]) + "\n")
+                fid.write("F"+str(i+1)+".k = " + str(self.dap_forces[i]["k"]) + "\n")
+                fid.write("F"+str(i+1)+".theta0 = " + str(self.dap_forces[i]["theta0"]) + "\n")
+                if 'dc'  in self.dap_forces[i]:
+                    fid.write("F"+str(i+1)+".dc = " + str(self.dap_forces[i]["dc"]) + "\n")
             
             fid.write("\n")
             
