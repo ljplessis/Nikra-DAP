@@ -130,10 +130,10 @@ class _DapForce:
         addObjectProperty(obj, 'b_Checker', False , "App::PropertyBool", "", "")
         addObjectProperty(obj, 'c_Checker', False , "App::PropertyBool", "", "")
 
-        obj.setEditorMode("Checker", 0)
-        obj.setEditorMode("a_Checker", 0)
-        obj.setEditorMode("b_Checker", 0)
-        obj.setEditorMode("c_Checker", 0)
+        obj.setEditorMode("Checker", 2)
+        obj.setEditorMode("a_Checker", 2)
+        obj.setEditorMode("b_Checker", 2)
+        obj.setEditorMode("c_Checker", 2)
 
         obj.Stiffness=Units.Unit('kg/s^2')
         obj.RotStiffness=Units.Unit('((kg/s^2)*m)/rad')
@@ -220,6 +220,8 @@ class _DapForce:
         
 
     def onChanged(self, obj, prop):
+        # The property editor for all Type Cases has been added in _DapForceDriver.py. 
+        # Only if form.driveCheck is checked will all Driver properties be hidden here 
         
         if prop == "ForceTypes":
 
@@ -250,8 +252,6 @@ class _DapForce:
                 obj.setEditorMode("tEndDriverFuncTypeC", 2)
                 obj.setEditorMode("initialValueDriverFuncTypeC", 2)
                 obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
-    
-                
             
                 
             elif obj.ForceTypes == "Spring":
@@ -283,47 +283,6 @@ class _DapForce:
                     obj.setEditorMode("initialValueDriverFuncTypeC", 2)
                     obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
 
-
-                elif obj.a_Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 0)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
-
-                elif obj.b_Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 0)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 0)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 0)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 0)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
-                elif obj.c_Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 0)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 0)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 0)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 0)
             
             elif obj.ForceTypes == "Linear Spring Damper":
                 obj.setEditorMode("gx", 2)
@@ -354,45 +313,7 @@ class _DapForce:
                     obj.setEditorMode("initialValueDriverFuncTypeC", 2)
                     obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
 
-                elif obj.a_Checker and obj.Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 0)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
-                elif obj.b_Checker and obj.Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 0)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 0)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 0)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 0)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
-                elif obj.c_Checker and obj.Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 0)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 0)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 0)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 0)
+               
 
             elif obj.ForceTypes == "Rotational Spring":
                 obj.setEditorMode("gx", 2)
@@ -423,45 +344,7 @@ class _DapForce:
                     obj.setEditorMode("initialValueDriverFuncTypeC", 2)
                     obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
 
-                elif obj.a_Checker and obj.Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 0)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
-                elif obj.b_Checker and obj.Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 0)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 0)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 0)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 0)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
-                elif obj.c_Checker and obj.Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 0)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 0)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 0)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 0)
+        
 
             elif obj.ForceTypes == "Rotational Spring Damper":
                 obj.setEditorMode("gx", 2)
@@ -492,45 +375,7 @@ class _DapForce:
                     obj.setEditorMode("initialValueDriverFuncTypeC", 2)
                     obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
 
-                elif obj.a_Checker and obj.Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 0)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 0)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
-                elif obj.b_Checker and obj.Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 0)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 0)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 0)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 0)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
-                elif obj.c_Checker and obj.Checker:
-                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
-                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
-                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
-                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
-                    obj.setEditorMode("tStartDriverFuncTypeC", 0)
-                    obj.setEditorMode("tEndDriverFuncTypeC", 0)
-                    obj.setEditorMode("initialValueDriverFuncTypeC", 0)
-                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 0)
+            
 
         
                
