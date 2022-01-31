@@ -11,7 +11,7 @@ from _FreeCADVectorTools import dist, normalized, crossproduct,dotproduct, angle
 import math 
 from math import degrees,acos
 import os
-import Arch
+import Draft
 import DapTools
 from DapTools import addObjectProperty
 import _BodySelector
@@ -136,9 +136,9 @@ class _DapForce:
         obj.setEditorMode("c_Checker", 2)
 
         obj.Stiffness=Units.Unit('kg/s^2')
-        obj.RotStiffness=Units.Unit('((kg/s^2)*m)/rad')
+        obj.RotStiffness=Units.Unit('N*m/rad')
         obj.LinDampCoeff=Units.Unit('kg/s')
-        obj.RotDampCoeff=Units.Unit('(kg*m)/(s^2*rad)')
+        obj.RotDampCoeff=Units.Unit('(J*s)/rad')
 
         obj.tEndDriverFuncTypeA = Units.Unit("")
         obj.coefC1DriverFuncTypeA = Units.Unit("")
@@ -167,7 +167,7 @@ class _DapForce:
             h = (obj.JointCoord1-obj.JointCoord2).Length
             p = h/10
             r = h/10
-            r_1 = 0.35
+            r_1 = r/(h+0.0001)
             
             
             creation_axis = FreeCAD.Vector(0,0,1)
@@ -192,20 +192,15 @@ class _DapForce:
                 obj.Shape = Part.Shape()
 
         elif obj.ForceTypes == "Rotational Spring":
-            p = 1
-            h= 15
-            r = h/10
-            r_1 = 0.35
-            helix=Part.makeHelix(p,h,r)
-            circle = Part.makeCircle(r_1,Base.Vector(r,0,0),Base.Vector(0,1,0))
-            circle = Part.Wire([circle])
-            pipe = Part.Wire(helix).makePipe(circle)
-            cylinder = Part.makeCylinder(r_1,h/2,Base.Vector(r,0,0))
-            cylinder.rotate(Base.Vector(r,0,0), Base.Vector(1,0,0),90)
-            cylinder2 = Part.makeCylinder(r_1,h/2,Base.Vector(r,0,h))
-            cylinder2.rotate(Base.Vector(r,0,h), Base.Vector(-1,0,0),90)
-            full = Part.makeCompound([helix,circle,pipe,cylinder,cylinder2])
-            obj.Shape = full
+            # h = 10
+            # r = 1 
+            # p = 1
+            # helix = Part.makeHelix(p,h,r)
+            # # helix = Part.Shape(helix)
+            # helix_array = Draft.make_polar_array(helix, 5, 180, FreeCAD.Vector(0,0,0))
+            # obj.Shape = helix_array
+            return None 
+
 
         else:
             obj.Shape = Part.Shape()
@@ -291,7 +286,7 @@ class _DapForce:
                 obj.setEditorMode("gx", 2)
                 obj.setEditorMode("gy", 2)
                 obj.setEditorMode("gz", 2)
-                obj.setEditorMode("Stiffness", 2)
+                obj.setEditorMode("Stiffness", 0)
                 obj.setEditorMode("UndeformedLength", 2)
                 obj.setEditorMode("RotStiffness", 2)
                 obj.setEditorMode("LinDampCoeff", 0)
@@ -355,7 +350,7 @@ class _DapForce:
                 obj.setEditorMode("gz", 2)
                 obj.setEditorMode("Stiffness", 2)
                 obj.setEditorMode("UndeformedLength", 2)
-                obj.setEditorMode("RotStiffness", 2)
+                obj.setEditorMode("RotStiffness", 0)
                 obj.setEditorMode("LinDampCoeff", 2)
                 obj.setEditorMode("UndeformedAngle", 2)
                 obj.setEditorMode("RotDampCoeff", 0)
