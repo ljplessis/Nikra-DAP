@@ -48,6 +48,8 @@ class TaskPanelAnimate:
         self.Bodies_r = Bodies_r
         self.Bodies_p = Bodies_p
         
+        self.scale = 1e3 #convert form meters to mm
+        
         
         #TODO: link these variables to the properties already defined in dapSolver
         #NOTE: requires the code which is currently still under development
@@ -158,7 +160,7 @@ class TaskPanelAnimate:
             project_cog = DapTools.projectPointOntoPlane(self.plane_norm, rotated_cog)
             rotated_cog = self.rotation_matrix * project_cog
             
-            orthonormal_displacement = dap_pos - rotated_cog
+            orthonormal_displacement = dap_pos * self.scale - rotated_cog
             
             required_displacement = self.rotation_matrix.transposed().multVec(orthonormal_displacement)
             

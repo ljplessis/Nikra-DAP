@@ -39,7 +39,7 @@ class DapSolverBuilder():
         self.dap_forces = []
         self.dap_uvectors = []
         
-        
+        self.scale = 1e-3 #convert mm to m
         
         
         self.t_initial = self.obj.StartTime
@@ -149,10 +149,10 @@ class DapSolverBuilder():
             force = {}
             if force_obj.ForceTypes == "Gravity":
                 
-                gx = force_obj.gx.Value
+                gx = force_obj.gx.getValueAs("m/s^2")
                 #FreeCAD.Console.PrintMessage("gx " + str(gx) + "\n")
-                gy = force_obj.gy.Value
-                gz = force_obj.gz.Value
+                gy = force_obj.gy.getValueAs("m/s^2")
+                gz = force_obj.gz.getValueAs("m/s^2")
                 gravity_vector = FreeCAD.Vector(gx, gy, gz)
                 gravity_mag = gravity_vector.Length
                 gravity_norm = gravity_vector/gravity_mag
@@ -165,21 +165,58 @@ class DapSolverBuilder():
                 force['x'] = gravity_norm_rotated.x
                 force['y'] = gravity_norm_rotated.y
                 
-                #FreeCAD.Console.PrintMessage("gravity mag " + str(gravity_mag) + "\n")
-                #FreeCAD.Console.PrintMessage("gravity norm " + str(gravity_norm) + "\n")
-                #FreeCAD.Console.PrintMessage("gravity norm projected" + str(gravity_norm_projected) + "\n")
-                #FreeCAD.Console.PrintMessage("gravity norm rotated" + str(gravity_norm_rotated) + "\n")
-            
+
             #TODO add additional force type
-            
+            if force_obj.ForceTypes == "Spring" or force_obj.ForceTypes == "Linear Spring Damper":
+                L0 = force_obj.UndeformedLength.getValueAs("m")
+                k = force_obj.Stiffness.getValueAs("N/m")
+                force_coord_1 = force_obj.JointCoord1 * self.scale
+                force_coord_2 = force_obj.JointCoord2 * self.scale
+                Joint1 = force_obj.Joint1
+                Joint2 = force_obj.Joint2
+                body1 = force_obj.Body1
+                body2 = force_obj.Body2
+
+                FreeCAD.Console.PrintMessage("Body1 in process force: " + str(body1) + "\n")
+                body1_index = self.extractDAPBodyIndex(body1)
+                body2_index = self.extractDAPBodyIndex(body2)
+                
+                iIndex = self.addDapPointUsingJointCoordAndBodyLabel(body1_index, body1, force_coord_1)
+                
+                if body1_index != 0:
+                    self.obj.object_to_point[str(force_obj.Label)+":"+str(Joint1)] = iIndex - 1
+                
+                jIndex = self.addDapPointUsingJointCoordAndBodyLabel(body2_index, body2, force_coord_2)
+                
+                if body2_index != 0:
+                    self.obj.object_to_point[str(force_obj.Label)+":"+str(Joint2)] = jIndex - 1
+                
+                #self.addJoint(joint_type, iIndex, jIndex)
+                force['type'] = 'ptp'
+                force['iPindex'] = iIndex
+                force['jPindex'] = jIndex
+                force['k'] = k
+                force['L0'] = L0
+                if force_obj.ForceTypes == "Linear Spring Damper":
+                    force['dc'] = force_obj.LinDampCoeff.getValueAs("kg/s")
+
+            if force_obj.ForceTypes == "Rotational Spring" or force_obj.ForceTypes == "Rotational Spring Damper":
+                Joint1 = force_obj.Joint1
+                force_coord_1 = force_obj.JointCoord1 * self.scale
+                body1 = force_obj.Body1
+                body2 = force_obj.Body2
+                undeformed_angle = force_obj.UndeformedAngle.getValueAs("rad")
+                rot_stiffness = force_obj.RotStiffness.getValueAs("m^2*kg/(s^2*rad)")
+                
+                
             self.dap_forces.append(force)
     
     def processJoints(self):
         for i in range(len(self.joints)):
             joint_type = JOINT_TRANSLATION[self.joints[i].TypeOfRelMov]
             
-            joint1_coord = self.joints[i].CoordPoint1RelMov
-            joint2_coord = self.joints[i].CoordPoint2RelMov
+            joint1_coord = self.joints[i].CoordPoint1RelMov * self.scale
+            joint2_coord = self.joints[i].CoordPoint2RelMov * self.scale
             body1 = self.joints[i].Body1
             body2 = self.joints[i].Body2
 
@@ -379,20 +416,20 @@ class DapSolverBuilder():
             for shape_label in self.parts_of_bodies[body_label]:
                 shape_obj = self.doc.getObjectsByLabel(shape_label)[0]
                 Iij = shape_obj.Shape.MatrixOfInertia
-                density = Units.Quantity(self.material_dictionary[shape_label]["density"]).Value
+                density = Units.Quantity(self.material_dictionary[shape_label]["density"]).getValueAs("kg/mm^3")
                 #Moment of inertia about axis of orientation (normal of plane)
-                J = Iij * self.plane_norm * self.plane_norm  * density
+                J = Iij * self.plane_norm * self.plane_norm  * density * self.scale**2
                 
                 #Project CoG of shape onto plane and compute distance of projected CoG of current shape to projected
                 # body CoG
-                centre_of_gravity = shape_obj.Shape.CenterOfMass
+                centre_of_gravity = shape_obj.Shape.CenterOfMass * self.scale
                 CoG_me_proj = self.projectPointOntoPlane(centre_of_gravity)
                 CoG_body_proj = self.cog_of_body_projected[body_label]
                 planar_dist_CoG_to_CogBody = ((CoG_me_proj.x - CoG_body_proj.x)**2 + (CoG_me_proj.y - CoG_body_proj.y)**2 
                                        + (CoG_me_proj.z - CoG_body_proj.z)**2)**0.5
                 
                 
-                shape_mass = shape_obj.Shape.Volume * density
+                shape_mass = shape_obj.Shape.Volume * self.scale**3 * density
                 #NOTE: Using parallel axis theoram to compute the moment of inertia of the full body comprised of
                 #multiple shapes
                 J_global_body += J + shape_mass * planar_dist_CoG_to_CogBody**2
@@ -417,15 +454,19 @@ class DapSolverBuilder():
 
                 
                 shape_obj = self.doc.getObjectsByLabel(shape_label)[0]
-                centre_of_gravity = shape_obj.Shape.CenterOfMass
-                volume = shape_obj.Shape.Volume
+                centre_of_gravity = shape_obj.Shape.CenterOfMass * self.scale
+                volume = shape_obj.Shape.Volume *self.scale**3
 
                 #NOTE: Converting density to base units which is mm?
-                density = Units.Quantity(self.material_dictionary[shape_label]["density"]).Value
+                density = Units.Quantity(self.material_dictionary[shape_label]["density"]).getValueAs("kg/m^3")
                 mass = density*volume
                 total_mass += mass
-                
-                centre_of_gravity_global += mass*centre_of_gravity
+                FreeCAD.Console.PrintMessage("Density: " + str(density) + "\n")
+                FreeCAD.Console.PrintMessage("mass: " + str(mass) + "\n")
+                FreeCAD.Console.PrintMessage("Density: " + str(density.Value) + "\n")
+                FreeCAD.Console.PrintMessage("mass: " + str(mass.Value) + "\n")
+                FreeCAD.Console.PrintMessage("centre_of_gravity: " + str(centre_of_gravity) + "\n")
+                centre_of_gravity_global += mass.Value*centre_of_gravity
                 
             centre_of_gravity_global /= total_mass
             self.centre_of_gravity_of_body[body_label] =  centre_of_gravity_global
@@ -515,7 +556,13 @@ class DapSolverBuilder():
                 fid.write("F"+str(i+1)+".gravity = " + str(self.dap_forces[i]["gravity"]) + "\n")
                 fid.write("F"+str(i+1)+".wgt = np.array([["+str(self.dap_forces[i]['x']) 
                           + ", " +str(self.dap_forces[i]['y']) + "]]).T\n")
-            
+            elif self.dap_forces[i]["type"] == 'ptp':
+                fid.write("F"+str(i+1)+".iPindex = " + str(self.dap_forces[i]["iPindex"]) + "\n")
+                fid.write("F"+str(i+1)+".jPindex = " + str(self.dap_forces[i]["jPindex"]) + "\n")
+                fid.write("F"+str(i+1)+".k = " + str(self.dap_forces[i]["k"]) + "\n")
+                fid.write("F"+str(i+1)+".L0 = " + str(self.dap_forces[i]["L0"]) + "\n")
+                if 'dc'  in self.dap_forces[i]:
+                    fid.write("F"+str(i+1)+".dc = " + str(self.dap_forces[i]["dc"]) + "\n")
             #TODO add uVectors if translational joint
             
             

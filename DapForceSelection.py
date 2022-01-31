@@ -11,7 +11,7 @@ from _FreeCADVectorTools import dist, normalized, crossproduct,dotproduct, angle
 import math 
 from math import degrees,acos
 import os
-import Draft
+#import Draft
 import DapTools
 from DapTools import addObjectProperty
 import _BodySelector

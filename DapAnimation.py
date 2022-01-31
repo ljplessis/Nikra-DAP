@@ -51,8 +51,9 @@ class _CommandDapAnimation:
 
         list_of_bodies = []
         for body in body_objects:
-            animation_doc.addObject("Part::Feature", body.Label)
-            animation_doc.getObject(body.Label).Shape = body.Shape.copy()
+            a = animation_doc.addObject("Part::Feature", body.Label)
+            #FreeCAD.Console.PrintMessage("In animate body.label: ")
+            animation_doc.getObject(a.Name).Shape = body.Shape.copy()
             list_of_bodies.append(body.Label)
         
         FreeCADGui.SendMsgToActiveView("ViewFit")

@@ -186,6 +186,9 @@ def setQuantity(inputField, quantity):
     # not input settings as the FreeCAD settings are. So can't use that; hence
     # this rather roundabout way involving the UserString of Quantity
     q = Units.Quantity(quantity)
+    #unit = Units.schemaTranslate(q, Units.getSchema())[2]
+    #q = q.getValueAs(unit)
+    #q = Units.Quantity(unit_quantity[0] + unit_quantity[2])
     # Avoid any truncation
     if isinstance(q.Format, tuple):  # Backward compat
         q.Format = (12, 'e')

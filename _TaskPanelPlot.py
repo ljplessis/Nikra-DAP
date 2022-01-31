@@ -150,9 +150,9 @@ class TaskPanelPlot:
                         y.append(self.solver_object.Bodies_r_d[timeIndex][body_index][1])
             if part in list(self.solver_object.object_to_point.keys()):
                 point_index = self.solver_object.object_to_point[part]
-                FreeCAD.Console.PrintMessage("In extract plot disp vel, part: " + str(part) + "\n")
-                FreeCAD.Console.PrintMessage("In extract plot disp vel, point_index: " + str(point_index) + "\n")
-                FreeCAD.Console.PrintMessage("In extract plot disp vel, self.solver_object.object_to_point.keys(): " + str(self.solver_object.object_to_point.keys()) + "\n")
+                #FreeCAD.Console.PrintMessage("In extract plot disp vel, part: " + str(part) + "\n")
+                #FreeCAD.Console.PrintMessage("In extract plot disp vel, point_index: " + str(point_index) + "\n")
+                #FreeCAD.Console.PrintMessage("In extract plot disp vel, self.solver_object.object_to_point.keys(): " + str(self.solver_object.object_to_point.keys()) + "\n")
                 
                 for timeIndex in range(len(times)):
                     if type == "Position" or type == "Path Trace":
@@ -195,9 +195,13 @@ class TaskPanelPlot:
         if what_to_plot != "Energy":
             parts_list, legend_list = self.extractObjectsAndLegend()
             times = self.solver_object.ReportedTimes
-            
+            if what_to_plot == "Position":
+                        units = "m"
+            elif what_to_plot == "Velocity":
+                units = "m/s"
             if self.form.orthonormalRadioButton.isChecked():
                 if what_to_plot == "Position" or what_to_plot == "Velocity":
+                    
                     fig = Plot.figure(what_to_plot)
                     ax = fig.axes
                     
@@ -205,7 +209,7 @@ class TaskPanelPlot:
 
                     ax.change_geometry(2,1,1)
                     ax.set_title(what_to_plot)
-                    ax.set_ylabel("x [units?]")
+                    ax.set_ylabel("x ["+str(units)+"]")
                     for i in range(len(x_list)):
                         ax.plot(times, x_list[i], label=legend_list[i])
                     ax.legend(loc='lower left')
@@ -215,7 +219,7 @@ class TaskPanelPlot:
                     ax = fig.fig.add_subplot(2,1,2)
                     ax.change_geometry(2,1,2)
                     ax.set_xlabel("Time [s]")
-                    ax.set_ylabel("y [units?]")
+                    ax.set_ylabel("y ["+str(units)+"]")
                     for i in range(len(y_list)):
                         ax.plot(times, y_list[i], label=legend_list[i])
                     ax.legend(loc='lower left')
@@ -233,6 +237,8 @@ class TaskPanelPlot:
                         FreeCAD.Console.PrintMessage(x_list)
                         ax.scatter(x_list[i], y_list[i], label=legend_list[i])
                     ax.legend(loc='lower left')
+                    ax.set_xlabel('x [m]')
+                    ax.set_ylabel('y [m]')
                     fig.update()
 
             if self.form.realRadioButton.isChecked():
@@ -245,20 +251,20 @@ class TaskPanelPlot:
 
                     ax.change_geometry(3,1,1)
                     ax.set_title(what_to_plot)
-                    ax.set_ylabel("x [units?]")
+                    ax.set_ylabel("x ["+str(units)+"]")
                     for i in range(len(x_list)):
                         ax.plot(times, x_list[i], label=legend_list[i])
                     ax.legend(loc='lower left')
                     
                     ax = fig.fig.add_subplot(3,1,2)
                     ax.set_xlabel("Time [s]")
-                    ax.set_ylabel("y [units?]")
+                    ax.set_ylabel("y ["+str(units)+"]")
                     for i in range(len(y_list)):
                         ax.plot(times, y_list[i], label=legend_list[i])
                         
                     ax = fig.fig.add_subplot(3,1,3)
                     ax.set_xlabel("Time [s]")
-                    ax.set_ylabel("z [units?]")
+                    ax.set_ylabel("z ["+str(units)+"]")
                     for i in range(len(y_list)):
                         ax.plot(times, z_list[i], label=legend_list[i])
 
@@ -281,9 +287,9 @@ class TaskPanelPlot:
                     ax.change_geometry(1,1,1)
                     for i in range(len(x_list)):
                         ax.scatter(x_list[i], y_list[i], z_list[i], label = legend_list[i])
-                    ax.set_xlabel('x [units ?]')
-                    ax.set_ylabel('y [units ?]')
-                    ax.set_zlabel('z [units ?]')
+                    ax.set_xlabel('x [m]')
+                    ax.set_ylabel('y [m]')
+                    ax.set_zlabel('z [m]')
                     ax.legend(loc='lower left')
                     
                     fig.update()
@@ -296,7 +302,7 @@ class TaskPanelPlot:
             ax = fig.axes
             ax.set_title("Potential Energy")
             ax.set_xlabel("Time [s]")
-            ax.set_ylabel("Potential Energy [units?]")
+            ax.set_ylabel("Potential Energy [J]")
             
             kinetic_energy = self.solver_object.kinetic_energy
             fig = Plot.figure("Kinetic Energy")
@@ -304,7 +310,7 @@ class TaskPanelPlot:
             ax = fig.axes
             ax.set_title("Kinetic Energy")
             ax.set_xlabel("Time [s]")
-            ax.set_ylabel("Kinetic Energy [units?]")
+            ax.set_ylabel("Kinetic Energy [J]")
             
             total_energy = self.solver_object.total_energy
             fig = Plot.figure("Total Energy")
@@ -312,5 +318,5 @@ class TaskPanelPlot:
             ax = fig.axes
             ax.set_title("Total Energy")
             ax.set_xlabel("Time [s]")
-            ax.set_ylabel("Total Energy [units?]")
+            ax.set_ylabel("Total Energy [J]")
 

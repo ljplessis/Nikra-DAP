@@ -71,13 +71,13 @@ class BodySelector:
         self.form.body1Combo.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body1, 0)
         self.form.body1Combo.setCurrentIndex(b1i)
-        self.selectedBody1(index)
+        self.selectedBody1(_index = index)
 
         self.form.body2Combo.clear()
         self.form.body2Combo.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body2, 0)
         self.form.body2Combo.setCurrentIndex(b1i)
-        self.selectedBody2(index)
+        self.selectedBody2(_index = index)
 
         self.form.lcsPush1.clicked.connect(lambda: self.addLCS1(index))
         self.form.lcsPush2.clicked.connect(self.addLCS2)
@@ -113,13 +113,13 @@ class BodySelector:
         self.form.body1Combo_2.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body1, 0)
         self.form.body1Combo_2.setCurrentIndex(b1i)
-        self.selectedBody1(index)
+        self.selectedBody1(_index = index)
         
         self.form.body2Combo_2.clear()
         self.form.body2Combo_2.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body2, 0)
         self.form.body2Combo_2.setCurrentIndex(b1i)
-        self.selectedBody2(index)
+        self.selectedBody2(_index = index)
 
         self.form.lcsName3.clicked.connect(lambda : self.selectLCSinGui(self.obj.Joint1))
         self.form.lcsPush3.clicked.connect(lambda : self.addLCS1(index))
@@ -247,10 +247,11 @@ class BodySelector:
         """place previous inputs back into selection windows"""
 
         if index == 0:    
-            self.Body1 = self.obj.Body1
-            self.Body2 = self.obj.Body2
+            #self.Body1 = self.obj.Body1
+            #self.Body2 = self.obj.Body2
             self.Joint1 = self.obj.Joint1
             self.Joint2 = self.obj.Joint2
+            
             # self.JointCoord1 = self.obj.JointCoord1
             # self.JointCoord2 = self.obj.JointCoord2
 
@@ -258,8 +259,8 @@ class BodySelector:
             self.form.lcsName2.setText(self.Joint2)
 
         elif index == 1:
-            self.Body1 = self.obj.Body1
-            self.Body2 = self.obj.Body2
+            #self.Body1 = self.obj.Body1
+            #self.Body2 = self.obj.Body2
             self.Joint1 = self.obj.Joint1
             # self.JointCoord1 = self.obj.JointCoord1
 
