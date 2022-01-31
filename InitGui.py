@@ -24,6 +24,7 @@ class DapWorkbench(Workbench):
         from DapSolverRunner import _CommandDapSolver
         from DapAnimation import _CommandDapAnimation
         from DapPlot import _CommandDapPlot
+        from DapPointSelection import _CommandDapPoint
         
         FreeCADGui.addCommand("Dap_analysis", _CommandDapAnalysis())
         cmdlst = ["Dap_analysis",
@@ -33,8 +34,10 @@ class DapWorkbench(Workbench):
                   "Dap_Force",
                   "Dap_Solver",
                   "Dap_Animation",
-                  "Dap_Plot"
+                  "Dap_Plot",
+                  "Dap_Point"
                   ]
+                  #"Dap_Point"]
         
         self.appendToolbar("My Commands",cmdlst) # creates a new toolbar with your commands
         self.appendMenu("Nikra-Dap",cmdlst) # creates a new menu

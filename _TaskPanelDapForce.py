@@ -7,6 +7,7 @@
 
 
 
+from webbrowser import get
 import FreeCAD
 from FreeCAD import Units
 import os
@@ -16,6 +17,8 @@ import DapTools
 from DapTools import indexOrDefault
 from DapTools import getQuantity, setQuantity
 import DapForceSelection
+import _BodySelector
+import _DapForceDriver 
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtGui
@@ -30,6 +33,7 @@ class TaskPanelDapForce:
     def __init__(self, obj):
         self.obj = obj
         self.Type = self.obj.ForceTypes
+        self.TypeReset = self.obj.ForceTypes #copy for reset, type gets used alot
 
         self.X = self.obj.gx
         self.Y = self.obj.gy
@@ -38,33 +42,42 @@ class TaskPanelDapForce:
         self.Stiff=self.obj.Stiffness
         self.UndefLen=self.obj.UndeformedLength
 
+        self.RotStiff = self.obj.RotStiffness
+        self.LinDampCoeff = self.obj.LinDampCoeff
+        self.RotDampCoeff = self.obj.RotDampCoeff
+        self.UndefAng = self.obj.UndeformedAngle 
 
         self.Body1 = self.obj.Body1
         self.Body2 = self.obj.Body2
         self.Joint1 = self.obj.Joint1
         self.Joint2 = self.obj.Joint2
-
+        
         self.doc_name = self.obj.Document.Name
 
         self.default_stiffness = "1 kg/s^2"  
         self.default_length = "1 mm"
         self.default_acceleration = "1 m/s^2"
+        self.default_rotstiff = "1 ((kg/s^2)*m)/rad"
+        self.default_LinDampCoeff = "1 kg/s"
+        self.default_rotDampCoeff = "1 (kg*m)/(s^2*rad)"
+        self.default_angle = "1 rad"
 
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelDapForces.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
+
+        self.bodySelector = _BodySelector.BodySelector(self.form.bodySelection, self.obj)
+        self.driveSelector = _DapForceDriver.DapForceDriver(self.form.dapForceDriver, self.obj)
+        self.form.dapForceDriver.setVisible(False)
 
         self.form.forceComboBox.addItems(DapForceSelection.FORCE_TYPES)
         # On reload, check to see if item already exists, and set dropbox item appropriately
         bi = indexOrDefault(DapForceSelection.FORCE_TYPES, self.Type, 0)
         self.form.forceComboBox.setCurrentIndex(bi)
 
-        # self.form.pushAdd.clicked.connect(self.buttonAddForceClicked)
-
-        # self.form.pushRemove.clicked.connect(self.buttonRemoveForceClicked)
-
-        # self.form.forceList.currentRowChanged.connect(self.forceListRowChanged)
-
         self.form.forceComboBox.currentIndexChanged.connect(self.comboTypeChanged)
+
+        self.form.driveCheck.toggled.connect(self.driveFunc)
+
 
         self.comboTypeChanged()
 
@@ -72,50 +85,111 @@ class TaskPanelDapForce:
 
         self.rebuildInputs()
 
+        
+        self.form.linDampIn.textChanged.connect(self.dampConCheck)
+        self.form.rotDampIn.textChanged.connect(self.dampConCheck)
+        self.dampConCheck()
+
         return 
 
+    def driveFunc(self):
+        if self.form.driveCheck.isChecked():
+            self.form.dapForceDriver.setVisible(True)
+            self.obj.Checker = True
+
+        elif self.form.driveCheck.isChecked() == False:
+            self.form.dapForceDriver.setVisible(False) 
+            self.obj.Checker = False
+
+
+    def dampConCheck(self):
+        lin = self.form.linDampIn.property("rawValue")
+        rot = self.form.rotDampIn.property("rawValue")
+
+        if lin < 0 or rot < 0:
+            self.form.dampCon.setText("Undamped")
+            self.form.dampCon_2.setText("Undamped")
+
+        elif lin > 1 or rot > 1:
+            self.form.dampCon.setText("Overdamped")
+            self.form.dampCon_2.setText("Overdamped")
+
+        elif lin == 1 or rot == 1:
+            self.form.dampCon.setText("Critically damped")
+            self.form.dampCon_2.setText("Crtically damped")
+
+        elif lin < 1 or rot < 1:
+            self.form.dampCon.setText("Underdamped")
+            self.form.dampCon_2.setText("Underdamped")
+            
+        return 
+    
+    def bodySelectionPage(self):
+
+        if self.Type == "Spring" or self.Type == "Linear Spring Damper":
+            self.bodySelector.Page1()
+
+        elif self.Type == "Rotational Spring" or self.Type == "Rotational Spring Damper" :
+            self.bodySelector.Page2()
+        
+        else: 
+            self.bodySelector.close()
+
+    
     def unitFunc(self):
 
         acceleration = Units.Quantity(self.default_acceleration)
         length = Units.Quantity(self.default_length)
         stiffness = Units.Quantity(self.default_stiffness)
-
+        rotstiff = Units.Quantity(self.default_rotstiff)
+        lindamp = Units.Quantity(self.default_LinDampCoeff)
+        rotdamp = Units.Quantity(self.default_rotDampCoeff)
+        angle = Units.Quantity(self.default_angle)
+        
 
         setQuantity(self.form.xIn,acceleration)
         setQuantity(self.form.yIn,acceleration)
         setQuantity(self.form.zIn,acceleration)
-
         setQuantity(self.form.undefIn,length)
-
         setQuantity(self.form.stiffnessIn,stiffness)
+        setQuantity(self.form.linDampIn,lindamp)
+        setQuantity(self.form.rotStiffIn,rotstiff)
+        setQuantity(self.form.undefAngIn,angle)
+        setQuantity(self.form.rotDampIn,rotdamp)
 
         return 
 
     def rebuildInputs(self):
+    
         setQuantity(self.form.xIn, self.X)
         setQuantity(self.form.yIn, self.Y)
         setQuantity(self.form.zIn, self.Z)
         setQuantity(self.form.stiffnessIn, self.Stiff)
         setQuantity(self.form.undefIn, self.UndefLen)
-       
-  
+        setQuantity(self.form.linDampIn,self.LinDampCoeff)
+        setQuantity(self.form.rotStiffIn, self.RotStiff)
+        setQuantity(self.form.undefAngIn, self.UndefAng)
+        setQuantity(self.form.rotDampIn,self.RotDampCoeff)
 
-    # def forceListRowChanged(self, row):
-    #     """ Actively select the forces to make it visible when viewing forces already in list """
-    #     if len(self.FORCE_TYPES)>0:
-    #         item = self.FORCE_TYPES[row]
-    #         docName = str(self.doc_name)
-    #         doc = FreeCAD.getDocument(docName)
+        if self.obj.Checker:
+            self.form.driveCheck.setChecked(True)
 
-    #         selection_object = doc.getObjectsByLabel(item)[0]
-    #         FreeCADGui.Selection.clearSelection()
-    #         FreeCADGui.Selection.addSelection(selection_object)
-    
     
     def accept(self):
         """If this is missing, there won't be an OK button"""
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
+        
+        if self.Type == 'Gravity' and  DapTools.gravityChecker():
+            FreeCAD.Console.PrintError('Gravity has already been selected')
+        
+        if self.Type == "Spring" or self.Type == "Linear Spring Damper":
+            self.bodySelector.accept(0)
+            #self.bodySelector.execute(self.obj,0)
+        elif self.Type == "Rotational Spring" or self.Type == "Rotational Spring Damper":
+            self.bodySelector.accept(1)
+            #self.bodySelector.execute(self.obj,1)
+        
         self.obj.ForceTypes = self.Type
         self.obj.gx = getQuantity(self.form.xIn)
         self.obj.gy = getQuantity(self.form.yIn)
@@ -129,21 +203,41 @@ class TaskPanelDapForce:
         self.Stiff=self.obj.Stiffness
         self.UndefLen=self.obj.UndeformedLength
 
+        self.obj.LinDampCoeff = getQuantity(self.form.linDampIn)
+        self.obj.RotDampCoeff = getQuantity(self.form.rotDampIn)
+        self.obj.RotStiffness = getQuantity(self.form.rotStiffIn)
+        self.obj.UndeformedAngle = getQuantity(self.form.undefAngIn)
+
+            
+        self.driveSelector.accept()
+        self.bodySelector.closing()
 
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
-        doc_name = str(self.obj.Document.Name)
-        FreeCAD.getDocument(doc_name).recompute()
+        doc.resetEdit()
         return
 
     def reject(self):
         """IF this is missing, there won't be a Cancel button"""
         FreeCADGui.Selection.removeObserver(self)
+        
+        ##Do the reject checker before reseting the force type to previous selection
+        #if self.obj.ForceTypes == "Spring" or self.obj.ForceTypes == "Linear Spring Damper":
+            #self.bodySelector.reject(0)
+            ##self.bodySelector.execute(self.obj,0)
+        #elif self.obj.ForceTypes == "Rotational Spring" or self.obj.ForceTypes == "Rotational Spring Damper":
+            #self.bodySelector.reject(1)
+        
+        
+        self.obj.ForceTypes = self.TypeReset
+        
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
-        doc_name = str(self.obj.Document.Name)
-        FreeCAD.getDocument(doc_name).recompute()
+        doc_name = str(self.obj.Document.Name)        
+        #self.bodySelector.reject()
+        #FreeCAD.getDocument(doc_name).recompute()
         doc.resetEdit()
+        self.obj.recompute()
         return True
     
 
@@ -151,65 +245,31 @@ class TaskPanelDapForce:
         type_index = self.form.forceComboBox.currentIndex()
         self.form.descriptionhelp.setText(DapForceSelection.FORCE_TYPE_HELPER_TEXT[type_index])
         self.Type = DapForceSelection.FORCE_TYPES[type_index]
-
-        self.form.inputWidget.setCurrentIndex(type_index)
-
         
+        #TODO reset type on reject
+        self.obj.ForceTypes = self.Type
+
         if self.Type == "Gravity":
-                self.obj.setEditorMode("Stiffness", 2)
-                self.obj.setEditorMode("UndeformedLength", 2)
-                self.obj.setEditorMode("Body1", 2)
-                self.obj.setEditorMode("Body2", 2)
-                self.obj.setEditorMode("Joint1", 2)
-                self.obj.setEditorMode("Joint2", 2)
-                self.obj.setEditorMode("gx", 0)
-                self.obj.setEditorMode("gy", 0)
-                self.obj.setEditorMode("gz", 0)
-
-        elif self.Type == "Spring":
-                self.obj.setEditorMode("gx", 2)
-                self.obj.setEditorMode("gy", 2)
-                self.obj.setEditorMode("gz", 2)
-                self.obj.setEditorMode("Stiffness", 0)
-                self.obj.setEditorMode("UndeformedLength", 0)
-                self.obj.setEditorMode("Body1", 0)
-                self.obj.setEditorMode("Body2", 0)
-                self.obj.setEditorMode("Joint1", 0)
-                self.obj.setEditorMode("Joint2", 0)
+            self.form.driveCheck.setChecked(False)
+            self.form.driveCheck.setVisible(False)
+        else:
+            self.form.driveCheck.setVisible(True)
         
-    # def buttonAddForceClicked(self):
-    #     sel = FreeCADGui.Selection.getSelection()
+        
+        self.form.inputForceWidget.setCurrentIndex(type_index)
+        
+        self.obj.recompute()
 
-    #     for item in sel:
-    #         #check to see if part is not of Type DapForce
-    #         if hasattr(item,"Proxy"):
-    #             if item.Proxy.Type == 'DapForce':
-    #                 DapForceFound = True
-    #         else:
-    #             DapForceFound = False
-    #         if hasattr(item, "Shape") and (not DapForceFound):
-    #             label = item.Label
-    #             if label not in self.forceList:
-    #                 self.forceList.append(label)
-    #         else:
-    #             FreeCAD.Console.PrintError("Selected force has not been selected properly \n")
+        if self.Type == "Spring" or self.Type == "Linear Spring Damper":
+            self.form.bodySelection.setVisible(True)
+            self.bodySelector.Page1()
 
-    #     self.rebuildforceList()
-    #     return
+        elif self.Type == "Rotational Spring" or self.Type == "Rotational Spring Damper" :
+            self.form.bodySelection.setVisible(True)
+            self.bodySelector.Page2()
+        
+        #elif self.Type == "Gravity":
+            #self.bodySelector.close()
+        else:
+            self.form.bodySelection.setVisible(False)
 
-    # def buttonRemoveForceClicked(self):
-    #     if not self.forceList:
-    #         FreeCAD.Console.PrintMessage("Here 1")
-    #         return
-    #     if not self.form.forceList.currentItem():
-    #         FreeCAD.Console.PrintMessage("Here 2")
-    #         return
-    #     row = self.form.forceList.currentRow()
-    #     self.forceList.pop(row)
-    #     self.rebuildforceList()
-
-
-    # def rebuildforceList(self):
-    #     self.form.forceList.clear()
-    #     for i in range(len(self.forceList)):
-    #         self.form.forceList.addItem(self.forceList[i])

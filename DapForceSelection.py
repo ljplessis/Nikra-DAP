@@ -5,10 +5,16 @@
 
 
 import FreeCAD
-from FreeCAD import Units
+from FreeCAD import Units, Base
+import _FreeCADVectorTools
+from _FreeCADVectorTools import dist, normalized, crossproduct,dotproduct, angle, length
+import math 
+from math import degrees,acos
 import os
+import Arch
 import DapTools
 from DapTools import addObjectProperty
+import _BodySelector
 from pivy import coin
 import Part
 
@@ -17,10 +23,10 @@ if FreeCAD.GuiUp:
     from PySide import QtCore
 
 
-FORCE_TYPES = ["Gravity", "Spring"]
+FORCE_TYPES = ["Gravity", "Spring", "Linear Spring Damper", "Rotational Spring", "Rotational Spring Damper"]
 
 FORCE_TYPE_HELPER_TEXT = ["Universal force of attraction between all matter",
-"Spring connecting two points with stiffness and undeformed length"]
+"Linear Spring connecting two points with stiffness and undeformed length", "A device used to limit or retard vibration ", "Device that stores energy when twisted and exerts a toraue in the opposite direction", "Device used to limit movemement and vibration through continous rotation"]
 
 # container 
 def makeDapForce(name="DapForce"):
@@ -74,28 +80,137 @@ class _DapForce:
         obj.Proxy = self
         self.Type = "DapForce"
 
-        
-
     def initProperties(self, obj):
         addObjectProperty(obj, 'ForceTypes', FORCE_TYPES, "App::PropertyEnumeration", "", "Types of Forces")    
         addObjectProperty(obj, 'gx', "", "App::PropertyAcceleration", "", "X Component")
-        addObjectProperty(obj, 'gy', "", "App::PropertyAcceleration", "", "Y Component")
+        addObjectProperty(obj, 'gy', "-9.81 m/s^2", "App::PropertyAcceleration", "", "Y Component")
         addObjectProperty(obj, 'gz', "", "App::PropertyAcceleration", "", "Z Component")
-        addObjectProperty(obj, 'Stiffness', "", "App::PropertyQuantity", "", "Stiffness")
-        addObjectProperty(obj, 'UndeformedLength', "", "App::PropertyLength", "", "Undeformed Length")
+        addObjectProperty(obj, 'Stiffness', "", "App::PropertyQuantity", "", "Linear Spring Stiffness")
+        addObjectProperty(obj, 'RotStiffness', "", "App::PropertyQuantity", "", "Rotational Spring Stiffness")
+        addObjectProperty(obj, 'LinDampCoeff', "", "App::PropertyQuantity", "", "Linear damping coefficient")
+        addObjectProperty(obj, 'RotDampCoeff', "", "App::PropertyQuantity", "", "Rotational damping coefficient")
+        addObjectProperty(obj, 'UndeformedLength', "", "App::PropertyLength", "", "Linear undeformed Length")
+        addObjectProperty(obj, 'UndeformedAngle', "", "App::PropertyAngle", "", "Undeformed angle")
         addObjectProperty(obj, 'Body1', "", "App::PropertyString", "", "Body 1 label")
         addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
         addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
         addObjectProperty(obj, 'Joint2', "", "App::PropertyString", "", "Joint 2 label")
+        addObjectProperty(obj, 'DampCondition', "", "App::PropertyString", "", "Displays the damping condition")
+        addObjectProperty(obj, 'JointCoord1', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
+        addObjectProperty(obj, 'JointCoord2', FreeCAD.Vector(0,0,0), "App::PropertyVector", "", "Vector to display joint visualisation")
+        
+
+        addObjectProperty(obj, 'tEndDriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: End time (t_end)")
+        addObjectProperty(obj, 'coefC1DriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: coefficient 'c_1'")
+        addObjectProperty(obj, 'coefC2DriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: coefficient 'c_2'")
+        addObjectProperty(obj, 'coefC3DriverFuncTypeA', "", "App::PropertyQuantity", "",\
+            "Driver Function Type A: coefficient 'c_3'")
+        addObjectProperty(obj, 'tStartDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: Start time (t_start)")
+        addObjectProperty(obj, 'tEndDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: End time (t_end)")
+        addObjectProperty(obj, 'initialValueDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: initial function value")
+        addObjectProperty(obj, 'endValueDriverFuncTypeB', "", "App::PropertyQuantity", "",\
+            "Driver Function Type B: function value at t_end")
+        addObjectProperty(obj, 'tStartDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: Start time (t_start)")
+        addObjectProperty(obj, 'tEndDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: End time (t_end)")
+        addObjectProperty(obj, 'initialValueDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: initial function value")
+        addObjectProperty(obj, 'endDerivativeDriverFuncTypeC', "", "App::PropertyQuantity", "",\
+            "Driver Function Type C: function derivative at t_end")
+
+        addObjectProperty(obj, 'Checker', False , "App::PropertyBool", "", "")
+        addObjectProperty(obj, 'a_Checker', False , "App::PropertyBool", "", "")
+        addObjectProperty(obj, 'b_Checker', False , "App::PropertyBool", "", "")
+        addObjectProperty(obj, 'c_Checker', False , "App::PropertyBool", "", "")
+
+        obj.setEditorMode("Checker", 2)
+        obj.setEditorMode("a_Checker", 2)
+        obj.setEditorMode("b_Checker", 2)
+        obj.setEditorMode("c_Checker", 2)
 
         obj.Stiffness=Units.Unit('kg/s^2')
+        obj.RotStiffness=Units.Unit('((kg/s^2)*m)/rad')
+        obj.LinDampCoeff=Units.Unit('kg/s')
+        obj.RotDampCoeff=Units.Unit('(kg*m)/(s^2*rad)')
+
+        obj.tEndDriverFuncTypeA = Units.Unit("")
+        obj.coefC1DriverFuncTypeA = Units.Unit("")
+        obj.coefC2DriverFuncTypeA = Units.Unit("")
+        obj.coefC3DriverFuncTypeA = Units.Unit("")
         
+        obj.tStartDriverFuncTypeB = Units.Unit("")
+        obj.tEndDriverFuncTypeB = Units.Unit("")
+        obj.initialValueDriverFuncTypeB = Units.Unit("")
+        obj.endValueDriverFuncTypeB = Units.Unit("")
+
+        obj.tStartDriverFuncTypeC = Units.Unit("")
+        obj.tEndDriverFuncTypeC = Units.Unit("")
+        obj.initialValueDriverFuncTypeC = Units.Unit("")
+        obj.endDerivativeDriverFuncTypeC = Units.Unit("")
+
+        
+ 
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
 
     def execute(self, obj):
         """ Create compound part at recompute. """
-        return 
+        if obj.ForceTypes == "Spring":
+            #p = 10
+            h = (obj.JointCoord1-obj.JointCoord2).Length
+            p = h/10
+            r = h/10
+            r_1 = 0.35
+            
+            
+            creation_axis = FreeCAD.Vector(0,0,1)
+            
+            desired_direction = obj.JointCoord2 - obj.JointCoord1
+            if desired_direction.Length>0:
+                desired_direction = desired_direction.normalize()
+                angle = degrees(acos(desired_direction*creation_axis))
+                axis = creation_axis.cross(desired_direction)
+                helix = Part.makeHelix(p,h,r)
+                circle = Part.makeCircle(r_1, Base.Vector(r,0,0), Base.Vector(0,1,0))
+                circle = Part.Wire([circle])
+                pipe = Part.Wire(helix).makePipe(circle) 
+                
+                obj.Shape = pipe 
+                #First reset the placement in case multiple recomputes are performed
+                obj.Placement.Base = FreeCAD.Vector(0,0,0)
+                obj.Placement.Rotation = FreeCAD.Rotation(0,0,0,1)
+                obj.Placement.rotate(FreeCAD.Vector(0,0,0), axis, angle)
+                obj.Placement.translate(obj.JointCoord1)
+            else:
+                obj.Shape = Part.Shape()
+
+        elif obj.ForceTypes == "Rotational Spring":
+            p = 1
+            h= 15
+            r = h/10
+            r_1 = 0.35
+            helix=Part.makeHelix(p,h,r)
+            circle = Part.makeCircle(r_1,Base.Vector(r,0,0),Base.Vector(0,1,0))
+            circle = Part.Wire([circle])
+            pipe = Part.Wire(helix).makePipe(circle)
+            cylinder = Part.makeCylinder(r_1,h/2,Base.Vector(r,0,0))
+            cylinder.rotate(Base.Vector(r,0,0), Base.Vector(1,0,0),90)
+            cylinder2 = Part.makeCylinder(r_1,h/2,Base.Vector(r,0,h))
+            cylinder2.rotate(Base.Vector(r,0,h), Base.Vector(-1,0,0),90)
+            full = Part.makeCompound([helix,circle,pipe,cylinder,cylinder2])
+            obj.Shape = full
+
+        else:
+            obj.Shape = Part.Shape()
+            
+        return None
 
     def __getstate__(self):
         return None
@@ -105,16 +220,22 @@ class _DapForce:
         
 
     def onChanged(self, obj, prop):
+        
         if prop == "ForceTypes":
             # FreeCAD.Console.PrintError('This is working')
             self.lstMultiGrav = []
+
             if obj.ForceTypes == "Gravity":
-                # FreeCAD.Console.PrintError('This is also working')
                 obj.setEditorMode("Stiffness", 2)
                 obj.setEditorMode("UndeformedLength", 2)
                 obj.setEditorMode("Body1", 2)
                 obj.setEditorMode("Body2", 2)
                 obj.setEditorMode("Joint1", 2)
+                obj.setEditorMode("Joint2", 2)
+                obj.setEditorMode("RotStiffness", 2)
+                obj.setEditorMode("LinDampCoeff", 2)
+                obj.setEditorMode("UndeformedAngle", 2)
+                obj.setEditorMode("RotDampCoeff", 2)
                 obj.setEditorMode("Joint2", 2)
                 obj.setEditorMode("gx", 0)
                 obj.setEditorMode("gy", 0)
@@ -127,19 +248,68 @@ class _DapForce:
                 if countGrav > 1:
                     FreeCAD.Console.PrintError(self.lstMultiGrav)
                     FreeCAD.Console.PrintError("\n Multiple gravities have been defined.  Check for redundancy \n")              
+
+                
             elif obj.ForceTypes == "Spring":
                 obj.setEditorMode("gx", 2)
                 obj.setEditorMode("gy", 2)
                 obj.setEditorMode("gz", 2)
                 obj.setEditorMode("Stiffness", 0)
                 obj.setEditorMode("UndeformedLength", 0)
+                obj.setEditorMode("RotStiffness", 2)
+                obj.setEditorMode("LinDampCoeff", 2)
+                obj.setEditorMode("UndeformedAngle", 2)
+                obj.setEditorMode("RotDampCoeff", 2)
                 obj.setEditorMode("Body1", 0)
                 obj.setEditorMode("Body2", 0)
                 obj.setEditorMode("Joint1", 0)
                 obj.setEditorMode("Joint2", 0)
-                
+            
+            elif obj.ForceTypes == "Linear Spring Damper":
+                obj.setEditorMode("gx", 2)
+                obj.setEditorMode("gy", 2)
+                obj.setEditorMode("gz", 2)
+                obj.setEditorMode("Stiffness", 2)
+                obj.setEditorMode("UndeformedLength", 2)
+                obj.setEditorMode("RotStiffness", 2)
+                obj.setEditorMode("LinDampCoeff", 0)
+                obj.setEditorMode("UndeformedAngle", 2)
+                obj.setEditorMode("RotDampCoeff", 2)
+                obj.setEditorMode("Body1", 0)
+                obj.setEditorMode("Body2", 0)
+                obj.setEditorMode("Joint1", 0)
+                obj.setEditorMode("Joint2", 0)
 
+            elif obj.ForceTypes == "Rotational Spring":
+                obj.setEditorMode("gx", 2)
+                obj.setEditorMode("gy", 2)
+                obj.setEditorMode("gz", 2)
+                obj.setEditorMode("Stiffness", 2)
+                obj.setEditorMode("UndeformedLength", 2)
+                obj.setEditorMode("RotStiffness", 0)
+                obj.setEditorMode("LinDampCoeff", 2)
+                obj.setEditorMode("UndeformedAngle", 0)
+                obj.setEditorMode("RotDampCoeff", 2)
+                obj.setEditorMode("Body1", 0)
+                obj.setEditorMode("Body2", 0)
+                obj.setEditorMode("Joint1", 0)
+                obj.setEditorMode("Joint2", 2)
 
+            elif obj.ForceTypes == "Rotational Spring Damper":
+                obj.setEditorMode("gx", 2)
+                obj.setEditorMode("gy", 2)
+                obj.setEditorMode("gz", 2)
+                obj.setEditorMode("Stiffness", 2)
+                obj.setEditorMode("UndeformedLength", 2)
+                obj.setEditorMode("RotStiffness", 2)
+                obj.setEditorMode("LinDampCoeff", 2)
+                obj.setEditorMode("UndeformedAngle", 2)
+                obj.setEditorMode("RotDampCoeff", 0)
+                obj.setEditorMode("Body1", 0)
+                obj.setEditorMode("Body2", 0)
+                obj.setEditorMode("Joint1", 0)
+                obj.setEditorMode("Joint2", 2)
+               
     
 class _ViewProviderDapForce:
 
@@ -163,12 +333,10 @@ class _ViewProviderDapForce:
         modes = []
         return modes
 
-   
-
     def getDefaultDisplayMode(self):
         # TODO choose default display style
         #return "Flat Lines"
-        return "Shaded"
+        return "Flat Lines"
 
     def setDisplayMode(self,mode):
         return mode

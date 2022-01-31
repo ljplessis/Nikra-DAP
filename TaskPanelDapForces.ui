@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>421</width>
-    <height>421</height>
+    <width>334</width>
+    <height>423</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,38 +20,9 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <widget class="QLabel" name="forceType">
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Force Type</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="forceComboBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>50</height>
-         </size>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="description">
         <property name="maximumSize">
@@ -62,6 +33,16 @@
         </property>
         <property name="text">
          <string>Description </string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="forceComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
        </widget>
       </item>
@@ -76,113 +57,230 @@
         <property name="text">
          <string>Help Text </string>
         </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="forceType">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Force Type</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QWidget" name="bodySelection" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout"/>
        </widget>
       </item>
      </layout>
     </item>
-    <item>
-     <widget class="QStackedWidget" name="inputWidget">
-      <property name="currentIndex">
-       <number>1</number>
+    <item row="1" column="0">
+     <widget class="QStackedWidget" name="inputForceWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <widget class="QWidget" name="Page1">
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
+      <property name="currentIndex">
+       <number>4</number>
+      </property>
+      <widget class="QWidget" name="gravity">
+       <layout class="QFormLayout" name="formLayout_2">
+        <item row="2" column="1">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>Vector Input</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <layout class="QFormLayout" name="formLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>X</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Y</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Z</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="Gui::InputField" name="zIn" native="true"/>
-          </item>
-          <item row="1" column="1">
-           <widget class="Gui::InputField" name="yIn" native="true"/>
-          </item>
-          <item row="0" column="1">
-           <widget class="Gui::InputField" name="xIn" native="true"/>
-          </item>
-         </layout>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>X</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="Gui::InputField" name="xIn"/>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Y</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="Gui::InputField" name="yIn"/>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Z</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="Gui::InputField" name="zIn"/>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="Page2">
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
+      <widget class="QWidget" name="LinearSpring">
+       <layout class="QFormLayout" name="formLayout_3">
+        <item row="0" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
            <string>Spring Input </string>
           </property>
          </widget>
         </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Stiffness</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Undeformed Length </string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="Gui::InputField" name="stiffnessIn" native="true"/>
-          </item>
-          <item row="1" column="1">
-           <widget class="Gui::InputField" name="undefIn" native="true"/>
-          </item>
-         </layout>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Stiffness</string>
+          </property>
+         </widget>
         </item>
-        <item>
-         <widget class="QWidget" name="widget" native="true">
-          <widget class="QLabel" name="label_8">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>10</y>
-             <width>191</width>
-             <height>61</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Input Body Selection Window here </string>
-           </property>
-          </widget>
+        <item row="1" column="1">
+         <widget class="Gui::InputField" name="stiffnessIn"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Undeformed Length </string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="Gui::InputField" name="undefIn"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="LinearSpringDamper">
+       <layout class="QFormLayout" name="formLayout_4">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="text">
+           <string>Linear Spring Damper Input</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Damping Coefficient </string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="Gui::InputField" name="linDampIn"/>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QLabel" name="dampCon">
+          <property name="text">
+           <string>Damping Condition </string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="rotationalSpring">
+       <layout class="QFormLayout" name="formLayout_5">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Rotational Spring Input </string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="Gui::InputField" name="rotStiffIn"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Stiffness</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_12">
+          <property name="text">
+           <string>Undeformed Angle </string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="Gui::InputField" name="undefAngIn"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="rotationalSpringDamper">
+       <layout class="QFormLayout" name="formLayout_6">
+        <item row="0" column="0" colspan="2">
+         <widget class="QLabel" name="label_13">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Rotational Spring Damper Input </string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_14">
+          <property name="text">
+           <string>Damping Coefficient </string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="Gui::InputField" name="rotDampIn"/>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QLabel" name="dampCon_2">
+          <property name="text">
+           <string>Damping  Condition </string>
+          </property>
          </widget>
         </item>
        </layout>
       </widget>
      </widget>
+    </item>
+    <item row="2" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="driveCheck">
+        <property name="text">
+         <string>Switch on Driver Control for specificed DAP Force? </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="dapForceDriver" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout_3"/>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -191,8 +289,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>421</width>
-     <height>32</height>
+     <width>334</width>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDAP_Force_Selection">
@@ -212,8 +310,8 @@
  <customwidgets>
   <customwidget>
    <class>Gui::InputField</class>
-   <extends>QWidget</extends>
-   <header>gui::inputfield.h</header>
+   <extends>QLineEdit</extends>
+   <header>gui:inputfield.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
