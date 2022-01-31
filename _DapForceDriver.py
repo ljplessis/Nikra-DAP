@@ -37,6 +37,8 @@ class DapForceDriver:
         self.unitFunc()
         
         self.rebuildInputs()
+
+        self.propertyEditor()
     
     
     def accept(self):
@@ -107,6 +109,8 @@ class DapForceDriver:
             setQuantity(self.form.tEndFuncB, 0.0)
             setQuantity(self.form.startValueFuncB, 0.0)
             setQuantity(self.form.endValueFuncB, 0.0)
+        
+        self.propertyEditor()
 
 
 
@@ -162,6 +166,51 @@ class DapForceDriver:
     
     def funcChanged(self,index):
         self.form.typeInput.setCurrentIndex(index+1)
+
+    def propertyEditor(self):
+        
+                if self.obj.a_Checker:
+                    self.obj.setEditorMode("tEndDriverFuncTypeA", 0)
+                    self.obj.setEditorMode("coefC1DriverFuncTypeA", 0)
+                    self.obj.setEditorMode("coefC2DriverFuncTypeA", 0)
+                    self.obj.setEditorMode("coefC3DriverFuncTypeA", 0)
+                    self.obj.setEditorMode("tStartDriverFuncTypeB", 2)
+                    self.obj.setEditorMode("tEndDriverFuncTypeB", 2)
+                    self.obj.setEditorMode("initialValueDriverFuncTypeB", 2)
+                    self.obj.setEditorMode("endValueDriverFuncTypeB", 2)
+                    self.obj.setEditorMode("tStartDriverFuncTypeC", 2)
+                    self.obj.setEditorMode("tEndDriverFuncTypeC", 2)
+                    self.obj.setEditorMode("initialValueDriverFuncTypeC", 2)
+                    self.obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
+
+                if self.obj.b_Checker:
+                    self.obj.setEditorMode("tEndDriverFuncTypeA", 2)
+                    self.obj.setEditorMode("coefC1DriverFuncTypeA", 2)
+                    self.obj.setEditorMode("coefC2DriverFuncTypeA", 2)
+                    self.obj.setEditorMode("coefC3DriverFuncTypeA", 2)
+                    self.obj.setEditorMode("tStartDriverFuncTypeB", 0)
+                    self.obj.setEditorMode("tEndDriverFuncTypeB", 0)
+                    self.obj.setEditorMode("initialValueDriverFuncTypeB", 0)
+                    self.obj.setEditorMode("endValueDriverFuncTypeB", 0)
+                    self.obj.setEditorMode("tStartDriverFuncTypeC", 2)
+                    self.obj.setEditorMode("tEndDriverFuncTypeC", 2)
+                    self.obj.setEditorMode("initialValueDriverFuncTypeC", 2)
+                    self.obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
+
+                if self.obj.c_Checker:
+                    self.obj.setEditorMode("tEndDriverFuncTypeA", 2)
+                    self.obj.setEditorMode("coefC1DriverFuncTypeA", 2)
+                    self.obj.setEditorMode("coefC2DriverFuncTypeA", 2)
+                    self.obj.setEditorMode("coefC3DriverFuncTypeA", 2)
+                    self.obj.setEditorMode("tStartDriverFuncTypeB", 2)
+                    self.obj.setEditorMode("tEndDriverFuncTypeB", 2)
+                    self.obj.setEditorMode("initialValueDriverFuncTypeB", 2)
+                    self.obj.setEditorMode("endValueDriverFuncTypeB", 2)
+                    self.obj.setEditorMode("tStartDriverFuncTypeC", 0)
+                    self.obj.setEditorMode("tEndDriverFuncTypeC", 0)
+                    self.obj.setEditorMode("initialValueDriverFuncTypeC", 0)
+                    self.obj.setEditorMode("endDerivativeDriverFuncTypeC", 0)
+
 
     
 

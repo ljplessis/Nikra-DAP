@@ -54,13 +54,13 @@ class TaskPanelDapForce:
         
         self.doc_name = self.obj.Document.Name
 
-        self.default_stiffness = "1 kg/s^2"  
-        self.default_length = "1 mm"
-        self.default_acceleration = "1 m/s^2"
-        self.default_rotstiff = "1 ((kg/s^2)*m)/rad"
-        self.default_LinDampCoeff = "1 kg/s"
-        self.default_rotDampCoeff = "1 (kg*m)/(s^2*rad)"
-        self.default_angle = "1 rad"
+        self.default_stiffness = "0 kg/s^2"  
+        self.default_length = "0 mm"
+        self.default_acceleration = "0 m/s^2"
+        self.default_rotstiff = "0 ((kg/s^2)*m)/rad"
+        self.default_LinDampCoeff = "0 kg/s"
+        self.default_rotDampCoeff = "0 (kg*m)/(s^2*rad)"
+        self.default_angle = "0 rad"
 
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelDapForces.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
@@ -151,12 +151,15 @@ class TaskPanelDapForce:
         setQuantity(self.form.yIn,acceleration)
         setQuantity(self.form.zIn,acceleration)
         setQuantity(self.form.undefIn,length)
+        
         setQuantity(self.form.stiffnessIn,stiffness)
         setQuantity(self.form.linDampIn,lindamp)
         setQuantity(self.form.rotStiffIn,rotstiff)
         setQuantity(self.form.undefAngIn,angle)
         setQuantity(self.form.rotDampIn,rotdamp)
 
+        setQuantity(self.form.undefLinIn,length)
+        setQuantity(self.form.undefAngRotIn,angle)
         return 
 
     def rebuildInputs(self):
@@ -165,12 +168,19 @@ class TaskPanelDapForce:
         setQuantity(self.form.yIn, self.Y)
         setQuantity(self.form.zIn, self.Z)
         setQuantity(self.form.stiffnessIn, self.Stiff)
-        setQuantity(self.form.undefIn, self.UndefLen)
         setQuantity(self.form.linDampIn,self.LinDampCoeff)
         setQuantity(self.form.rotStiffIn, self.RotStiff)
-        setQuantity(self.form.undefAngIn, self.UndefAng)
         setQuantity(self.form.rotDampIn,self.RotDampCoeff)
 
+        if self.obj.ForceTypes == "Spring":
+            setQuantity(self.form.undefIn, self.UndefLen)
+        elif self.obj.ForceTypes == "Linear Spring Damper":
+            setQuantity(self.form.undefLinIn,self.UndefLen)
+        if self.obj.ForceTypes == "Rotational Spring":
+            setQuantity(self.form.undefAngIn, self.UndefAng)
+        elif self.obj.ForceTypes == "Rotational Spring Damper":
+            setQuantity(self.form.undefAngRotIn,self.UndefAng)
+        
         if self.obj.Checker:
             self.form.driveCheck.setChecked(True)
 
@@ -195,19 +205,22 @@ class TaskPanelDapForce:
         self.obj.gy = getQuantity(self.form.yIn)
         self.obj.gz = getQuantity(self.form.zIn)
         self.obj.Stiffness = getQuantity(self.form.stiffnessIn)
-        self.obj.UndeformedLength = getQuantity(self.form.undefIn)
-
-        self.X=self.obj.gx
-        self.Y=self.obj.gy
-        self.Z=self.obj.gz
-        self.Stiff=self.obj.Stiffness
-        self.UndefLen=self.obj.UndeformedLength
 
         self.obj.LinDampCoeff = getQuantity(self.form.linDampIn)
         self.obj.RotDampCoeff = getQuantity(self.form.rotDampIn)
         self.obj.RotStiffness = getQuantity(self.form.rotStiffIn)
-        self.obj.UndeformedAngle = getQuantity(self.form.undefAngIn)
 
+        if self.obj.ForceTypes == "Spring":
+            self.obj.UndeformedLength = getQuantity(self.form.undefIn)
+        elif self.obj.ForceTypes == "Linear Spring Damper":
+            self.obj.UndeformedLength = getQuantity(self.form.undefLinIn)
+            
+
+        if self.obj.ForceTypes == "Rotational Spring":
+            self.obj.UndeformedAngle = getQuantity(self.form.undefAngIn)
+
+        elif self.obj.ForceTypes == "Rotational Spring Damper":
+            self.obj.UndeformedAngle = getQuantity(self.form.undefAngRotIn)
             
         self.driveSelector.accept()
         self.bodySelector.closing()

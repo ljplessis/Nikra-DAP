@@ -220,12 +220,17 @@ class _DapForce:
         
 
     def onChanged(self, obj, prop):
+        # The property editor for all Type Cases has been added in _DapForceDriver.py. 
+        # Only if form.driveCheck is checked will all Driver properties be hidden here 
         
         if prop == "ForceTypes":
             # FreeCAD.Console.PrintError('This is working')
             self.lstMultiGrav = []
 
             if obj.ForceTypes == "Gravity":
+                obj.setEditorMode("gx", 0)
+                obj.setEditorMode("gy", 0)
+                obj.setEditorMode("gz", 0)
                 obj.setEditorMode("Stiffness", 2)
                 obj.setEditorMode("UndeformedLength", 2)
                 obj.setEditorMode("Body1", 2)
@@ -237,18 +242,20 @@ class _DapForce:
                 obj.setEditorMode("UndeformedAngle", 2)
                 obj.setEditorMode("RotDampCoeff", 2)
                 obj.setEditorMode("Joint2", 2)
-                obj.setEditorMode("gx", 0)
-                obj.setEditorMode("gy", 0)
-                obj.setEditorMode("gz", 0)
-                self.lstMultiGrav = DapTools.getListOfForces() #Mod
-                countGrav = 0
-                for k in range(len(self.lstMultiGrav)):
-                    if self.lstMultiGrav[k] == "Gravity":
-                        countGrav = countGrav + 1
-                if countGrav > 1:
-                    FreeCAD.Console.PrintError(self.lstMultiGrav)
-                    FreeCAD.Console.PrintError("\n Multiple gravities have been defined.  Check for redundancy \n")              
 
+                obj.setEditorMode("tEndDriverFuncTypeA", 2)
+                obj.setEditorMode("coefC1DriverFuncTypeA", 2)
+                obj.setEditorMode("coefC2DriverFuncTypeA", 2)
+                obj.setEditorMode("coefC3DriverFuncTypeA", 2)
+                obj.setEditorMode("tStartDriverFuncTypeB", 2)
+                obj.setEditorMode("tEndDriverFuncTypeB", 2)
+                obj.setEditorMode("initialValueDriverFuncTypeB", 2)
+                obj.setEditorMode("endValueDriverFuncTypeB", 2)
+                obj.setEditorMode("tStartDriverFuncTypeC", 2)
+                obj.setEditorMode("tEndDriverFuncTypeC", 2)
+                obj.setEditorMode("initialValueDriverFuncTypeC", 2)
+                obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
+            
                 
             elif obj.ForceTypes == "Spring":
                 obj.setEditorMode("gx", 2)
@@ -264,6 +271,21 @@ class _DapForce:
                 obj.setEditorMode("Body2", 0)
                 obj.setEditorMode("Joint1", 0)
                 obj.setEditorMode("Joint2", 0)
+
+                if obj.Checker == False:
+                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
+                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
+                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
+                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
+                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
+                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
+                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
+                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
+                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
+
             
             elif obj.ForceTypes == "Linear Spring Damper":
                 obj.setEditorMode("gx", 2)
@@ -279,6 +301,22 @@ class _DapForce:
                 obj.setEditorMode("Body2", 0)
                 obj.setEditorMode("Joint1", 0)
                 obj.setEditorMode("Joint2", 0)
+                
+                if obj.Checker == False:
+                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
+                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
+                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
+                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
+                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
+                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
+                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
+                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
+                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
+
+               
 
             elif obj.ForceTypes == "Rotational Spring":
                 obj.setEditorMode("gx", 2)
@@ -295,6 +333,22 @@ class _DapForce:
                 obj.setEditorMode("Joint1", 0)
                 obj.setEditorMode("Joint2", 2)
 
+                if obj.Checker == False:
+                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
+                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
+                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
+                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
+                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
+                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
+                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
+                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
+                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
+
+        
+
             elif obj.ForceTypes == "Rotational Spring Damper":
                 obj.setEditorMode("gx", 2)
                 obj.setEditorMode("gy", 2)
@@ -309,6 +363,24 @@ class _DapForce:
                 obj.setEditorMode("Body2", 0)
                 obj.setEditorMode("Joint1", 0)
                 obj.setEditorMode("Joint2", 2)
+
+                if obj.Checker == False:
+                    obj.setEditorMode("tEndDriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC1DriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC2DriverFuncTypeA", 2)
+                    obj.setEditorMode("coefC3DriverFuncTypeA", 2)
+                    obj.setEditorMode("tStartDriverFuncTypeB", 2)
+                    obj.setEditorMode("tEndDriverFuncTypeB", 2)
+                    obj.setEditorMode("initialValueDriverFuncTypeB", 2)
+                    obj.setEditorMode("endValueDriverFuncTypeB", 2)
+                    obj.setEditorMode("tStartDriverFuncTypeC", 2)
+                    obj.setEditorMode("tEndDriverFuncTypeC", 2)
+                    obj.setEditorMode("initialValueDriverFuncTypeC", 2)
+                    obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
+
+            
+
+        
                
     
 class _ViewProviderDapForce:
