@@ -55,8 +55,13 @@ class TaskPanelPlot:
         
     def tableCellClicked(self, row, column):
         object_label = self.form.tableWidget.item(row,0).text()
-        FreeCAD.Console.PrintMessage(object_label)
-        selection_object = self.doc.getObjectsByLabel(object_label)[0]
+        #FreeCAD.Console.PrintMessage(object_label)
+        label = object_label
+        if ":" in label:
+            selectable = label.split(":")[0]
+        else:
+            selectable = label
+        selection_object = self.doc.getObjectsByLabel(selectable)[0]
         FreeCADGui.Selection.clearSelection()
         FreeCADGui.Selection.addSelection(selection_object)
         
@@ -87,7 +92,12 @@ class TaskPanelPlot:
         self.form.tableWidget.removeRow(table_row)
         
     def plottableIndexChanged(self, index):
-        selection_object = self.doc.getObjectsByLabel(self.plottableList[index])[0]
+        label = self.plottableList[index]
+        if ":" in label:
+            selectable = label.split(":")[0]
+        else:
+            selectable = label
+        selection_object = self.doc.getObjectsByLabel(selectable)[0]
         FreeCADGui.Selection.clearSelection()
         FreeCADGui.Selection.addSelection(selection_object)
         
@@ -140,6 +150,10 @@ class TaskPanelPlot:
                         y.append(self.solver_object.Bodies_r_d[timeIndex][body_index][1])
             if part in list(self.solver_object.object_to_point.keys()):
                 point_index = self.solver_object.object_to_point[part]
+                FreeCAD.Console.PrintMessage("In extract plot disp vel, part: " + str(part) + "\n")
+                FreeCAD.Console.PrintMessage("In extract plot disp vel, point_index: " + str(point_index) + "\n")
+                FreeCAD.Console.PrintMessage("In extract plot disp vel, self.solver_object.object_to_point.keys(): " + str(self.solver_object.object_to_point.keys()) + "\n")
+                
                 for timeIndex in range(len(times)):
                     if type == "Position" or type == "Path Trace":
                         x.append(self.solver_object.Points_r[timeIndex][point_index][0])

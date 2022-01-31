@@ -143,7 +143,7 @@ def getListOfJointObjects():
     joints = []
     active_analysis = getActiveAnalysis()
     for i in active_analysis.Group:
-            if "DapJoint" in i.Name:
+            if "DapRelativeMovement" in i.Name:
                 joints.append(i)
     return joints
 

@@ -37,6 +37,7 @@ class DapSolverBuilder():
         self.dap_points = []
         self.dap_joints = []
         self.dap_forces = []
+        self.dap_uvectors = []
         
         
         
@@ -175,40 +176,107 @@ class DapSolverBuilder():
     
     def processJoints(self):
         for i in range(len(self.joints)):
-            joint_type = JOINT_TRANSLATION[self.joints[i].JointType]
+            joint_type = JOINT_TRANSLATION[self.joints[i].TypeOfRelMov]
+            
+            joint1_coord = self.joints[i].CoordPoint1RelMov
+            joint2_coord = self.joints[i].CoordPoint2RelMov
+            body1 = self.joints[i].Body1
+            body2 = self.joints[i].Body2
+
+
+            body1_index = self.extractDAPBodyIndex(body1)
+            body2_index = self.extractDAPBodyIndex(body2)
+            
+            if body1_index == 0 and body2_index == 0:
+                raise RuntimeError("Both bodies attached to " + 
+                                    str(self.joints[i].Label) + " were defined as ground.\n" +
+                                    "The two bodies attached to the current joint are : " 
+                                    + str(body1) + " and " +str(body2))
+            
             
             if joint_type == "rev":
-                joint1 = self.joints[i].Joint1
-                joint1_coord = self.joints[i].Joint1Coord
-                body1 = self.joints[i].Body1
-                body2 = self.joints[i].Body2
-
-
-                body1_index = self.extractDAPBodyIndex(body1)
-                body2_index = self.extractDAPBodyIndex(body2)
-                
-                if body1_index == 0 and body2_index == 0:
-                    raise RuntimeError("Both bodies attached to " + 
-                                       str(self.joints[i].Label) + " were defined as ground.\n" +
-                                       "The two bodies attached to the current joint are : " 
-                                       + str(body1) + " and " +str(body2))
+                #joint1 = self.joints[i].Point1RelMov
                 
                 iIndex = self.addDapPointUsingJointCoordAndBodyLabel(body1_index, body1, joint1_coord)
+                
+                self.obj.object_to_point[self.joints[i].Label] = iIndex - 1
                 jIndex = self.addDapPointUsingJointCoordAndBodyLabel(body2_index, body2, joint1_coord)
                 
                 self.addJoint(joint_type, iIndex, jIndex)
 
-                self.obj.object_to_point[self.joints[i].Label] = iIndex
+                #Point object for post-processing
                 
+                
+            elif joint_type == "tran":
+                iIndex = self.addDapPointUsingJointCoordAndBodyLabel(body1_index, body1, joint1_coord)
+                jIndex = self.addDapPointUsingJointCoordAndBodyLabel(body2_index, body2, joint2_coord)
+                
+                
+                iUIndex, jUIndex = self.addUnitVectorBetweenTwoPoints(self.joints[i].Label,
+                                                                      body1_index,
+                                                                      body2_index,
+                                                                      joint1_coord,
+                                                                      joint2_coord,
+                                                                      body1,
+                                                                      body2)
+                
+                #NOTE: dap solver is 1 indexing but rest of code is not
+                if body1_index != 0:
+                    self.obj.object_to_point[str(self.joints[i].Label)+":"+str(self.joints[i].Point1RelMov)] = iIndex-1
+                if body2_index != 0:
+                    self.obj.object_to_point[str(self.joints[i].Label)+":"+str(self.joints[i].Point2RelMov)] = jIndex-1
+                
+                self.addJoint(joint_type, iIndex, jIndex, iUIndex=iUIndex, jUIndex=jUIndex)
 
-    def addJoint(self, joint_type, iIndex, jIndex):
+
+    def addUnitVectorBetweenTwoPoints(self, 
+                                      joint_label,
+                                      body_index_1, 
+                                      body_index_2, 
+                                      body1_coord, 
+                                      body2_coord, 
+                                      body1_label, 
+                                      body2_label):
+        
+        uVector = body2_coord - body1_coord
+        if uVector.Length == 0:
+            raise RuntimeError('The two points defining the movement "' + str(joint_label) +
+            '" are the same. Please ensure the points are at different locations (attached to two different bodies.')
+        else:
+            #uVector = uVector.normalize()
+            projected_vector = self.projectPointOntoPlane(uVector)
+            rotated_vector = self.global_rotation_matrix*projected_vector
+            uVector = rotated_vector.normalize()
+            
+            uvector_out = {}
+            uvector_out["bIndex"] = body_index_1
+            uvector_out["uLocal"] = uVector
+            self.dap_uvectors.append(uvector_out)
+            iIndex = len(self.dap_uvectors)
+            
+            uvector_out = {}
+            uvector_out["bIndex"] = body_index_2
+            uvector_out["uLocal"] = uVector
+            self.dap_uvectors.append(uvector_out)
+            jIndex = len(self.dap_uvectors)
+            
+            #FreeCAD.Console.PrintMessage("UVECTOR: " + str(self.dap_uvectors) + "\n")
+            
+            
+        #dap_uvectors
+        return iIndex, jIndex
+
+    def addJoint(self, joint_type, iIndex, jIndex, iUIndex=0, jUIndex=0):
             joint = {}
             joint["type"] = joint_type
             #NOTE: DAP.py is currently not 0 indexing, hence these indices should be 1 indexing
             joint["i"] = iIndex 
             joint["j"] = jIndex
             
-            #TODO: if translation add uvectors
+            #NOTE: DAP.py is currently not 0 indexing, hence these indices should be 1 indexing
+            if joint_type == "tran":
+                joint["iUindex"] = iUIndex
+                joint["jUindex"] = jUIndex
             
             self.dap_joints.append(joint)
 
@@ -218,10 +286,6 @@ class DapSolverBuilder():
         projected_coord = self.projectPointOntoPlane(point_coord)
         rotated_coord = self.global_rotation_matrix*projected_coord
         
-        #FreeCAD.Console.PrintMessage("Body: " + str(body_label) + "\n")
-        
-        #FreeCAD.Console.PrintMessage("Projected coord " + str(projected_coord) + "\n")
-        #FreeCAD.Console.PrintMessage("Projected-rotated coord " + str(rotated_coord) + "\n")
         # if body index =0, then connecting body is ground, and coordinates should be 
         # defined in the global coordinates based on the current logic
         if body_index == 0:
@@ -426,6 +490,9 @@ class DapSolverBuilder():
             fid.write("J"+str(i+1)+".jPindex = " + str(self.dap_joints[i]["j"]) + "\n")
             
             #TODO add uVectors if translational joint
+            if self.dap_joints[i]["type"] == "tran":
+                fid.write("J"+str(i+1)+".iUindex = " + str(self.dap_joints[i]["iUindex"]) + "\n")
+                fid.write("J"+str(i+1)+".jUindex = " + str(self.dap_joints[i]["jUindex"]) + "\n")
             
             
             fid.write("\n")
@@ -473,10 +540,17 @@ class DapSolverBuilder():
         file_path = os.path.join(self.folder,"inUvectors.py")
         fid = open(file_path, 'w')
         fid.write('global Uvectors\n')
-        
+        for i in range(len(self.dap_uvectors)):
+            fid.write("U"+str(i+1)+" = Unit_struct()\n")
+            fid.write("U"+str(i+1)+".Bindex = " + str(self.dap_uvectors[i]["bIndex"]) + "\n")
+            fid.write("U"+str(i+1)+".uLocal = np.array([[" + str(self.dap_uvectors[i]["uLocal"].x) +
+                      "," + str(self.dap_uvectors[i]["uLocal"].y) +"]]).T\n")
         #TODO include writer for UVectors, needed for translational joints
         fid.write("\n")
-        fid.write("Uvectors = np.array([[]]).T\n")
+        fid.write('Uvectors = np.array([[None')
+        for i in range(len(self.dap_uvectors)):
+            fid.write(', U'+str(i+1))
+        fid.write("]]).T\n")
         
 
     def solve(self):
