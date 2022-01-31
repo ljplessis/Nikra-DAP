@@ -113,7 +113,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="gravity">
        <layout class="QFormLayout" name="formLayout_2">
@@ -196,32 +196,42 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="label_9">
           <property name="text">
            <string>Damping Coefficient </string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
          <widget class="Gui::InputField" name="linDampIn"/>
         </item>
-        <item row="6" column="0" colspan="2">
+        <item row="7" column="0" colspan="2">
          <widget class="QLabel" name="dampCon">
           <property name="text">
            <string>Damping Condition </string>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="label_15">
           <property name="text">
            <string>Undeformed Length</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="5" column="1">
          <widget class="Gui::InputField" name="undefLinIn"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_17">
+          <property name="text">
+           <string>Stiffness</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="Gui::InputField" name="stiffLinIn"/>
         </item>
        </layout>
       </widget>
@@ -271,32 +281,42 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="label_14">
           <property name="text">
            <string>Damping Coefficient </string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
+        <item row="2" column="1">
          <widget class="Gui::InputField" name="rotDampIn"/>
         </item>
-        <item row="3" column="0" colspan="2">
+        <item row="4" column="0" colspan="2">
          <widget class="QLabel" name="dampCon_2">
           <property name="text">
            <string>Damping  Condition </string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="label_16">
           <property name="text">
            <string>Undeformed Angle </string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <widget class="Gui::InputField" name="undefAngRotIn"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>Stiffness</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="Gui::InputField" name="stiffRotIn"/>
         </item>
        </layout>
       </widget>
@@ -310,7 +330,7 @@
      <x>0</x>
      <y>0</y>
      <width>334</width>
-     <height>21</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDAP_Force_Selection">
