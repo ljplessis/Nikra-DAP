@@ -163,6 +163,9 @@ class DapForceDriver:
     def funcChanged(self,index):
         self.form.typeInput.setCurrentIndex(index+1)
 
+    # def propertyEditor(self):
+
+
     
 
         
