@@ -7,6 +7,7 @@
 
 
 
+from webbrowser import get
 import FreeCAD
 from FreeCAD import Units
 import os
@@ -16,7 +17,8 @@ import DapTools
 from DapTools import indexOrDefault
 from DapTools import getQuantity, setQuantity
 import DapForceSelection
-import _BodySelector 
+import _BodySelector
+import _DapForceDriver 
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtGui
@@ -45,13 +47,11 @@ class TaskPanelDapForce:
         self.RotDampCoeff = self.obj.RotDampCoeff
         self.UndefAng = self.obj.UndeformedAngle 
 
-
         self.Body1 = self.obj.Body1
         self.Body2 = self.obj.Body2
         self.Joint1 = self.obj.Joint1
         self.Joint2 = self.obj.Joint2
         
-
         self.doc_name = self.obj.Document.Name
 
         self.default_stiffness = "1 kg/s^2"  
@@ -66,6 +66,8 @@ class TaskPanelDapForce:
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
 
         self.bodySelector = _BodySelector.BodySelector(self.form.bodySelection, self.obj)
+        self.driveSelector = _DapForceDriver.DapForceDriver(self.form.dapForceDriver, self.obj)
+        self.form.dapForceDriver.setVisible(False)
 
         self.form.forceComboBox.addItems(DapForceSelection.FORCE_TYPES)
         # On reload, check to see if item already exists, and set dropbox item appropriately
@@ -74,15 +76,54 @@ class TaskPanelDapForce:
 
         self.form.forceComboBox.currentIndexChanged.connect(self.comboTypeChanged)
 
+        self.form.driveCheck.toggled.connect(self.driveFunc)
+
+
         self.comboTypeChanged()
 
         self.unitFunc()
 
         self.rebuildInputs()
-    
+
+        
+        self.form.linDampIn.textChanged.connect(self.dampConCheck)
+        self.form.rotDampIn.textChanged.connect(self.dampConCheck)
+        self.dampConCheck()
+
         return 
 
+    def driveFunc(self):
+        if self.form.driveCheck.isChecked():
+            self.form.dapForceDriver.setVisible(True)
+            self.obj.Checker = True
 
+        elif self.form.driveCheck.isChecked() == False:
+            self.form.dapForceDriver.setVisible(False) 
+            self.obj.Checker = False
+
+
+    def dampConCheck(self):
+        lin = self.form.linDampIn.property("rawValue")
+        rot = self.form.rotDampIn.property("rawValue")
+
+        if lin < 0 or rot < 0:
+            self.form.dampCon.setText("Undamped")
+            self.form.dampCon_2.setText("Undamped")
+
+        elif lin > 1 or rot > 1:
+            self.form.dampCon.setText("Overdamped")
+            self.form.dampCon_2.setText("Overdamped")
+
+        elif lin == 1 or rot == 1:
+            self.form.dampCon.setText("Critically damped")
+            self.form.dampCon_2.setText("Crtically damped")
+
+        elif lin < 1 or rot < 1:
+            self.form.dampCon.setText("Underdamped")
+            self.form.dampCon_2.setText("Underdamped")
+            
+        return 
+    
     def bodySelectionPage(self):
 
         if self.Type == "Spring" or self.Type == "Linear Spring Damper":
@@ -130,10 +171,8 @@ class TaskPanelDapForce:
         setQuantity(self.form.undefAngIn, self.UndefAng)
         setQuantity(self.form.rotDampIn,self.RotDampCoeff)
 
-        # self.Body1 = self.obj.Body1
-        # self.Body2 = self.obj.Body2
-        # self.Joint1 = self.obj.Joint1
-        # self.Joint2 = self.obj.Joint2
+        if self.obj.Checker:
+            self.form.driveCheck.setChecked(True)
 
     
     def accept(self):
@@ -148,8 +187,6 @@ class TaskPanelDapForce:
         elif self.Type == "Rotational Spring" or self.Type == "Rotational Spring Damper":
             self.bodySelector.accept(1)
             #self.bodySelector.execute(self.obj,1)
-            
-        
         
         self.obj.ForceTypes = self.Type
         self.obj.gx = getQuantity(self.form.xIn)
@@ -161,7 +198,9 @@ class TaskPanelDapForce:
         self.obj.RotDampCoeff = getQuantity(self.form.rotDampIn)
         self.obj.RotStiffness = getQuantity(self.form.rotStiffIn)
         self.obj.UndeformedAngle = getQuantity(self.form.undefAngIn)
-        
+
+            
+        self.driveSelector.accept()
         self.bodySelector.closing()
 
         # Recompute document to update viewprovider based on the shapes
@@ -187,10 +226,8 @@ class TaskPanelDapForce:
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc_name = str(self.obj.Document.Name)        
         #self.bodySelector.reject()
-        
-        
         #FreeCAD.getDocument(doc_name).recompute()
-        #doc.resetEdit()
+        doc.resetEdit()
         self.obj.recompute()
         return True
     
@@ -202,6 +239,12 @@ class TaskPanelDapForce:
         
         #TODO reset type on reject
         self.obj.ForceTypes = self.Type
+
+        if self.Type == "Gravity":
+            self.form.driveCheck.setChecked(False)
+            self.form.driveCheck.setVisible(False)
+        else:
+            self.form.driveCheck.setVisible(True)
         
         
         self.form.inputForceWidget.setCurrentIndex(type_index)
