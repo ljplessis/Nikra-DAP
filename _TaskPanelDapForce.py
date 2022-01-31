@@ -151,12 +151,15 @@ class TaskPanelDapForce:
         setQuantity(self.form.yIn,acceleration)
         setQuantity(self.form.zIn,acceleration)
         setQuantity(self.form.undefIn,length)
+        
         setQuantity(self.form.stiffnessIn,stiffness)
         setQuantity(self.form.linDampIn,lindamp)
         setQuantity(self.form.rotStiffIn,rotstiff)
         setQuantity(self.form.undefAngIn,angle)
         setQuantity(self.form.rotDampIn,rotdamp)
 
+        setQuantity(self.form.undefLinIn,length)
+        setQuantity(self.form.undefAngRotIn,angle)
         return 
 
     def rebuildInputs(self):
@@ -170,6 +173,9 @@ class TaskPanelDapForce:
         setQuantity(self.form.rotStiffIn, self.RotStiff)
         setQuantity(self.form.undefAngIn, self.UndefAng)
         setQuantity(self.form.rotDampIn,self.RotDampCoeff)
+
+        setQuantity(self.form.undefLinIn,self.UndefLen)
+        setQuantity(self.form.undefAngRotIn,self.UndefAng)
 
         if self.obj.Checker:
             self.form.driveCheck.setChecked(True)
@@ -199,6 +205,8 @@ class TaskPanelDapForce:
         self.obj.RotStiffness = getQuantity(self.form.rotStiffIn)
         self.obj.UndeformedAngle = getQuantity(self.form.undefAngIn)
 
+        self.obj.UndeformedLength = getQuantity(self.form.undefLinIn)
+        self.obj.UndeformedAngle = getQuantity(self.form.undefAngRotIn)
             
         self.driveSelector.accept()
         self.bodySelector.closing()
