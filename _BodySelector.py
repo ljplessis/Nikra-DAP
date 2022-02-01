@@ -106,8 +106,7 @@ class BodySelector:
         
         self.form.inputWidget.setCurrentIndex(index)
         self.PageInit(index)
-        
-        
+    
 
         self.form.body1Combo_2.clear()
         self.form.body1Combo_2.addItems(self.body_labels)
@@ -121,8 +120,8 @@ class BodySelector:
         self.form.body2Combo_2.setCurrentIndex(b1i)
         self.selectedBody2(index)
 
-        self.form.lcsName3.clicked.connect(lambda : self.selectLCSinGui(self.obj.Joint1))
         self.form.lcsPush3.clicked.connect(lambda : self.addLCS1(index))
+        self.form.lcsName3.clicked.connect(lambda : self.selectLCSinGui(self.obj.Joint1))
 
         #NOTE to Varnu, when indexChanged even is called, an index is passed through to the function
         self.form.body1Combo_2.currentIndexChanged.connect(lambda: self.selectedBody1(_index = index))
@@ -335,29 +334,43 @@ class BodySelector:
         return 
 
     def selectedBody1(self, _index=0):
+        updated = False 
         if _index == 0:
             index = self.form.body1Combo.currentIndex()
-            self.Body1 = self.body_labels[index]
+            self.obj.Body1 = self.body_labels[index]
 
         elif _index == 1:
             index = self.form.body1Combo_2.currentIndex()
-            self.Body1 = self.body_labels[index]
+            self.obj.Body1 = self.body_labels[index]
+
+            if self.obj.Body2 != "":
+                updated = True 
 
         elif _index == 2:
             index = self.form.bodyPointCombo.currentIndex()
-            self.Body = self.body_labels[index]
+            self.obj.Body = self.body_labels[index]
 
         self.selectObjectInGui(index)
+
+        if updated:
+            self.obj.recompute()
 
     def selectedBody2(self,_index=0):
+        updated = False 
         if _index == 0:
             index = self.form.body2Combo.currentIndex()
-            self.Body2 = self.body_labels[index]
+            self.obj.Body2 = self.body_labels[index]
         elif _index == 1:
             index = self.form.body2Combo_2.currentIndex()
-            self.Body2 = self.body_labels[index]
+            self.obj.Body2 = self.body_labels[index]
+
+            if self.obj.Body1 != "":
+                updated = True  
 
         self.selectObjectInGui(index)
+
+        if updated: 
+            self.obj.recompute()
 
         
 
@@ -445,17 +458,18 @@ class BodySelector:
             if "LCS" in sel[0].Object.Name:
                 if index == 0:
                     self.form.lcsName1.setText(sel[0].Object.Label)
-                    self.Joint1 = sel[0].Object.Label
+                    self.obj.Joint1 = sel[0].Object.Label
                     self.obj.JointCoord1 = sel[0].Object.Placement.Base
                     FreeCAD.Console.PrintError(self.obj.JointCoord1)
+                    if self.obj.Joint2 != "":
+                        updated = True
 
                 elif index == 1:
                     self.form.lcsName3.setText(sel[0].Object.Label)
-                    self.Joint1 = sel[0].Object.Label
+                    self.obj.Joint1 = sel[0].Object.Label
                     self.obj.JointCoord1 = sel[0].Object.Placement.Base
                     updated = True
-                if self.Joint2 != "":
-                    updated = True
+                
 
         if updated:
             #self.execute(self.obj,0)
@@ -475,11 +489,11 @@ class BodySelector:
         else:
             if "LCS" in sel[0].Object.Name:
                 self.form.lcsName2.setText(sel[0].Object.Label)       
-                self.Joint2 = sel[0].Object.Label
+                self.obj.Joint2 = sel[0].Object.Label
                 self.obj.JointCoord2 = sel[0].Object.Placement.Base
                 FreeCAD.Console.PrintError(self.obj.JointCoord2)
 
-                if self.Joint1 != "":
+                if self.obj.Joint1 != "":
                     #self.execute(self.obj,0)
                     #TODO reset the coord on cancel
                     #self.obj.JointCoord2 = self.JointCoord2
