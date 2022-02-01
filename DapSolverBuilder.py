@@ -38,6 +38,7 @@ class DapSolverBuilder():
         self.dap_joints = []
         self.dap_forces = []
         self.dap_uvectors = []
+        self.dap_funcs = []
         
         self.scale = 1e-3 #convert mm to m
         
@@ -102,38 +103,13 @@ class DapSolverBuilder():
         self.global_rotation_matrix = self.computeRotationMatrix()
         self.computeCentreOfGravity()
         self.computeMomentOfInertia()
+        self.processBodyInitialConditions()
         self.processJoints() #this includes processing points included within joints
         self.processForces()
         
         self.obj.global_rotation_matrix = self.global_rotation_matrix
         
-        #self.writeBodies()
-        #self.writePoints()
-        #self.writeJoints()
-        #self.writeForces()
-        #self.writeFunctions()
-        #self.writeUVectors()
-        
-        
-        
-        
-        #from dapSolver import DapSolver
-        #self.dapSolver = DapSolver(self.folder)
-        
-        
-        
-        #self.solve()
-        
-        #cog = self.cog_of_body_projected["DapBody"]
-        #FreeCAD.Console.PrintMessage("Original cog:" + str(cog) + "\n")
-        #FreeCAD.Console.PrintMessage("Rotated plane normal:" +  str(self.global_rotation_matrix*self.plane_norm) + "\n")
-        #FreeCAD.Console.PrintMessage("Rotated centre of gravity:" +  str(self.global_rotation_matrix*cog) + "\n")
-        #FreeCAD.Console.PrintMessage("Actual CoG: " + str(self.centre_of_gravity_of_body) +"\n")
-        #FreeCAD.Console.PrintMessage("Projected CoG: " + str(self.cog_of_body_projected) +"\n")
-        #FreeCAD.Console.PrintMessage("Rotated-projected CoG: " + str(self.cog_of_body_rotated) +"\n")
-        
-        #FreeCAD.Console.PrintMessage("List of joints: " + str(self.joints) + "\n")
-        #self.projectPointOntoPlane(FreeCAD.Vector(10,10,10))
+
     
     def writeInputFiles(self):
         self.writeBodies()
@@ -160,10 +136,12 @@ class DapSolverBuilder():
                 gravity_norm_projected = self.projectPointOntoPlane(gravity_norm)
                 gravity_norm_rotated = self.global_rotation_matrix*gravity_norm_projected
                 
-                force['type'] = 'weight'
+                force['type'] = "'weight'"
                 force['gravity'] = gravity_mag
-                force['x'] = gravity_norm_rotated.x
-                force['y'] = gravity_norm_rotated.y
+                force['wgt'] = "np.array([[" + str(gravity_norm_rotated.x) + "," + str(gravity_norm_rotated.y)+"]]).T"
+                #gravity_mag
+                #force['x'] = gravity_norm_rotated.x
+                #force['y'] = gravity_norm_rotated.y
                 
 
             #TODO add additional force type
@@ -191,7 +169,7 @@ class DapSolverBuilder():
                     self.obj.object_to_point[str(force_obj.Label)+":"+str(Joint2)] = jIndex - 1
                 
                 #self.addJoint(joint_type, iIndex, jIndex)
-                force['type'] = 'ptp'
+                force['type'] = "'ptp'"
                 force['iPindex'] = iIndex
                 force['jPindex'] = jIndex
                 force['k'] = k
@@ -216,7 +194,7 @@ class DapSolverBuilder():
                     #self.obj.object_to_point[str(force_obj.Label)] = iIndex - 1
                 
                 #jIndex = self.addDapPointUsingJointCoordAndBodyLabel(body2_index, body2, force_coord_1)
-                force['type'] = 'rot_sda'
+                force['type'] = "'rot_sda'"
                 force['iBindex'] = body1_index
                 force['jBindex'] = body2_index
                 force['k'] = rot_stiffness
@@ -225,7 +203,23 @@ class DapSolverBuilder():
                     force['dc'] = force_obj.RotDampCoeff.getValueAs("(J*s)/rad")
                 
             self.dap_forces.append(force)
-    
+            
+    def processBodyInitialConditions(self):
+        self.body_init = {}
+        for i in range(len(self.body_objects)):
+            body_label = self.list_of_bodies[i]
+            body_object = self.body_objects[i]
+            
+            #at the moment the initial conditions are already specified in orthonormal co-ordinates
+            #if the decision is made to at some point rather specify it in x-y-z coordinates then
+            #the intiial condition should be projected and rotated onto the plane of motion
+            self.body_init[body_label] = {}
+            self.body_init[body_label]["init_y"] = body_object.InitialVertical.getValueAs("m/s")
+            self.body_init[body_label]["init_x"] = body_object.InitialHorizontal.getValueAs("m/s")
+            self.body_init[body_label]["init_p"] = body_object.InitialAngular.getValueAs("rad/s")
+            
+            
+        
     def processJoints(self):
         for i in range(len(self.joints)):
             joint_type = JOINT_TRANSLATION[self.joints[i].TypeOfRelMov]
@@ -247,8 +241,6 @@ class DapSolverBuilder():
             
             
             if joint_type == "rev":
-                #joint1 = self.joints[i].Point1RelMov
-                
                 iIndex = self.addDapPointUsingJointCoordAndBodyLabel(body1_index, body1, joint1_coord)
                 
                 self.obj.object_to_point[self.joints[i].Label] = iIndex - 1
@@ -256,8 +248,6 @@ class DapSolverBuilder():
                 
                 self.addJoint(joint_type, iIndex, jIndex)
 
-                #Point object for post-processing
-                
                 
             elif joint_type == "tran":
                 iIndex = self.addDapPointUsingJointCoordAndBodyLabel(body1_index, body1, joint1_coord)
@@ -301,14 +291,14 @@ class DapSolverBuilder():
             uVector = rotated_vector.normalize()
             
             uvector_out = {}
-            uvector_out["bIndex"] = body_index_1
-            uvector_out["uLocal"] = uVector
+            uvector_out["Bindex"] = body_index_1
+            uvector_out["uLocal"] = "np.array([[" + str(uVector.x) +"," + str(uVector.y) +"]]).T"
             self.dap_uvectors.append(uvector_out)
             iIndex = len(self.dap_uvectors)
             
             uvector_out = {}
-            uvector_out["bIndex"] = body_index_2
-            uvector_out["uLocal"] = uVector
+            uvector_out["Bindex"] = body_index_2
+            uvector_out["uLocal"] = "np.array([[" + str(uVector.x) +"," + str(uVector.y) +"]]).T"
             self.dap_uvectors.append(uvector_out)
             jIndex = len(self.dap_uvectors)
             
@@ -318,36 +308,41 @@ class DapSolverBuilder():
         #dap_uvectors
         return iIndex, jIndex
 
-    def addJoint(self, joint_type, iIndex, jIndex, iUIndex=0, jUIndex=0):
+    def addJoint(self, joint_type, iIndex, jIndex, iUIndex=0, jUIndex=0, iBindex=0, jBindex=0, iFunc=0):
             joint = {}
-            joint["type"] = joint_type
-            #NOTE: DAP.py is currently not 0 indexing, hence these indices should be 1 indexing
-            joint["i"] = iIndex 
-            joint["j"] = jIndex
-            
-            #NOTE: DAP.py is currently not 0 indexing, hence these indices should be 1 indexing
-            if joint_type == "tran":
-                joint["iUindex"] = iUIndex
-                joint["jUindex"] = jUIndex
+            joint["type"] = "'"+str(joint_type)+"'"
+            if joint_type == "tran" or joint_type == "rev":
+                #NOTE: DAP.py is currently not 0 indexing, hence these indices should be 1 indexing
+                joint["iPindex"] = iIndex 
+                joint["jPindex"] = jIndex
+                
+                #NOTE: DAP.py is currently not 0 indexing, hence these indices should be 1 indexing
+                if joint_type == "tran":
+                    joint["iUindex"] = iUIndex
+                    joint["jUindex"] = jUIndex
+            elif joint_type == "rel-rot":
+                joint["iBindex"] = iBindex
+                joint["jBindex"] = jBindex
+                joint["iFunct"] = iFunc
             
             self.dap_joints.append(joint)
 
     def addDapPointUsingJointCoordAndBodyLabel(self, body_index, body_label, point_coord):
         point = {}
-        point['bIndex'] = body_index
+        point['Bindex'] = body_index
         projected_coord = self.projectPointOntoPlane(point_coord)
         rotated_coord = self.global_rotation_matrix*projected_coord
         
         # if body index =0, then connecting body is ground, and coordinates should be 
         # defined in the global coordinates based on the current logic
         if body_index == 0:
-            point['x'] = rotated_coord.x
-            point['y'] = rotated_coord.y
+            point["sPlocal"] = "np.array([[" + str(rotated_coord.x) + "," + str(rotated_coord.y) + "]]).T"
         else:
             #FreeCAD.Console.PrintMessage("Body rotated CoG: " + str(self.cog_of_body_rotated[body_label]) + "\n")
             bodyCoG = self.cog_of_body_rotated[body_label]
-            point['x'] = rotated_coord.x - bodyCoG.x
-            point['y'] = rotated_coord.y - bodyCoG.y
+            x = rotated_coord.x - bodyCoG.x
+            y = rotated_coord.y - bodyCoG.y
+            point["sPlocal"] = "np.array([[" + str(x) + "," + str(y) + "]]).T"
             
         self.dap_points.append(point)
         
@@ -501,12 +496,20 @@ class DapSolverBuilder():
         #for i in range(len(self.list_of_bodies)):
         for i in range(len(self.moving_bodies)):
             body_index = self.list_of_bodies.index(self.moving_bodies[i])
+            body_label = self.list_of_bodies[body_index]
             fid.write("B"+str(i+1)+" = Body_struct()\n")
-            fid.write("B"+str(i+1)+".m = " + str(self.total_mass_of_body[self.list_of_bodies[body_index]]) + "\n")
-            fid.write("B"+str(i+1)+".J = " + str(self.J[self.list_of_bodies[body_index]]) + "\n")
-            fid.write("B"+str(i+1)+".r = np.array([[" + str(self.cog_of_body_rotated[self.list_of_bodies[body_index]].x) + ","
-                      + str(self.cog_of_body_rotated[self.list_of_bodies[body_index]].y) + "]]).T\n")
+            fid.write("B"+str(i+1)+".m = " + str(self.total_mass_of_body[body_label]) + "\n")
+            fid.write("B"+str(i+1)+".J = " + str(self.J[body_label]) + "\n")
+            fid.write("B"+str(i+1)+".r = np.array([[" + str(self.cog_of_body_rotated[body_label].x) + ","
+                      + str(self.cog_of_body_rotated[body_label].y) + "]]).T\n")
             fid.write("B"+str(i+1)+".p = " + str(0) + "\n")
+            
+            fid.write("B"+str(i+1)+".r_d = np.array([[" + 
+                      str(self.body_init[body_label]["init_x"]) +
+                      ", " +
+                      str(self.body_init[body_label]["init_y"]) + "]]).T\n")
+            fid.write("B"+str(i+1)+".p_d = " + str(self.body_init[body_label]["init_p"]) + "\n")
+            
             fid.write("\n")
             #bodies.append("B"+str(i))
         fid.write('Bodies = np.array([[None')
@@ -522,10 +525,9 @@ class DapSolverBuilder():
         fid.write('global Points\n')
         for i in range(len(self.dap_points)):
             fid.write("P"+str(i+1)+" = Point_struct()\n")
-            fid.write("P"+str(i+1)+".Bindex = " + str(self.dap_points[i]["bIndex"]) +"\n")
-            sp_i = self.dap_points[i]["x"]
-            sp_j = self.dap_points[i]["y"]
-            fid.write("P"+str(i+1)+".sPlocal = np.array([[" + str(sp_i) + "," + str(sp_j) + "]]).T\n")
+            for key in self.dap_points[i].keys():
+                fid.write("P" + str(i+1) + "." + str(key) + " = " + str(self.dap_points[i][key])+"\n")
+
             fid.write("\n")
         
         fid.write('Points = np.array([[None')
@@ -541,16 +543,9 @@ class DapSolverBuilder():
         fid.write('global Joints\n')
         for i in range(len(self.dap_joints)):
             fid.write("J"+str(i+1)+" = Joint_struct()\n")
-            fid.write("J"+str(i+1)+".type = '" + str(self.dap_joints[i]["type"]) + "'\n")
-            fid.write("J"+str(i+1)+".iPindex = " + str(self.dap_joints[i]["i"]) + "\n")
-            fid.write("J"+str(i+1)+".jPindex = " + str(self.dap_joints[i]["j"]) + "\n")
-            
-            #TODO add uVectors if translational joint
-            if self.dap_joints[i]["type"] == "tran":
-                fid.write("J"+str(i+1)+".iUindex = " + str(self.dap_joints[i]["iUindex"]) + "\n")
-                fid.write("J"+str(i+1)+".jUindex = " + str(self.dap_joints[i]["jUindex"]) + "\n")
-            
-            
+            for key in self.dap_joints[i].keys():
+                fid.write("J" + str(i+1) + "." + str(key) + " = " + str(self.dap_joints[i][key])+"\n")
+
             fid.write("\n")
             
         fid.write('Joints = np.array([[None')
@@ -566,27 +561,9 @@ class DapSolverBuilder():
         fid.write('global Forces\n')
         for i in range(len(self.dap_forces)):
             fid.write("F"+str(i+1)+" = Force_struct()\n")
-            fid.write("F"+str(i+1)+".type = '" + str(self.dap_forces[i]["type"]) + "'\n")
-            if self.dap_forces[i]["type"] == 'weight':
-                fid.write("F"+str(i+1)+".gravity = " + str(self.dap_forces[i]["gravity"]) + "\n")
-                fid.write("F"+str(i+1)+".wgt = np.array([["+str(self.dap_forces[i]['x']) 
-                          + ", " +str(self.dap_forces[i]['y']) + "]]).T\n")
-            elif self.dap_forces[i]["type"] == 'ptp':
-                fid.write("F"+str(i+1)+".iPindex = " + str(self.dap_forces[i]["iPindex"]) + "\n")
-                fid.write("F"+str(i+1)+".jPindex = " + str(self.dap_forces[i]["jPindex"]) + "\n")
-                fid.write("F"+str(i+1)+".k = " + str(self.dap_forces[i]["k"]) + "\n")
-                fid.write("F"+str(i+1)+".L0 = " + str(self.dap_forces[i]["L0"]) + "\n")
-                if 'dc'  in self.dap_forces[i]:
-                    fid.write("F"+str(i+1)+".dc = " + str(self.dap_forces[i]["dc"]) + "\n")
-            #TODO add uVectors if translational joint
-            elif self.dap_forces[i]["type"] == 'rot_sda':
-                fid.write("F"+str(i+1)+".iBindex = " + str(self.dap_forces[i]["iBindex"]) + "\n")
-                fid.write("F"+str(i+1)+".jBindex = " + str(self.dap_forces[i]["jBindex"]) + "\n")
-                fid.write("F"+str(i+1)+".k = " + str(self.dap_forces[i]["k"]) + "\n")
-                fid.write("F"+str(i+1)+".theta0 = " + str(self.dap_forces[i]["theta0"]) + "\n")
-                if 'dc'  in self.dap_forces[i]:
-                    fid.write("F"+str(i+1)+".dc = " + str(self.dap_forces[i]["dc"]) + "\n")
-            
+            for key in self.dap_forces[i].keys():
+                fid.write("F" + str(i+1) + "." + str(key) + " = " + str(self.dap_forces[i][key])+"\n")
+
             fid.write("\n")
             
         fid.write('Forces = np.array([[None')
@@ -599,10 +576,20 @@ class DapSolverBuilder():
         file_path = os.path.join(self.folder,"inFuncts.py")
         fid = open(file_path, 'w')
         fid.write('global Functs\n')
+        for i in range(len(self.dap_funcs)):
+            fid.write("F"+str(i+1)+" = Funct_struct()\n")
+            for key in self.dap_funcs[i].keys():
+                fid.write("F" + str(i+1) + "." + str(key) + " = " + str(self.dap_funcs[i][key])+"\n")
+
+            fid.write("\n")
+        
         
         #TODO include writer for functions
         fid.write("\n")
-        fid.write("Functs = np.array([[]]).T\n")
+        fid.write('Functs = np.array([[None')
+        for i in range(len(self.dap_funcs)):
+            fid.write(', F'+str(i+1))
+        fid.write("]]).T\n")
     
     def writeUVectors(self):
         file_path = os.path.join(self.folder,"inUvectors.py")
@@ -610,9 +597,9 @@ class DapSolverBuilder():
         fid.write('global Uvectors\n')
         for i in range(len(self.dap_uvectors)):
             fid.write("U"+str(i+1)+" = Unit_struct()\n")
-            fid.write("U"+str(i+1)+".Bindex = " + str(self.dap_uvectors[i]["bIndex"]) + "\n")
-            fid.write("U"+str(i+1)+".uLocal = np.array([[" + str(self.dap_uvectors[i]["uLocal"].x) +
-                      "," + str(self.dap_uvectors[i]["uLocal"].y) +"]]).T\n")
+            for key in self.dap_uvectors[i].keys():
+                fid.write("U" + str(i+1) + "." + str(key) + " = " + str(self.dap_uvectors[i][key])+"\n")
+
         #TODO include writer for UVectors, needed for translational joints
         fid.write("\n")
         fid.write('Uvectors = np.array([[None')

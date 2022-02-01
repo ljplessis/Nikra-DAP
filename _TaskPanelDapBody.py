@@ -117,17 +117,21 @@ class TaskPanelDapBody:
 
         for item in sel:
             #check to see if part is not of Type DapBody
+            DapBodyFound = False
             if hasattr(item,"Proxy"):
-                if item.Proxy.Type == 'DapBody':
-                    DapBodyFound = True
-            else:
-                DapBodyFound = False
+                if hasattr(item.Proxy, "Type"):
+                    if item.Proxy.Type == 'DapBody':
+                        DapBodyFound = True
+
             if hasattr(item, "Shape") and (not DapBodyFound):
                 label = item.Label
                 if label not in self.References:
                     self.References.append(label)
             else:
-                FreeCAD.Console.PrintError("Selected object does not have a shape \n")
+                if DapBodyFound:
+                    FreeCAD.Console.PrintError("Selected object is a DAP analysis body. Cannot be added.")
+                else:
+                    FreeCAD.Console.PrintError("Selected object does not have a shape \n")
 
         self.rebuildReferenceList()
         return

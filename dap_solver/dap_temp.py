@@ -30,6 +30,7 @@ from structures import Body_struct, Force_struct, Joint_struct, Point_struct, Un
 
 #TODO clean up dap code. build into proper class structure
 #for now just getting it to work within the workbench
+#remove 0 indexing
 
 ################################################################
 #
@@ -108,37 +109,40 @@ def analysis(t, u):
  
 def Constraints():
     global nConst, nJ
+    global Joints
 
-    phi = np.zeros(nConst,1)
+    phi = np.zeros((nConst,1))
     
     for Ji in range(1,nJ):
-        if Joints[Ji].type == 'rev':
+        print("Joints[Ji]", Joints[Ji,0])
+        if Joints[Ji,0].type == 'rev':
             f=C_rev(Ji)
              
-        if Joints[Ji].type == 'tran':
+        if Joints[Ji,0].type == 'tran':
             f=C_tran(Ji)
             
-        if Joints[Ji].type == 'rev_rev':
+        if Joints[Ji,0].type == 'rev_rev':
             f=C_rev_rev(Ji)
             
-        if Joints[Ji].type == 'rev_tran':
+        if Joints[Ji,0].type == 'rev_tran':
             f=C_rev_tran(Ji)
             
-        if Joints[Ji].type == 'rigid':
+        if Joints[Ji,0].type == 'rigid':
             f=C_rigid(Ji)
             
-        if Joints[Ji].type == 'disc':
+        if Joints[Ji,0].type == 'disc':
             f=C_disc(Ji)
             
-        if Joints[Ji].type == 'rel_rot':  
+        if Joints[Ji,0].type == 'rel_rot':  
             f=C_rel_rot(Ji)
             
-        if Joints[Ji].type == 'rel_tran':
+        if Joints[Ji,0].type == 'rel_tran':
             f=C_rel_tran(Ji)
         
-        rs = Joints[Ji].rows -1 
-        re = Joints[Ji].rowe
-        phi[rs:re] = f
+        rs = Joints[Ji,0].rows -1 
+        re = Joints[Ji,0].rowe
+        phi[rs:re,0] = f[:,0]
+    return phi
 
 
 ################################################################
@@ -1110,10 +1114,12 @@ def A_tran(Ji):
     return f
 
 def C_tran(Ji):
+    global Joints
+    global Uvectors
     Pi   = Joints[Ji,0].iPindex 
     Pj   = Joints[Ji,0].jPindex 
-    uj_r = Uvectors(Joints[Ji,0].jUindex).u_r
-    ui   = Uvectors(Joints[Ji,0].iUindex).u
+    uj_r = Uvectors[Joints[Ji,0].jUindex, 0].u_r
+    ui   = Uvectors[Joints[Ji,0].iUindex,0].u
     d    = Points[Pi,0].rP - Points[Pj,0].rP
     f    = np.array([ [uj_r.T@d], [uj_r.T@ui] ]).T
     
@@ -1197,7 +1203,7 @@ def RHSVel(t):
             V_rel_tran()
             rhs[Joints[Ji,0].rows-1:Joints[Ji,0].rowe] = f
         
-    return None        
+    return rhs        
 
 
 
@@ -1617,6 +1623,115 @@ def Update_Velocity():
 
 
 
+##TODO: not working
+#def ic_correct():
+    #global Bodies, nB, nB3, nB6      
+    #global Points, nP, Points_anim, nPanim, nPtot
+    #global Uvectors, nU 
+    #global Joints, nJ, nConst
+    #global Forces, nF
+    #global M_array, M_inv_array
+    #global Functs, nFc
+    #global ZZ, redund, cfriction
+    #global num, D, Dt, Lambda 
+    #global xmin, xmax, ymin, ymax
+    #global showtime, t10
+    #global flags, pen_d0
+    
+
+    #flag = 0;
+    #for n in range(20):
+        #Update_Position();      #% Update position entities
+        ##TODO: should contraints have an input
+        ##Phi = Constraints(0); #% Evaluate constraints
+        ##TODO: I think somehting is wrong with this Phi construction
+        #Phi = Constraints(); #% Evaluate constraints
+        #print("Phi",Phi)
+        #D   = Jacobian(0);       #% Evaluate Jacobian
+        #ff = np.sqrt(np.dot(Phi.T,Phi));  #% Are the constraints violated?
+        #if ff < 1.0e-10:
+            #flag = 1;
+            ##break
+            ##print("BROKEN")
+        ##end
+            ##delta_c = -np.dot(D.T,(np.dot(D,D.T)))\Phi   # % Solve for corrections
+        #D_ = D[:,0:3*(nB-1)]
+        #print("nConst",nConst)
+        #print("D",D_)
+        #print(np.dot(D_,D_.T))
+        #print("D",D)
+        #print(np.dot(D_.T, np.dot(D_,D_.T)))
+        
+        ##delta_c = np.linalg.solve(-np.dot(D_.T,(np.dot(D_,D_.T))), Phi)
+        ##delta_c = np.dot(np.linalg.pinv(-np.dot(D_.T,(np.dot(D_,D_.T))).T), Phi)
+        #delta_c = -np.dot(D_.T, np.linalg.solve(np.dot(D_, D_.T), Phi))
+        #for Bi in  range(1,nB):        # % Correct estimates
+            ##ir = 1 + (Bi - 1)*3; 
+            #ir = (Bi - 1)*3; 
+            #print("ir",ir)
+            ##print("ir",ir)
+            #print("Bi", Bi)
+            #print("delta_c",delta_c)
+            #print("delta_c[ir:ir+1]",delta_c[ir:ir+2])
+            ##broken
+            #Bodies[Bi,0].r = Bodies[Bi,0].r + delta_c[ir:ir+2,0];
+            #Bodies[Bi,0].p = Bodies[Bi,0].p + delta_c[ir+2,0];
+        ##end
+    ##end
+        #if flag == 0:
+            #error(' Convergence failed in Newton-Raphson ');
+        ##end
+
+    ##% Velocity correction
+        #Phi2 = np.zeros(((nB-1)*3,1))
+        #for Bi in range(1,nB):    # % Move velocities to an arbitrary array Phi
+            ##ir = 1 + (Bi - 1)*3;
+            #ir = (Bi - 1)*3;
+            #print("ir",ir)
+            #print("Bi", Bi)
+            #print("Phi2",Phi2)
+            #print("nB",nB)
+            #print("Bodies[Bi].p_d",Bodies[Bi,0].p_d)
+            #print("Biodes.r_d",Bodies[Bi,0].r_d[:,0])
+            #print("ir:ir+1",ir,ir+1)
+            #print("Phi[ir:ir+2,0]",Phi[ir:ir+2,0])
+            
+            #Phi2[ir:ir+2,0] = Bodies[Bi,0].r_d[:,0]
+            #Phi2[ir+2,0] = Bodies[Bi,0].p_d
+            ##0:3*(nB-1)
+            ##Phi[ir:ir+2,0] = np.array([[Bodies[Bi,0].r_d, Bodies[Bi,0].p_d]]);
+            #print("Phi2", Phi2)
+            #print("Bodies",Bodies)
+            ##print("Bodies(Bi)", Bodies(Bi))
+        ##end
+        #print("NCONST", nConst)
+        #rhs = RHSVel(0);
+        #print("rhs",rhs)
+        ##broken
+        #np.dot(D_, D_.T)
+        #np.dot(D_,Phi - rhs)
+        ##delta_v = np.dot(-D_.T, )
+        ##delta_v = -D'*((D*D')\(D*Phi - rhs)); % Compute corrections
+        ##for Bi = 1:nB     % Move corrected velocities to sub-arrays
+            ##ir  = 1 + (Bi - 1)*3;
+            ##Bodies(Bi).r_d = Bodies(Bi).r_d + delta_v(ir:ir+1);
+            ##Bodies(Bi).p_d = Bodies(Bi).p_d + delta_v(ir+2);
+        ##end
+
+    ##% Report corrected coordinates and velocities
+        ##coords = zeros(nB,3); vels = zeros(nB,3);
+        ##for Bi = 1:nB
+            ##coords(Bi,:) = [Bodies(Bi).r'  Bodies(Bi).p];
+            ##vels(Bi,:) = [Bodies(Bi).r_d'  Bodies(Bi).p_d];
+        ##end
+        ##display(' ')
+        ##display('Corrected coordinates')
+        ##display(' x           y           phi')
+        ##display(num2str(coords))
+        ##display('Corrected velocities')
+        ##display(' x-dot       y-dot       phi-dot')
+        ##display(num2str(vels))
+        ##display(' ')
 #######################################################################
 #
 # MAIN SOLVER
@@ -1645,13 +1760,12 @@ exec(open(os.path.join(folder, 'inPoints.py')).read())
 exec(open(os.path.join(folder, 'inUvectors.py')).read())
 
 
-
 #print(Points[1::])
 #broekn
 Points_anim = np.array([[]]).T
 
 initialize()
-
+#ic_correct()
 
 showtime = 1 #TODO do we really need this?
 
@@ -1724,48 +1838,51 @@ if not r.successful():
 
 #print(Tarray)
 
-#if animate:
+if animate:
     
-    #nt = len(Tspan)
-    #nP = nPtot
+    nt = len(Tspan)
+    nP = nPtot
 
-    #pause_time = 0.01
-    ##Update_Position()
+    pause_time = 0.01
+    Update_Position()
     
-    ##for Bi in range(1,nB):
+    for Bi in range(1,nB):
         
-        ##if Bodies[Bi,0].shape == 'rect':    
-            ##w2 = Bodies[Bi,0].W/2
-            ##h2 = Bodies[Bi,0].H/2
-            ##Bodies[Bi,0].P4 = np.array([[w2, -w2, -w2,  w2,],
-                                        ##[h2,  h2, -h2, -h2]]) 
+        if Bodies[Bi,0].shape == 'rect':    
+            w2 = Bodies[Bi,0].W/2
+            h2 = Bodies[Bi,0].H/2
+            Bodies[Bi,0].P4 = np.array([[w2, -w2, -w2,  w2,],
+                                        [h2,  h2, -h2, -h2]]) 
             
-        ##if Bodies[Bi,0].shape == 'line':
-            ##if Bodies[Bi,0].W == 0:
-                ##h2 = Bodies[Bi,0].R/2
-                ##Bodies[Bi,0].P4 = np.array([[0,  0],
-                                            ##[h2 ,-h2]])
-            ##else:
-                ##w2 = Bodies[Bi,0].R/2
-                ##Bodies[Bi,0].P4 = np.array([[w2, -w2],
-                                            ##[0,  0]])
+        if Bodies[Bi,0].shape == 'line':
+            if Bodies[Bi,0].W == 0:
+                h2 = Bodies[Bi,0].R/2
+                Bodies[Bi,0].P4 = np.array([[0,  0],
+                                            [h2 ,-h2]])
+            else:
+                w2 = Bodies[Bi,0].R/2
+                Bodies[Bi,0].P4 = np.array([[w2, -w2],
+                                            [0,  0]])
     
-    ##plot_system()
+    #plot_system()
+    #plt.show()
     
-    #for i in range(1,nt):
-        #u = Tarray[i,:].T
-        #u_to_Bodies(u)
-        #Update_Position()
-        #plt.clf()
-        #plot_system() 
-        #plt.pause(pause_time)
-        ##if Tspan[i-1] == 0:
-            ##if nt>1:
-                ##input('Press Enter to continue...') 
+    for i in range(1,nt):
+        u = Tarray[i,:].T
+        u_to_Bodies(u)
+        Update_Position()
+        plt.clf()
+        plot_system() 
+        plt.pause(pause_time)
+        #if Tspan[i-1] == 0:
+            #if nt>1:
+                #input('Press Enter to continue...') 
 
-    ##plt.show()
-#else:
-    #print('Done solving')
+    #plt.show()
+else:
+    print('Done solving')
+    
+    
 nt  = len(Tspan)                # number of time steps
 r   = np.zeros((nt,nB,2))       # translational coordinates
 rd  = np.zeros((nt,nB,2))       # translational velocities

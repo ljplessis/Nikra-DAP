@@ -74,7 +74,7 @@ class Joint_struct:
         self.p0     = 0                 # initial condition phi for a disc (or rigid)
         self.d0     = np.array([[]]).T  # initial condition for d (rigid)
         self.fix    = 0                 # fix relative dof if = 1 (rev or tran)
-        self.nboby  = 2                 # number of moving bodies involved
+        self.nbody  = 2                 # number of moving bodies involved
         self.mrows  = 2                 # number of rows (constraints)
 
         self.rows     = 0               # row index-start

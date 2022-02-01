@@ -373,7 +373,7 @@
        <item row="0" column="0" colspan="3">
         <widget class="QLabel" name="label_16">
          <property name="text">
-          <string>Specify the required inputs for Type 'a' function</string>
+          <string>Specify the required inputs for Type 'a' function of the form f=c1+c2*t+c3*t^2. Solver units are metric (i.e. m/s or rad/s depending on whether rotational or translational driver). </string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

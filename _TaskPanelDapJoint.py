@@ -112,11 +112,14 @@ class TaskPanelDapJoint:
                 
         emptyunit = Units.Quantity(self.emptyunit)
         
-        FreeCAD.Console.PrintMessage(f"\n")
-        FreeCAD.Console.PrintMessage(f"\n")
-        FreeCAD.Console.PrintMessage(f"emptyunit = {emptyunit}")
+        #FreeCAD.Console.PrintMessage(f"\n")
+        #FreeCAD.Console.PrintMessage(f"\n")
+        #FreeCAD.Console.PrintMessage(f"emptyunit = {emptyunit}")
         
-        setQuantity(self.form.tEndFuncA, emptyunit)
+        #NOTE: function A does not need endtime value
+        self.form.tEndFuncA.setVisible(False)
+        self.form.label_19.setVisible(False)
+        #setQuantity(self.form.tEndFuncA, emptyunit)
         setQuantity(self.form.FuncACoefC1, emptyunit)
         setQuantity(self.form.FuncACoefC2, emptyunit)
         setQuantity(self.form.FuncACoefC3, emptyunit)
@@ -130,6 +133,11 @@ class TaskPanelDapJoint:
         setQuantity(self.form.tEndFuncC, emptyunit)
         setQuantity(self.form.startValueFuncC, emptyunit)
         setQuantity(self.form.endDerivativeFuncC, emptyunit)
+        
+        #NOTE: disabling everything to do with functions for now, until the python solver works with functions
+        self.form.DriverOn.setEnabled(False)
+        self.form.frameFuntionType.setVisible(False)
+        self.form.stackedWidgetFuncTypeInputs.setVisible(False)
         
         self.rebuildInputs()
 
@@ -147,7 +155,7 @@ class TaskPanelDapJoint:
         
         self.obj.DriverFunctionType = self.DriverFunctionType
         
-        self.obj.tEndDriverFuncTypeA = getQuantity(self.form.tEndFuncA)
+        #self.obj.tEndDriverFuncTypeA = getQuantity(self.form.tEndFuncA)
         self.obj.coefC1DriverFuncTypeA = getQuantity(self.form.FuncACoefC1)
         self.obj.coefC2DriverFuncTypeA = getQuantity(self.form.FuncACoefC2)
         self.obj.coefC3DriverFuncTypeA = getQuantity(self.form.FuncACoefC3)
@@ -330,7 +338,7 @@ class TaskPanelDapJoint:
         
     def rebuildInputs(self):
                 
-        setQuantity(self.form.tEndFuncA, self.obj.tEndDriverFuncTypeA)
+        #setQuantity(self.form.tEndFuncA, self.obj.tEndDriverFuncTypeA)
         setQuantity(self.form.FuncACoefC1, self.obj.coefC1DriverFuncTypeA)
         setQuantity(self.form.FuncACoefC2, self.obj.coefC2DriverFuncTypeA)
         setQuantity(self.form.FuncACoefC3, self.obj.coefC3DriverFuncTypeA)

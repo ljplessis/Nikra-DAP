@@ -120,6 +120,26 @@ class _DapJoint:
         addObjectProperty(obj, 'endDerivativeDriverFuncTypeC', "", "App::PropertyQuantity", "",\
             "Driver Function Type C: function derivative at t_end")
         
+        
+        #NOTE: hiding all properties that have anything to do with functions until the python code works
+        obj.setEditorMode("DriverOn", 2)
+        obj.setEditorMode("DriverFunctionType", 2)
+        obj.setEditorMode("tEndDriverFuncTypeA", 2)
+        obj.setEditorMode("coefC1DriverFuncTypeA", 2)
+        obj.setEditorMode("coefC2DriverFuncTypeA", 2)
+        obj.setEditorMode("coefC3DriverFuncTypeA", 2)
+        obj.setEditorMode("tStartDriverFuncTypeB", 2)
+        obj.setEditorMode("tEndDriverFuncTypeB", 2)
+        obj.setEditorMode("initialValueDriverFuncTypeB", 2)
+        obj.setEditorMode("endValueDriverFuncTypeB", 2)
+        obj.setEditorMode("tStartDriverFuncTypeC", 2)
+        obj.setEditorMode("tEndDriverFuncTypeC", 2)
+        obj.setEditorMode("initialValueDriverFuncTypeC", 2)
+        obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
+        #obj.setEditorMode("DriverOn", 2)
+        
+        
+        
         obj.tEndDriverFuncTypeA = Units.Unit("")
         obj.coefC1DriverFuncTypeA = Units.Unit("")
         obj.coefC2DriverFuncTypeA = Units.Unit("")
