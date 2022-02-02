@@ -146,14 +146,14 @@ class TaskPanelDapJoint:
               
     def accept(self):        
         self.obj.RelMovDefinitionMode = self.RelMovDefinitionMode
-        self.obj.Body1 = self.Body1
-        self.obj.Body2 = self.Body2
+        #self.obj.Body1 = self.Body1
+        #self.obj.Body2 = self.Body2
         if self.obj.Body1 == self.obj.Body2:
             FreeCAD.Console.PrintError("\nERROR: A relative movement has been defined between a body and itself.")
             FreeCAD.Console.PrintError("  Please update the incorrect relative movement so that it is defined between 2 different bodies.")
         
-        self.obj.Point1RelMov = self.Point1RelMov
-        self.obj.Point2RelMov = self.Point2RelMov        
+        #self.obj.Point1RelMov = self.Point1RelMov
+        #self.obj.Point2RelMov = self.Point2RelMov        
         
         self.obj.DriverFunctionType = self.DriverFunctionType
         
@@ -183,7 +183,11 @@ class TaskPanelDapJoint:
         # Recompute document to update viewprovider based on the shapes
         doc = FreeCADGui.getDocument(self.obj.Document)
         self.obj.CoordPoint1RelMov = self.CoordPoint1RelMov
-        self.obj.CoordPoint2RelMov = self.CoordPoint2RelMov 
+        self.obj.CoordPoint2RelMov = self.CoordPoint2RelMov
+        self.obj.Point1RelMov = self.Point1RelMov
+        self.obj.Point2RelMov = self.Point2RelMov
+        self.obj.Body1 = self.Body1
+        self.obj.Body2 = self.Body2
         doc_name = str(self.obj.Document.Name)
         FreeCAD.getDocument(doc_name).recompute()
         doc.resetEdit()
@@ -211,13 +215,13 @@ class TaskPanelDapJoint:
         self.form.definitionWidget.setCurrentIndex(current_index)
         
         if definition_mode_index == 0:
-            if self.joint_type_index == 0 and self.Point1RelMov != "":
-                self.form.LCSObjectReference.setText(self.Point1RelMov)
+            if self.joint_type_index == 0 and self.obj.Point1RelMov != "":
+                self.form.LCSObjectReference.setText(self.obj.Point1RelMov)
             elif self.joint_type_index == 1:
-                if self.Point1RelMov != "":
-                    self.form.objectNameLCS1LinMov.setText(self.Point1RelMov)
-                if self.Point2RelMov != "":
-                    self.form.objectNameLCS2LinMov.setText(self.Point2RelMov)
+                if self.obj.Point1RelMov != "":
+                    self.form.objectNameLCS1LinMov.setText(self.obj.Point1RelMov)
+                if self.obj.Point2RelMov != "":
+                    self.form.objectNameLCS2LinMov.setText(self.obj.Point2RelMov)
 
     def findDefinitionWidgetIndex(self, joint_index, definition_index):
         current_count = 0
@@ -232,16 +236,18 @@ class TaskPanelDapJoint:
             index = self.form.LCSBody1.currentIndex()
         elif self.joint_type_index == 1:
             index = self.form.comboBoxBody1LinMov.currentIndex()
-        self.Body1 = self.body_labels[index]
+        self.obj.Body1 = self.body_labels[index]
         self.selectObjectInGui(index)
+        self.obj.recompute()
     
     def selectedBody2(self):
         if self.joint_type_index == 0:
             index = self.form.LCSBody2.currentIndex()
         elif self.joint_type_index == 1:
             index = self.form.comboBoxBody2LinMov.currentIndex()
-        self.Body2 = self.body_labels[index]
+        self.obj.Body2 = self.body_labels[index]
         self.selectObjectInGui(index)
+        self.obj.recompute()
         
     def selectObjectInGui(self, index):
         FreeCADGui.Selection.clearSelection()
@@ -265,8 +271,8 @@ class TaskPanelDapJoint:
                     self.form.objectNameLCS1LinMov.setText(sel[0].Object.Label)
                     self.obj.CoordPoint1RelMov = sel[0].Object.Placement.Base
                 
-                self.Point1RelMov = sel[0].Object.Label
-                if self.Point2RelMov != "":
+                self.obj.Point1RelMov = sel[0].Object.Label
+                if self.obj.Point2RelMov != "":
                     updated = True
         if updated:
             self.obj.recompute()
@@ -280,9 +286,9 @@ class TaskPanelDapJoint:
                 if self.joint_type_index == 1:
                     self.form.objectNameLCS2LinMov.setText(sel[0].Object.Label)
                     self.obj.CoordPoint2RelMov = sel[0].Object.Placement.Base
-                    self.Point2RelMov = sel[0].Object.Label
+                    self.obj.Point2RelMov = sel[0].Object.Label
                     
-                    if self.Point1RelMov != "":
+                    if self.obj.Point1RelMov != "":
                         self.obj.recompute()
 
     def DriverOnChanged(self):
@@ -297,30 +303,6 @@ class TaskPanelDapJoint:
         if self.DriverSwitch == 1 and self.DriverOnIndex == 0:
             self.form.radioButtonFuncTypeA.setChecked(True)
             
-        #elif self.DriverSwitch == 0 and self.DriverOnIndex == 1:
-            
-            
-            #FreeCAD.Console.PrintMessage(f"\n")        
-            #FreeCAD.Console.PrintMessage(f"\n")        
-            #FreeCAD.Console.PrintMessage(f"\n")        
-            #FreeCAD.Console.PrintMessage(f"func DriverOnChanged self.DriverOnIndex = {self.DriverOnIndex}")
-        
-        
-            #FreeCAD.Console.PrintMessage(f"\n")        
-            #FreeCAD.Console.PrintMessage(f"func DriverOnChanged self.DriverSwitch = {self.DriverSwitch}")
-
-            
-            #self.form.radioButtonFuncTypeA.setChecked(False)
-            #self.form.radioButtonFuncTypeB.setChecked(False)
-            #self.form.radioButtonFuncTypeC.setChecked(False)
-
-
-        #if self.DriverSwitch == 0:
-            #self.form.stackedWidgetFuncTypeInputs.removeWidget(self.form.pageTypeFunctionA)
-            #self.form.stackedWidgetFuncTypeInputs.removeWidget(self.form.pageTypeFunctionB)
-            #self.form.stackedWidgetFuncTypeInputs.removeWidget(self.form.pageTypeFunctionC)
-            
-
         self.DriverFuncChanged()
         self.obj.recompute()
         

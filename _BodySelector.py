@@ -18,8 +18,7 @@ if FreeCAD.GuiUp:
 import Part
 import math
 from math import degrees,acos
-import _FreeCADVectorTools
-from _FreeCADVectorTools import dist, normalized, crossproduct,dotproduct, angle, length
+
 
 
 TYPES = ["two points and two bodies","One point and two bodies","One Point and associated point" ]

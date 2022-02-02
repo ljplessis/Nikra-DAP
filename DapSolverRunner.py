@@ -7,7 +7,6 @@
 
 import FreeCAD
 import os
-import _FreeCADVectorTools as Vec
 import DapTools
 from DapTools import addObjectProperty
 from pivy import coin

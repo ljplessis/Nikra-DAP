@@ -87,8 +87,8 @@ class _DapJoint:
             "Point 1 used to define relative movement between 2 bodies")
         addObjectProperty(obj, 'CoordPoint2RelMov', FreeCAD.Vector(0,0,0), "App::PropertyVector", "",\
             "Point 2 used to define relative movement between 2 bodies")
-        addObjectProperty(obj, 'Body1', "", "App::PropertyString", "", "Label: Body 1")
-        addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Label: Body 2")
+        addObjectProperty(obj, 'Body1', "Ground", "App::PropertyString", "", "Label: Body 1")
+        addObjectProperty(obj, 'Body2', "Ground", "App::PropertyString", "", "Label: Body 2")
         addObjectProperty(obj, 'Point1RelMov', "", "App::PropertyString", "", "Label: Point 1 of Relative Movement")
         addObjectProperty(obj, 'Point2RelMov', "", "App::PropertyString", "", "Label: Point 2 of Relative Movement")
         addObjectProperty(obj, 'DriverOn', YES_NO, "App::PropertyEnumeration","",\
@@ -169,28 +169,34 @@ class _DapJoint:
         doc_name = str(obj.Document.Name)
         doc = FreeCAD.getDocument(doc_name)
         
+
         if joint_index == 0:
-            
-            body1 = doc.getObjectsByLabel(obj.Body1)
-            body2 = doc.getObjectsByLabel(obj.Body2)
-                        
-            if body1 != [] and body2 != []:
-                vol = body1[0].Shape.Volume + body2[0].Shape.Volume
-            elif body1 == []:
-                vol = body2[0].Shape.Volume
-            elif body2 == []:
-                vol = body1[0].Shape.Volume
+
+            vol_counter = 0
+            vol = 0
+            if obj.Body1 != "Ground":
+                body1 = doc.getObjectsByLabel(obj.Body1)
+                vol += body1[0].Shape.Volume
+                vol_counter += 1
+            if obj.Body2 != "Ground":
+                body2 = doc.getObjectsByLabel(obj.Body2)
+                vol += body2[0].Shape.Volume
+                vol_counter += 1
+            if vol_counter >0:
+                vol = vol/vol_counter
             else:
                 vol = 100000
-                       
-            scale_factor = vol/scale_param                                    
+            
+            
+
+            scale_factor = vol/scale_param
             r1 = 7*scale_factor
             r2 = scale_factor
             torus_dir = FreeCAD.Vector(0, 0, 1)
             torus = Part.makeTorus(r1, r2, obj.CoordPoint1RelMov, torus_dir, -180, 180, 240)
             cone1_pos = obj.CoordPoint1RelMov + FreeCAD.Vector(r1, -5*r2, 0)
             cone1_dir = FreeCAD.Vector(0, 1, 0)
-            cone1 = Part.makeCone(0, 2*r2, 5*r2, cone1_pos, cone1_dir)            
+            cone1 = Part.makeCone(0, 2*r2, 5*r2, cone1_pos, cone1_dir)
             cone2_pos_x = obj.CoordPoint1RelMov.x -r1*cos(pi/3) + 5*r2*cos(pi/6)
             cone2_pos_y = obj.CoordPoint1RelMov.y -r1*sin(pi/3) - 5*r2*sin(pi/6)
             cone2_pos = FreeCAD.Vector(cone2_pos_x, cone2_pos_y, 0)
@@ -198,18 +204,23 @@ class _DapJoint:
             cone2 = Part.makeCone(0, 2*r2, 5*r2, cone2_pos, cone2_dir)
             torus_w_arrows = Part.makeCompound([torus, cone1, cone2])
             obj.Shape = torus_w_arrows
-            
+
         elif joint_index == 1:
             l = (obj.CoordPoint2RelMov - obj.CoordPoint1RelMov).Length
-            if l > 1e-6:
+            if l > 1e-6 and obj.Point1RelMov != "":
                 lin_move_dir = (obj.CoordPoint2RelMov - obj.CoordPoint1RelMov).normalize()
-                cylinder = Part.makeCylinder(0.1*l, 0.5*l, obj.CoordPoint1RelMov + 0.25*l*lin_move_dir, lin_move_dir)
-                cone1 = Part.makeCone(0, 0.2*l, 0.25*l, obj.CoordPoint1RelMov, lin_move_dir)
-                cone2 = Part.makeCone(0, 0.2*l, 0.25*l, obj.CoordPoint2RelMov, -lin_move_dir)
+                cylinder = Part.makeCylinder(0.05*l, 0.5*l, obj.CoordPoint1RelMov + 0.25*l*lin_move_dir, lin_move_dir)
+                cone1 = Part.makeCone(0, 0.1*l, 0.25*l, obj.CoordPoint1RelMov, lin_move_dir)
+                cone2 = Part.makeCone(0, 0.1*l, 0.25*l, obj.CoordPoint2RelMov, -lin_move_dir)
                 double_arrow = Part.makeCompound([cylinder, cone1, cone2])
                 obj.Shape = double_arrow
             else:
-                FreeCAD.Console.PrintError(f"The selected 2 points either coincide, or are too close together!!!")
+                #adding a checker to make sure the error does not come up when first instantiating a new undefined joint
+                obj.Shape = Part.Shape()
+                if obj.Point1RelMov != "" and obj.Point2RelMov != "":
+                    FreeCAD.Console.PrintError(f"The selected 2 points either coincide, or are too close together!!!")
+        else:
+            obj.Shape = Part.Shape()
 
     def __getstate__(self):
         return None

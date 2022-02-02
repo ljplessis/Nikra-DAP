@@ -7,8 +7,7 @@
 from unicodedata import name
 import FreeCAD
 from FreeCAD import Units, Base
-import _FreeCADVectorTools
-from _FreeCADVectorTools import dist, normalized, crossproduct,dotproduct, angle, length
+
 import math 
 from math import degrees,acos
 import os
@@ -92,8 +91,8 @@ class _DapForce:
         addObjectProperty(obj, 'RotDampCoeff', "", "App::PropertyQuantity", "", "Rotational damping coefficient")
         addObjectProperty(obj, 'UndeformedLength', "", "App::PropertyLength", "", "Linear undeformed Length")
         addObjectProperty(obj, 'UndeformedAngle', "", "App::PropertyAngle", "", "Undeformed angle")
-        addObjectProperty(obj, 'Body1', "", "App::PropertyString", "", "Body 1 label")
-        addObjectProperty(obj, 'Body2', "", "App::PropertyString", "", "Body 2 label")
+        addObjectProperty(obj, 'Body1', "Ground", "App::PropertyString", "", "Body 1 label")
+        addObjectProperty(obj, 'Body2', "Ground", "App::PropertyString", "", "Body 2 label")
         addObjectProperty(obj, 'Joint1', "", "App::PropertyString", "", "Joint 1 label")
         addObjectProperty(obj, 'Joint2', "", "App::PropertyString", "", "Joint 2 label")
         addObjectProperty(obj, 'DampCondition', "", "App::PropertyString", "", "Displays the damping condition")
