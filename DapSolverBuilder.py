@@ -664,6 +664,8 @@ class DapSolverBuilder():
         ##proc.waitForStarted()
         #TODO need to overwrite waitForFinished to latch on to the output
         self.process.waitForFinished()
+        output = self.process.readAllStandardOutput()
+        FreeCAD.Console.PrintMessage(output)
         
     def onFinished(self,  exitCode,  exitStatus):
         if exitCode == 0:
