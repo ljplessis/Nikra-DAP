@@ -204,6 +204,7 @@ class _DapJoint:
             cone2 = Part.makeCone(0, 2*r2, 5*r2, cone2_pos, cone2_dir)
             torus_w_arrows = Part.makeCompound([torus, cone1, cone2])
             obj.Shape = torus_w_arrows
+            obj.ViewObject.ShapeColor = (1.0, 0.843137264251709, 0.0, 0.6000000238418579)
 
         elif joint_index == 1 and obj.Point1RelMov != "" and obj.Point2RelMov != "":
             l = (obj.CoordPoint2RelMov - obj.CoordPoint1RelMov).Length
@@ -214,6 +215,7 @@ class _DapJoint:
                 cone2 = Part.makeCone(0, 0.1*l, 0.25*l, obj.CoordPoint2RelMov, -lin_move_dir)
                 double_arrow = Part.makeCompound([cylinder, cone1, cone2])
                 obj.Shape = double_arrow
+                obj.ViewObject.ShapeColor = (1.0, 0.0, 0.0, 0.0)
             else:
                 #adding a checker to make sure the error does not come up when first instantiating a new undefined joint
                 obj.Shape = Part.Shape()
