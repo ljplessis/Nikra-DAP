@@ -660,7 +660,8 @@ class DapSolverBuilder():
         
         FreeCAD.Console.PrintMessage("DAP solver started.\n")
         
-        self.process.start("python3",[str(dap_solver), str(self.folder)])
+        #self.process.start("python3",[str(dap_solver), str(self.folder)])
+        self.process.start(pythonCommand)
         ##proc.waitForStarted()
         #TODO need to overwrite waitForFinished to latch on to the output
         self.process.waitForFinished()
