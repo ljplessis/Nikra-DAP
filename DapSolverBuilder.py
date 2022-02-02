@@ -492,11 +492,11 @@ class DapSolverBuilder():
                 density = Units.Quantity(self.material_dictionary[shape_label]["density"]).getValueAs("kg/m^3")
                 mass = density*volume
                 total_mass += mass
-                FreeCAD.Console.PrintMessage("Density: " + str(density) + "\n")
-                FreeCAD.Console.PrintMessage("mass: " + str(mass) + "\n")
-                FreeCAD.Console.PrintMessage("Density: " + str(density.Value) + "\n")
-                FreeCAD.Console.PrintMessage("mass: " + str(mass.Value) + "\n")
-                FreeCAD.Console.PrintMessage("centre_of_gravity: " + str(centre_of_gravity) + "\n")
+                #FreeCAD.Console.PrintMessage("Density: " + str(density) + "\n")
+                #FreeCAD.Console.PrintMessage("mass: " + str(mass) + "\n")
+                #FreeCAD.Console.PrintMessage("Density: " + str(density.Value) + "\n")
+                #FreeCAD.Console.PrintMessage("mass: " + str(mass.Value) + "\n")
+                #FreeCAD.Console.PrintMessage("centre_of_gravity: " + str(centre_of_gravity) + "\n")
                 centre_of_gravity_global += mass.Value*centre_of_gravity
                 
             centre_of_gravity_global /= total_mass
@@ -504,7 +504,7 @@ class DapSolverBuilder():
             self.cog_of_body_projected[body_label] = self.projectPointOntoPlane(centre_of_gravity_global)
             self.total_mass_of_body[body_label] = total_mass
             self.cog_of_body_rotated[body_label] = self.global_rotation_matrix * self.cog_of_body_projected[body_label]
-            
+        #self.obj.BodiesCoG = self.centre_of_gravity_of_body
     #TODO: find a more elegant way of writing the input files instead of line by line writing
     def writeBodies(self):
         FreeCAD.Console.PrintMessage("Writing bodies \n")
