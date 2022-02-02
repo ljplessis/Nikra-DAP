@@ -144,7 +144,7 @@ class TaskPanelAnimate:
         self.form.timeStepLabel.setText("{0:5.3f}s / {1:5.3f}s".format(self.reportedTimes[value], self.t_final))
         for bN in range(len(self.list_of_moving_bodies)):
             body_index = self.list_of_bodies.index(self.list_of_moving_bodies[bN])
-            animation_body_cog = self.animation_body_objects[body_index].Shape.CenterOfGravity
+            animation_body_cog = self.animation_body_objects[body_index].Shape.CenterOfMass
             axis_of_rotation = self.plane_norm
 
             current_pos = self.current_pos[bN]
@@ -156,7 +156,7 @@ class TaskPanelAnimate:
             #current_pos = self.current_pos[bN]
             dap_pos = FreeCAD.Vector(current_pos[0][0], current_pos[0][1], 0)
             
-            rotated_cog = self.animation_body_objects[body_index].Shape.CenterOfGravity
+            rotated_cog = self.animation_body_objects[body_index].Shape.CenterOfMass
             project_cog = DapTools.projectPointOntoPlane(self.plane_norm, rotated_cog)
             rotated_cog = self.rotation_matrix * project_cog
             

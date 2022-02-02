@@ -668,8 +668,9 @@ class DapSolverBuilder():
         #output = self.process.readAllStandardOutput()
         #FreeCAD.Console.PrintMessage(output)
         import subprocess
-        result = subprocess.run(["python3", dap_solver, self.folder])
+        result = subprocess.run(["python", dap_solver, self.folder])
         FreeCAD.Console.PrintMessage(result)
+        self.loadResults()
         
     def onFinished(self,  exitCode,  exitStatus):
         if exitCode == 0:
