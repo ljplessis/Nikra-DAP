@@ -170,7 +170,7 @@ class _DapJoint:
         doc = FreeCAD.getDocument(doc_name)
         
 
-        if joint_index == 0:
+        if joint_index == 0 and obj.Point1RelMov != "":
 
             vol_counter = 0
             vol = 0
@@ -205,7 +205,7 @@ class _DapJoint:
             torus_w_arrows = Part.makeCompound([torus, cone1, cone2])
             obj.Shape = torus_w_arrows
 
-        elif joint_index == 1:
+        elif joint_index == 1 and obj.Point1RelMov != "" and obj.Point2RelMov != "":
             l = (obj.CoordPoint2RelMov - obj.CoordPoint1RelMov).Length
             if l > 1e-6 and obj.Point1RelMov != "":
                 lin_move_dir = (obj.CoordPoint2RelMov - obj.CoordPoint1RelMov).normalize()
