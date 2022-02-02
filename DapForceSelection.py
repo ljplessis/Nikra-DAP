@@ -4,6 +4,7 @@
 
 
 
+from unicodedata import name
 import FreeCAD
 from FreeCAD import Units, Base
 import _FreeCADVectorTools
@@ -11,7 +12,7 @@ from _FreeCADVectorTools import dist, normalized, crossproduct,dotproduct, angle
 import math 
 from math import degrees,acos
 import os
-#import Draft
+
 import DapTools
 from DapTools import addObjectProperty
 import _BodySelector
@@ -163,12 +164,11 @@ class _DapForce:
     def execute(self, obj):
         """ Create compound part at recompute. """
         if obj.ForceTypes == "Spring":
-            #p = 10
             h = (obj.JointCoord1-obj.JointCoord2).Length
             p = h/10
             r = h/10
-            r_1 = r/(h+0.0001)
-            
+            # r_1 = r/(h+0.0001)
+            r_1 = h/150
             
             creation_axis = FreeCAD.Vector(0,0,1)
             
@@ -188,20 +188,176 @@ class _DapForce:
                 obj.Placement.Rotation = FreeCAD.Rotation(0,0,0,1)
                 obj.Placement.rotate(FreeCAD.Vector(0,0,0), axis, angle)
                 obj.Placement.translate(obj.JointCoord1)
+
+
             else:
                 obj.Shape = Part.Shape()
 
         elif obj.ForceTypes == "Rotational Spring":
-            # h = 10
-            # r = 1 
-            # p = 1
-            # helix = Part.makeHelix(p,h,r)
-            # # helix = Part.Shape(helix)
-            # helix_array = Draft.make_polar_array(helix, 5, 180, FreeCAD.Vector(0,0,0))
-            # obj.Shape = helix_array
-            return None 
+            doc_name = str(obj.Document.Name)
+            doc  = FreeCAD.getDocument(doc_name)
+            
+            if obj.Body1 == "Ground":
+                x1 = 0
+                y1 = 0 
+
+                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
+                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
+
+                scale = (x2+y2)/40
 
 
+            elif obj.Body2 == "Ground":
+                x2 = 0
+                y2 = 0
+
+                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
+                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
+                scale = (x1+y1)/40
+    
+
+            else:    
+                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
+                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
+            
+                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
+                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
+    
+                scale  = ((x1+x2)+(y1+y2))/80
+            
+            r = 2*scale 
+            g = r/2
+            r_ = 4
+            t = r/10
+
+            doc_name = str(obj.Document.Name)
+            object = FreeCAD.getDocument(doc_name)
+            spiral = FreeCAD.ActiveDocument.addObject("Part::Spiral", "Spiral")
+
+            spiral.Growth = g
+            spiral.Radius = r
+            spiral.Rotations = r_
+            spiral.Placement.Base = FreeCAD.Vector(0,0,0)
+
+            spiral = object.getObject("Spiral").Shape.Wires  
+            circle = Part.makeCircle(t, Base.Vector(r,0,0), Base.Vector(0,1,0))
+            circle = Part.Wire([circle])
+            pipe = Part.Wire(spiral)
+            pipe = pipe.makePipe(circle)
+            obj.Shape = pipe
+            obj.Placement.Base = obj.JointCoord1
+
+            FreeCAD.ActiveDocument.removeObject("Spiral")
+            
+        
+        elif obj.ForceTypes == "Linear Spring Damper":
+            h = (obj.JointCoord1-obj.JointCoord2).Length
+            p = h/10
+            r = h/10
+            r_1 = h/150
+            r_c = r/2
+            r_c2 = r/8
+            
+            creation_axis = FreeCAD.Vector(0,0,1)
+            
+            desired_direction = obj.JointCoord2 - obj.JointCoord1
+            if desired_direction.Length>0:
+                desired_direction = desired_direction.normalize()
+                angle = degrees(acos(desired_direction*creation_axis))
+                axis = creation_axis.cross(desired_direction)
+                helix = Part.makeHelix(p,h,r)
+                circle = Part.makeCircle(r_1, Base.Vector(r,0,0), Base.Vector(0,1,0))
+                circle = Part.Wire([circle])
+                pipe = Part.Wire(helix).makePipe(circle) 
+                cylinder = Part.makeCylinder(r_c,h/2)
+                cylinder_2 = Part.makeCylinder(r_c2,h-h/20)
+                cylinder_3 = Part.makeCylinder(r_c,h/20,FreeCAD.Vector(0,0,h-h/20))
+                pipe = Part.makeCompound([pipe,cylinder,cylinder_2,cylinder_3])
+                obj.Shape = pipe 
+
+                #First reset the placement in case multiple recomputes are performed
+                obj.Placement.Base = FreeCAD.Vector(0,0,0)
+                obj.Placement.Rotation = FreeCAD.Rotation(0,0,0,1)
+                obj.Placement.rotate(FreeCAD.Vector(0,0,0), axis, angle)
+                obj.Placement.translate(obj.JointCoord1)
+        
+        elif obj.ForceTypes == "Rotational Spring Damper":
+            doc_name = str(obj.Document.Name)
+            doc  = FreeCAD.getDocument(doc_name)
+   
+            if obj.Body1 == "Ground":
+                x1 = 0
+                y1 = 0 
+
+                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
+                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
+
+                scale = (x2+y2)/40
+
+
+            elif obj.Body2 == "Ground":
+                x2 = 0
+                y2 = 0
+
+                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
+                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
+                scale = (x1+y1)/40
+    
+
+            else:    
+                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
+                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
+            
+                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
+                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
+    
+                scale  = ((x1+x2)+(y1+y2))/80
+            
+            r = 2*scale 
+            g = r/2
+            r_ = 4
+            t = r/10
+            
+            doc_name = str(obj.Document.Name)
+            object = FreeCAD.getDocument(doc_name)
+            spiral_middle = FreeCAD.ActiveDocument.addObject("Part::Spiral", "Spiral")
+            spiral_inner = FreeCAD.ActiveDocument.addObject("Part::Spiral", "Spiral01")
+
+            
+            spiral_middle.Growth = g
+            spiral_middle.Radius = r*1.5
+            spiral_middle.Rotations = r_/2
+
+
+            spiral_inner.Growth = g
+            spiral_inner.Radius = r
+            spiral_inner.Rotations = r_
+
+
+            spiral_inner.Placement.Base = FreeCAD.Vector(0,0,0)
+            spiral_middle.Placement.Base = FreeCAD.Vector(0,0,0)
+
+            spiral_inner = object.getObject("Spiral01").Shape.Wires
+            spiral_middle = object.getObject("Spiral").Shape.Wires
+
+            circle_middle = Part.makeCircle(t*1.5, Base.Vector(r*1.5,0,0), Base.Vector(0,1,0))
+            circle_inner = Part.makeCircle(t/1.5, Base.Vector(r,0,0), Base.Vector(0,1,0))
+
+            circle_middle = Part.Wire([circle_middle])
+            circle_inner = Part.Wire([circle_inner])
+
+            pipe_middle =Part.Wire(spiral_middle)
+            pipe_inner =Part.Wire(spiral_inner)
+            
+            pipe_middle = pipe_middle.makePipe(circle_middle)
+            pipe_inner = pipe_inner.makePipe(circle_inner)
+
+            obj.Shape = Part.makeCompound([pipe_inner, pipe_middle])
+
+            FreeCAD.ActiveDocument.removeObject("Spiral")
+            FreeCAD.ActiveDocument.removeObject("Spiral01")
+            obj.Placement.Base = obj.JointCoord1
+    
         else:
             obj.Shape = Part.Shape()
             
@@ -373,10 +529,6 @@ class _DapForce:
                     obj.setEditorMode("initialValueDriverFuncTypeC", 2)
                     obj.setEditorMode("endDerivativeDriverFuncTypeC", 2)
 
-            
-
-        
-               
     
 class _ViewProviderDapForce:
 
