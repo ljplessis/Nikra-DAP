@@ -653,20 +653,23 @@ class DapSolverBuilder():
         pythonCommand = "python3 " + str(dap_solver) + " " + str(self.folder)
 
         
-        from PySide.QtCore import QProcess
+        #from PySide.QtCore import QProcess
         #process = QProcess()
-        self.process = QtCore.QProcess()
-        self.process.finished.connect(self.onFinished)
+        #self.process = QtCore.QProcess()
+        #self.process.finished.connect(self.onFinished)
         
         FreeCAD.Console.PrintMessage("DAP solver started.\n")
         
         #self.process.start("python3",[str(dap_solver), str(self.folder)])
-        self.process.start(pythonCommand)
+        #self.process.start(pythonCommand)
         ##proc.waitForStarted()
         #TODO need to overwrite waitForFinished to latch on to the output
-        self.process.waitForFinished()
-        output = self.process.readAllStandardOutput()
-        FreeCAD.Console.PrintMessage(output)
+        #self.process.waitForFinished()
+        #output = self.process.readAllStandardOutput()
+        #FreeCAD.Console.PrintMessage(output)
+        import subprocess
+        result = subprocess.run(["python3", dap_solver, self.folder])
+        FreeCAD.Console.PrintMessage(result)
         
     def onFinished(self,  exitCode,  exitStatus):
         if exitCode == 0:
