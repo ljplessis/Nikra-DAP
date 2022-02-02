@@ -57,7 +57,9 @@ class DapSolverBuilder():
         if not(self.material_object):
             raise RuntimeError("No material defined")
         
-        
+        multiple_gravity_bool = DapTools.gravityChecker()
+        if multiple_gravity_bool:
+            raise RuntimeError("More than one gravity was specified")
         
         self.material_dictionary = self.material_object.MaterialDictionary
         
@@ -223,6 +225,16 @@ class DapSolverBuilder():
     def processJoints(self):
         for i in range(len(self.joints)):
             joint_type = JOINT_TRANSLATION[self.joints[i].TypeOfRelMov]
+
+            #Checking definitions for consistency and completeness
+            if joint_type == "rev":
+                if self.joints[i].Point1RelMov == "":
+                    raise RuntimeError("Point for " + str(self.joints[i].Label) + " was not defined")
+            if joint_type == "tran":
+                if self.joints[i].Point1RelMov == "":
+                    raise RuntimeError("Point 1 for " + str(self.joints[i].Label) + " was not defined")
+                if self.joints[i].Point2RelMov == "":
+                    raise RuntimeError("Point 2 for " + str(self.joints[i].Label) + " was not defined")
             
             joint1_coord = self.joints[i].CoordPoint1RelMov * self.scale
             joint2_coord = self.joints[i].CoordPoint2RelMov * self.scale
