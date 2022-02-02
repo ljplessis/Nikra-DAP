@@ -246,11 +246,11 @@ class TaskPanelDapForce:
         FreeCADGui.Selection.removeObserver(self)
         
         ##Do the reject checker before reseting the force type to previous selection
-        #if self.obj.ForceTypes == "Spring" or self.obj.ForceTypes == "Linear Spring Damper":
-            #self.bodySelector.reject(0)
+        if self.obj.ForceTypes == "Spring" or self.obj.ForceTypes == "Linear Spring Damper":
+            self.bodySelector.reject(0)
             ##self.bodySelector.execute(self.obj,0)
-        #elif self.obj.ForceTypes == "Rotational Spring" or self.obj.ForceTypes == "Rotational Spring Damper":
-            #self.bodySelector.reject(1)
+        elif self.obj.ForceTypes == "Rotational Spring" or self.obj.ForceTypes == "Rotational Spring Damper":
+            self.bodySelector.reject(1)
         
         
         self.obj.ForceTypes = self.TypeReset

@@ -247,22 +247,22 @@ class BodySelector:
         """place previous inputs back into selection windows"""
 
         if index == 0:    
-            #self.Body1 = self.obj.Body1
-            #self.Body2 = self.obj.Body2
+            self.Body1 = self.obj.Body1
+            self.Body2 = self.obj.Body2
             self.Joint1 = self.obj.Joint1
             self.Joint2 = self.obj.Joint2
             
-            # self.JointCoord1 = self.obj.JointCoord1
-            # self.JointCoord2 = self.obj.JointCoord2
+            self.JointCoord1 = self.obj.JointCoord1
+            self.JointCoord2 = self.obj.JointCoord2
 
             self.form.lcsName1.setText(self.Joint1)
             self.form.lcsName2.setText(self.Joint2)
 
         elif index == 1:
-            #self.Body1 = self.obj.Body1
-            #self.Body2 = self.obj.Body2
+            self.Body1 = self.obj.Body1
+            self.Body2 = self.obj.Body2
             self.Joint1 = self.obj.Joint1
-            # self.JointCoord1 = self.obj.JointCoord1
+            self.JointCoord1 = self.obj.JointCoord1
 
             self.form.lcsName3.setText(self.Joint1)
 
@@ -282,29 +282,29 @@ class BodySelector:
 
 
     def accept(self,index):
-        if index == 0:
-            self.obj.Body1 = self.Body1
-            self.obj.Body2 = self.Body2
-            self.obj.Joint1 = self.Joint1
-            self.obj.Joint2 = self.Joint2
-            #self.obj.JointCoord1 = self.JointCoord1
-            #self.obj.JointCoord2 = self.JointCoord2
+        #if index == 0:
+            #self.obj.Body1 = self.Body1
+            #self.obj.Body2 = self.Body2
+            ##self.obj.Joint1 = self.Joint1
+            ##self.obj.Joint2 = self.Joint2
+            ##self.obj.JointCoord1 = self.JointCoord1
+            ##self.obj.JointCoord2 = self.JointCoord2
 
 
-        elif index == 1:
-            self.obj.Body1 = self.Body1
-            self.obj.Body2 = self.Body2
-            self.obj.Joint1 = self.Joint1
-            #self.obj.JointCoord1 = self.JointCoord1
+        #elif index == 1:
+            #self.obj.Body1 = self.Body1
+            #self.obj.Body2 = self.Body2
+            ##self.obj.Joint1 = self.Joint1
+            ##self.obj.JointCoord1 = self.JointCoord1
        
 
-        elif index == 2:       
-            self.obj.Point = self.Point
-            self.obj.PointCoord = self.PointCoord
-            self.obj.pointList = self.pointList 
-            self.obj.bodyNameList = self.bodyNameList
-            self.obj.pointAssignList = self.pointAssignList
-            self.obj.pointCoordList = self.pointCoordList
+        #elif index == 2:       
+            #self.obj.Point = self.Point
+            #self.obj.PointCoord = self.PointCoord
+            #self.obj.pointList = self.pointList 
+            #self.obj.bodyNameList = self.bodyNameList
+            #self.obj.pointAssignList = self.pointAssignList
+            #self.obj.pointCoordList = self.pointCoordList
 
         
         
@@ -322,12 +322,18 @@ class BodySelector:
         doc = FreeCADGui.getDocument(self.obj.Document)
         doc.resetEdit()
         if index == 0:
-            # self.obj.JointCoord1 = self.JointCoord1
-            a =1
-            # self.obj.JointCoord2 = self.JointCoord2
+            self.obj.Body1 = self.Body1
+            self.obj.Body2 = self.Body2
+            self.obj.Joint1 = self.Joint1
+            self.obj.Joint2 = self.Joint2
+            self.obj.JointCoord1 = self.JointCoord1
+            self.obj.JointCoord2 = self.JointCoord2
+            
         elif index == 1:
-            a = 1
-            # self.obj.JointCoord1 = self.JointCoord1
+            self.obj.Body1 = self.Body1
+            self.obj.Body2 = self.Body2
+            self.obj.Joint1 = self.Joint1
+            self.obj.JointCoord1 = self.JointCoord1
             
         self.obj.recompute()
         

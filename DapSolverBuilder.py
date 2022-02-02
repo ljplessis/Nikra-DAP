@@ -124,6 +124,15 @@ class DapSolverBuilder():
     def processForces(self):
         for force_obj in self.list_of_force_ojects:
             FreeCAD.Console.PrintMessage("Force Object: " + str(force_obj.Label) + "\n")
+            if force_obj.ForceTypes == "Rotational Spring" or force_obj.ForceTypes == "Rotational Spring Damper":
+                if force_obj.Joint1 == "":
+                    raise RuntimeError("Point 1 for " + str(force_obj.Label) + " was not defined")
+            if force_obj.ForceTypes == "Spring" or force_obj.ForceTypes == "Linear Spring Damper":
+                if force_obj.Joint1 == "":
+                    raise RuntimeError("Point 1 for " + str(force_obj.Label) + " was not defined")
+                if force_obj.Joint2 == "":
+                    raise RuntimeError("Point 2 for " + str(force_obj.Label) + " was not defined")
+            
             force = {}
             if force_obj.ForceTypes == "Gravity":
                 
