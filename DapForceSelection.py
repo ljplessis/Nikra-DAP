@@ -27,7 +27,7 @@ if FreeCAD.GuiUp:
 FORCE_TYPES = ["Gravity", "Spring", "Linear Spring Damper", "Rotational Spring", "Rotational Spring Damper"]
 
 FORCE_TYPE_HELPER_TEXT = ["Universal force of attraction between all matter",
-"Linear Spring connecting two points with stiffness and undeformed length", "A device used to limit or retard vibration ", "Device that stores energy when twisted and exerts a toraue in the opposite direction", "Device used to limit movemement and vibration through continous rotation"]
+"Linear Spring connecting two points with stiffness and undeformed length", "A device used to limit or retard vibration ", "Device that stores energy when twisted and exerts a toraue in the opposite direction", "Device used to limit movement and vibration through continuous rotation"]
 
 # container 
 def makeDapForce(name="DapForce"):

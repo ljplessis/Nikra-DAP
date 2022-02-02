@@ -77,6 +77,7 @@ class TaskPanelDapForce:
         self.form.forceComboBox.currentIndexChanged.connect(self.comboTypeChanged)
 
         self.form.driveCheck.toggled.connect(self.driveFunc)
+        self.form.driveCheck.setEnabled(False)
 
 
         self.comboTypeChanged()
