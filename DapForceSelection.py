@@ -195,17 +195,39 @@ class _DapForce:
         elif obj.ForceTypes == "Rotational Spring":
             doc_name = str(obj.Document.Name)
             doc  = FreeCAD.getDocument(doc_name)
-   
-            x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
-            y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
-         
-            x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
-            y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
+            
+            if obj.Body1 == "Ground":
+                x1 = 0
+                y1 = 0 
 
-            r = ((x1+x2)+(y1+y2))/40
+                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
+                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
+
+                scale = (x2+y2)/40
+
+
+            elif obj.Body2 == "Ground":
+                x2 = 0
+                y2 = 0
+
+                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
+                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
+                scale = (x1+y1)/40
+    
+
+            else:    
+                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
+                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
+            
+                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
+                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
+    
+                scale  = ((x1+x2)+(y1+y2))/80
+            
+            r = 2*scale 
             g = r/2
             r_ = 4
-            t = ((x1+x2)+(y1+y2))/400
+            t = r/10
 
             doc_name = str(obj.Document.Name)
             object = FreeCAD.getDocument(doc_name)
@@ -262,16 +284,38 @@ class _DapForce:
             doc_name = str(obj.Document.Name)
             doc  = FreeCAD.getDocument(doc_name)
    
-            x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
-            y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
-         
-            x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
-            y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
+            if obj.Body1 == "Ground":
+                x1 = 0
+                y1 = 0 
+
+                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
+                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
+
+                scale = (x2+y2)/40
+
+
+            elif obj.Body2 == "Ground":
+                x2 = 0
+                y2 = 0
+
+                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
+                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
+                scale = (x1+y1)/40
     
-            r = ((x1+x2)+(y1+y2))/40
+
+            else:    
+                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
+                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
+            
+                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
+                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
+    
+                scale  = ((x1+x2)+(y1+y2))/80
+            
+            r = 2*scale 
             g = r/2
             r_ = 4
-            t = ((x1+x2)+(y1+y2))/400
+            t = r/10
             
             doc_name = str(obj.Document.Name)
             object = FreeCAD.getDocument(doc_name)
@@ -297,10 +341,13 @@ class _DapForce:
 
             circle_middle = Part.makeCircle(t*1.5, Base.Vector(r*1.5,0,0), Base.Vector(0,1,0))
             circle_inner = Part.makeCircle(t/1.5, Base.Vector(r,0,0), Base.Vector(0,1,0))
+
             circle_middle = Part.Wire([circle_middle])
             circle_inner = Part.Wire([circle_inner])
+
             pipe_middle =Part.Wire(spiral_middle)
             pipe_inner =Part.Wire(spiral_inner)
+            
             pipe_middle = pipe_middle.makePipe(circle_middle)
             pipe_inner = pipe_inner.makePipe(circle_inner)
 
