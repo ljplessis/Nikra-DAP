@@ -162,12 +162,24 @@ class _DapJoint:
         """ Create joint representation part at recompute. """
         #TODO visual representation of the joint should only be vissible if the joint definition mode was correctly specified, e.g. rotation joint needs 1 point AND 2 seperate bodies, translation joint needs 2 points AND 2 bodies
             
+        doc_name = str(obj.Document.Name)
+        doc = FreeCAD.getDocument(doc_name)
+        
+        # if LCS positions were changed then the new co-ordinates should be calculated.
+        # this is a wastefull way of achieving this, since the objects coordinates are changed
+        # within the ui
+        if obj.Point1RelMov != "":
+            lcs_obj = doc.getObjectsByLabel(obj.Point1RelMov)[0]
+            obj.CoordPoint1RelMov = lcs_obj.Placement.Base
+        if obj.Point2RelMov != "":
+            lcs_obj = doc.getObjectsByLabel(obj.Point2RelMov)[0]
+            obj.CoordPoint2RelMov = lcs_obj.Placement.Base
+        
+        
         scale_param = 50000
 
         joint_index = DapTools.indexOrDefault(JOINT_TYPES, obj.TypeOfRelMov, 0)
         
-        doc_name = str(obj.Document.Name)
-        doc = FreeCAD.getDocument(doc_name)
         
 
         if joint_index == 0 and obj.Point1RelMov != "":

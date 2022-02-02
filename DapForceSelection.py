@@ -162,6 +162,19 @@ class _DapForce:
 
     def execute(self, obj):
         """ Create compound part at recompute. """
+        # if LCS positions were changed then the new co-ordinates should be calculated.
+        # this is a wastefull way of achieving this, since the objects coordinates are changed
+        # within the ui
+        doc_name = str(obj.Document.Name)
+        doc = FreeCAD.getDocument(doc_name)
+        if obj.Joint1 != "":
+            lcs_obj = doc.getObjectsByLabel(obj.Joint1)[0]
+            obj.JointCoord1 = lcs_obj.Placement.Base
+        if obj.Joint2 != "":
+            lcs_obj = doc.getObjectsByLabel(obj.Joint2)[0]
+            obj.JointCoord2 = lcs_obj.Placement.Base
+        
+        
         if obj.ForceTypes == "Spring" or obj.ForceTypes == "Linear Spring Damper":
             h = (obj.JointCoord1-obj.JointCoord2).Length
             p = h/10
