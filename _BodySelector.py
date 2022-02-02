@@ -462,7 +462,6 @@ class BodySelector:
                     self.form.lcsName1.setText(sel[0].Object.Label)
                     self.obj.Joint1 = sel[0].Object.Label
                     self.obj.JointCoord1 = sel[0].Object.Placement.Base
-                    FreeCAD.Console.PrintError(self.obj.JointCoord1)
                     if self.obj.Joint2 != "":
                         updated = True
 
@@ -493,7 +492,6 @@ class BodySelector:
                 self.form.lcsName2.setText(sel[0].Object.Label)       
                 self.obj.Joint2 = sel[0].Object.Label
                 self.obj.JointCoord2 = sel[0].Object.Placement.Base
-                FreeCAD.Console.PrintError(self.obj.JointCoord2)
 
                 if self.obj.Joint1 != "":
                     #self.execute(self.obj,0)

@@ -162,7 +162,7 @@ class _DapForce:
 
     def execute(self, obj):
         """ Create compound part at recompute. """
-        if obj.ForceTypes == "Spring":
+        if obj.ForceTypes == "Spring" or obj.ForceTypes == "Linear Spring Damper":
             h = (obj.JointCoord1-obj.JointCoord2).Length
             p = h/10
             r = h/10
@@ -172,7 +172,7 @@ class _DapForce:
             creation_axis = FreeCAD.Vector(0,0,1)
             
             desired_direction = obj.JointCoord2 - obj.JointCoord1
-            if desired_direction.Length>0:
+            if h>0:
                 desired_direction = desired_direction.normalize()
                 angle = degrees(acos(desired_direction*creation_axis))
                 axis = creation_axis.cross(desired_direction)
@@ -182,7 +182,10 @@ class _DapForce:
                 # pipe = Part.Wire(helix).makePipe(circle) 
                 # obj.Shape = pipe 
                 obj.Shape = helix 
-                obj.ViewObject.LineColor = 0.0,0.0,0.0,0.0
+                if obj.ForceTypes == "Spring":
+                    obj.ViewObject.LineColor = 0.0,0.0,0.0,0.0
+                elif obj.ForceTypes == "Linear Spring Damper":
+                    obj.ViewObject.LineColor = 0.0,250.0,20.0,0.0
                 #First reset the placement in case multiple recomputes are performed
                 obj.Placement.Base = FreeCAD.Vector(0,0,0)
                 obj.Placement.Rotation = FreeCAD.Rotation(0,0,0,1)
@@ -192,181 +195,50 @@ class _DapForce:
             else:
                 obj.Shape = Part.Shape()
 
-        elif obj.ForceTypes == "Rotational Spring":
+        elif obj.ForceTypes == "Rotational Spring" or obj.ForceTypes == "Rotational Spring Damper":
             doc_name = str(obj.Document.Name)
             doc  = FreeCAD.getDocument(doc_name)
             
-            if obj.Body1 == "Ground":
-                x1 = 0
-                y1 = 0 
-
-                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
-                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
-
-                scale = (x2+y2)/80
-
-
-            elif obj.Body2 == "Ground":
-                x2 = 0
-                y2 = 0
-
-                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
-                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
-                scale = (x1+y1)/80
-    
-
-            else:    
-                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
-                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
+            vol1 = 0
+            vol2 = 0
             
-                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
-                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
-    
-                scale  = ((x1+x2)+(y1+y2))/80
-            
+            if obj.Body1 != "Ground":
+                vol1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.Volume
+            if obj.Body2 != "Ground":
+                vol2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.Volume
+                
+
+            if vol1+vol2 == 0:
+                vol1 = 100000
+            scale = (vol1+vol2) / 30000
+
             r = 2*scale 
             g = r/2
             r_ = 4
             t = r/10
 
             doc_name = str(obj.Document.Name)
-            object = FreeCAD.getDocument(doc_name)
-            spiral = FreeCAD.ActiveDocument.addObject("Part::Spiral", "Spiral")
+            document = FreeCAD.getDocument(doc_name)
+            spiral = document.addObject("Part::Spiral", "Spiral")
 
             spiral.Growth = g
             spiral.Radius = r
             spiral.Rotations = r_
             spiral.Placement.Base = FreeCAD.Vector(0,0,0)
 
-            spiral = object.getObject("Spiral").Shape
+            spiral = document.getObject("Spiral").Shape
             # circle = Part.makeCircle(t, Base.Vector(r,0,0), Base.Vector(0,1,0))
             # circle = Part.Wire([circle])
             # pipe = Part.Wire(spiral)
             # pipe = pipe.makePipe(circle)
             obj.Shape = spiral 
-            obj.ViewObject.LineColor = 0.0,0.0,0.0,0.0
-            obj.Placement.Base = obj.JointCoord1
-            FreeCAD.ActiveDocument.removeObject("Spiral")
-            
-        
-        elif obj.ForceTypes == "Linear Spring Damper":
-            h = (obj.JointCoord1-obj.JointCoord2).Length
-            p = h/10
-            r = h/10
-            # r_1 = h/150
-            # r_c = r/2
-            # r_c2 = r/8
-            
-            creation_axis = FreeCAD.Vector(0,0,1)
-            
-            desired_direction = obj.JointCoord2 - obj.JointCoord1
-            if desired_direction.Length>0:
-                desired_direction = desired_direction.normalize()
-                angle = degrees(acos(desired_direction*creation_axis))
-                axis = creation_axis.cross(desired_direction)
-                helix = Part.makeHelix(p,h,r)
-                # circle = Part.makeCircle(r_1, Base.Vector(r,0,0), Base.Vector(0,1,0))
-                # circle = Part.Wire([circle])
-                # pipe = Part.Wire(helix).makePipe(circle) 
-                # cylinder = Part.makeCylinder(r_c,h/2)
-                # cylinder_2 = Part.makeCylinder(r_c2,h-h/20)
-                # cylinder_3 = Part.makeCylinder(r_c,h/20,FreeCAD.Vector(0,0,h-h/20))
-                # pipe = Part.makeCompound([pipe,cylinder,cylinder_2,cylinder_3])
-                obj.Shape = helix
+            if obj.ForceTypes == "Rotational Spring":
+                obj.ViewObject.LineColor = 0.0,0.0,0.0,0.0
+            elif obj.ForceTypes == "Rotational Spring Damper":
                 obj.ViewObject.LineColor = 0.0,250.0,20.0,0.0
-
-                #First reset the placement in case multiple recomputes are performed
-                obj.Placement.Base = FreeCAD.Vector(0,0,0)
-                obj.Placement.Rotation = FreeCAD.Rotation(0,0,0,1)
-                obj.Placement.rotate(FreeCAD.Vector(0,0,0), axis, angle)
-                obj.Placement.translate(obj.JointCoord1)
-        
-        elif obj.ForceTypes == "Rotational Spring Damper":
-            doc_name = str(obj.Document.Name)
-            doc  = FreeCAD.getDocument(doc_name)
-   
-            if obj.Body1 == "Ground":
-                x1 = 0
-                y1 = 0 
-
-                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
-                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
-
-                scale = (x2+y2)/80
-
-
-            elif obj.Body2 == "Ground":
-                x2 = 0
-                y2 = 0
-
-                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
-                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
-                scale = (x1+y1)/80
-    
-
-            else:    
-                x1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.XLength
-                y1 = doc.getObjectsByLabel(obj.Body1)[0].Shape.BoundBox.YLength
-            
-                x2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.XLength
-                y2 = doc.getObjectsByLabel(obj.Body2)[0].Shape.BoundBox.YLength
-    
-                scale  = ((x1+x2)+(y1+y2))/80
-            
-            r = 2*scale 
-            g = r/2
-            r_ = 4
-            t = r/10
-            
-            doc_name = str(obj.Document.Name)
-            object = FreeCAD.getDocument(doc_name)
-            spiral = FreeCAD.ActiveDocument.addObject("Part::Spiral", "Spiral")
-            # spiral_middle = FreeCAD.ActiveDocument.addObject("Part::Spiral", "Spiral")
-            # spiral_inner = FreeCAD.ActiveDocument.addObject("Part::Spiral", "Spiral01")
-
-            spiral.Growth = g
-            spiral.Radius = r
-            spiral.Rotations = r_
-
-            spiral.Placement.Base = FreeCAD.Vector(0,0,0)
-            
-            # spiral_middle.Growth = g
-            # spiral_middle.Radius = r*1.5
-            # spiral_middle.Rotations = r_/2
-
-
-            # spiral_inner.Growth = g
-            # spiral_inner.Radius = r
-            # spiral_inner.Rotations = r_
-
-
-            # spiral_inner.Placement.Base = FreeCAD.Vector(0,0,0)
-            # spiral_middle.Placement.Base = FreeCAD.Vector(0,0,0)
-
-            spiral = object.getObject("Spiral").Shape 
-            # spiral_inner = object.getObject("Spiral01").Shape.Wires
-            # spiral_middle = object.getObject("Spiral").Shape.Wires
-
-            # circle_middle = Part.makeCircle(t*1.5, Base.Vector(r*1.5,0,0), Base.Vector(0,1,0))
-            # circle_inner = Part.makeCircle(t/1.5, Base.Vector(r,0,0), Base.Vector(0,1,0))
-
-            # circle_middle = Part.Wire([circle_middle])
-            # circle_inner = Part.Wire([circle_inner])
-
-            # pipe_middle =Part.Wire(spiral_middle)
-            # pipe_inner =Part.Wire(spiral_inner)
-    
-            # pipe_middle = pipe_middle.makePipe(circle_middle)
-            # pipe_inner = pipe_inner.makePipe(circle_inner)
-
-            # obj.Shape = Part.makeCompound([pipe_inner, pipe_middle])
-
-            obj.Shape = spiral  
-            obj.ViewObject.LineColor = 0.0, 250.0,20.0,0.0
-
-            FreeCAD.ActiveDocument.removeObject("Spiral")
-            # FreeCAD.ActiveDocument.removeObject("Spiral01")
             obj.Placement.Base = obj.JointCoord1
+            document.removeObject("Spiral")
+            
     
         else:
             obj.Shape = Part.Shape()
