@@ -111,6 +111,7 @@ class TaskPanelDapJoint:
         self.DriverFuncChanged()
                 
         emptyunit = Units.Quantity(self.emptyunit)
+
         
         #FreeCAD.Console.PrintMessage(f"\n")
         #FreeCAD.Console.PrintMessage(f"\n")
@@ -120,6 +121,7 @@ class TaskPanelDapJoint:
         self.form.tEndFuncA.setVisible(False)
         self.form.label_19.setVisible(False)
         #setQuantity(self.form.tEndFuncA, emptyunit)
+
         setQuantity(self.form.FuncACoefC1, emptyunit)
         setQuantity(self.form.FuncACoefC2, emptyunit)
         setQuantity(self.form.FuncACoefC3, emptyunit)

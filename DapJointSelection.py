@@ -155,26 +155,35 @@ class _DapJoint:
         obj.initialValueDriverFuncTypeC = Units.Unit("")
         obj.endDerivativeDriverFuncTypeC = Units.Unit("")
 
-
     def onDocumentRestored(self, obj):
         self.initProperties(obj)
 
     def execute(self, obj):
         """ Create joint representation part at recompute. """
-        #TODO should update the representation and scaling of based on plane of motion
         #TODO visual representation of the joint should only be vissible if the joint definition mode was correctly specified, e.g. rotation joint needs 1 point AND 2 seperate bodies, translation joint needs 2 points AND 2 bodies
+            
+        scale_param = 50000
 
-        active_analysis = DapTools.getActiveAnalysis()
-        if hasattr(active_analysis, 'Shape'):
-            x_lenght = active_analysis.Shape.BoundBox.XLength
-            y_lenght = active_analysis.Shape.BoundBox.YLength
-            area_dap_analyis_bound_box = x_lenght * y_lenght
-            scale_parameter_square_mm = 200000
-            scale_factor = area_dap_analyis_bound_box / scale_parameter_square_mm
-        else:
-            scale_factor = 50
-
-        if obj.TypeOfRelMov == "Rotation":
+        joint_index = DapTools.indexOrDefault(JOINT_TYPES, obj.TypeOfRelMov, 0)
+        
+        doc_name = str(obj.Document.Name)
+        doc = FreeCAD.getDocument(doc_name)
+        
+        if joint_index == 0:
+            
+            body1 = doc.getObjectsByLabel(obj.Body1)
+            body2 = doc.getObjectsByLabel(obj.Body2)
+                        
+            if body1 != [] and body2 != []:
+                vol = body1[0].Shape.Volume + body2[0].Shape.Volume
+            elif body1 == []:
+                vol = body2[0].Shape.Volume
+            elif body2 == []:
+                vol = body1[0].Shape.Volume
+            else:
+                vol = 100000
+                       
+            scale_factor = vol/scale_param                                    
             r1 = 7*scale_factor
             r2 = scale_factor
             torus_dir = FreeCAD.Vector(0, 0, 1)
@@ -189,29 +198,18 @@ class _DapJoint:
             cone2 = Part.makeCone(0, 2*r2, 5*r2, cone2_pos, cone2_dir)
             torus_w_arrows = Part.makeCompound([torus, cone1, cone2])
             obj.Shape = torus_w_arrows
-        elif obj.TypeOfRelMov == "Linear Movement":
-            r = scale_factor
-            #r = 80
+            
+        elif joint_index == 1:
             l = (obj.CoordPoint2RelMov - obj.CoordPoint1RelMov).Length
             if l > 1e-6:
                 lin_move_dir = (obj.CoordPoint2RelMov - obj.CoordPoint1RelMov).normalize()
-                if l > 12*r:
-                    cylinder = Part.makeCylinder(r, l - 10*r, obj.CoordPoint1RelMov + 5*r*lin_move_dir, lin_move_dir)
-                    cone1 = Part.makeCone(0, 2*r, 5*r, obj.CoordPoint1RelMov, lin_move_dir)
-                    cone2 = Part.makeCone(0, 2*r, 5*r, obj.CoordPoint2RelMov, -lin_move_dir)
-                else:
-                    l = 12*r
-                    average_coord = (obj.CoordPoint1RelMov + obj.CoordPoint2RelMov)/2
-                    cylinder_pos = average_coord - FreeCAD.Vector(r, 0, 0)
-                    cylinder = Part.makeCylinder(r, l - 10*r, cylinder_pos, lin_move_dir)
-                    cone1_pos = average_coord - 6*r*lin_move_dir
-                    cone2_pos = average_coord + 6*r*lin_move_dir
-                    cone1 = Part.makeCone(0, 2*r, 5*r, cone1_pos, lin_move_dir)
-                    cone2 = Part.makeCone(0, 2*r, 5*r, cone2_pos, -lin_move_dir)                
+                cylinder = Part.makeCylinder(0.1*l, 0.5*l, obj.CoordPoint1RelMov + 0.25*l*lin_move_dir, lin_move_dir)
+                cone1 = Part.makeCone(0, 0.2*l, 0.25*l, obj.CoordPoint1RelMov, lin_move_dir)
+                cone2 = Part.makeCone(0, 0.2*l, 0.25*l, obj.CoordPoint2RelMov, -lin_move_dir)
                 double_arrow = Part.makeCompound([cylinder, cone1, cone2])
                 obj.Shape = double_arrow
             else:
-                obj.Shape = Part.Shape()
+                FreeCAD.Console.PrintError(f"The selected 2 points either coincide, or are too close together!!!")
 
     def __getstate__(self):
         return None
