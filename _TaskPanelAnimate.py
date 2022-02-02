@@ -87,11 +87,11 @@ class TaskPanelAnimate:
         self.form.timeStepLabel.setText("{0:5.3f}s / {1:5.3f}s".format(self.t_initial, self.t_final))
             #str(self.t_initial) + "s / " + str(self.t_final) +"s")
         
-        from dapSolver import DapSolver
+        #from dapSolver import DapSolver
         
         #TODO creating a new solver instance. Once the DAP solver rewrite has been completed
         #then should just link to the already created instance of the dapsolver
-        self.dapSolver = DapSolver(self.folder)
+        #self.dapSolver = DapSolver(self.folder)
         
         #u = self.results[0,:].T
         self.current_pos = self.currentPos(0)

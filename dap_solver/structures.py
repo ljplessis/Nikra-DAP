@@ -30,7 +30,8 @@ class Body_struct:
         self.P4     = np.array([[]]).T          # corners of the rectangle
         self.pts    = np.array([[]]).T          # point indexes associated with this body
         return
-
+    def __str__(self):
+        return str(self.__dict__)
 
 #%% Force Structure
 class Force_struct:
@@ -53,6 +54,9 @@ class Force_struct:
         self.t          = 0                     # constant torque in x-y frame
         self.iFunct     = 0
         return
+    
+    def __str__(self):
+        return str(self.__dict__)
 
 
 #%%% Joint Structure
@@ -85,6 +89,9 @@ class Joint_struct:
         self.colje    = 0               # column index for body j-end
         self.lagrange =np.zeros((3,1))  # Lagrange multipliers
         return
+    
+    def __str__(self):
+        return str(self.__dict__)
 
 
 #%%% Point Structure
@@ -98,8 +105,10 @@ class Point_struct:
         self.sP_d       = np.array([[0,0]]).T   # s_P_dot
         self.rP_d       = np.array([[0,0]]).T   # r_P_dot
         self.rP_dd      = np.array([[0,0]]).T   # r_P_dot2
-
         return
+    
+    def __str__(self):
+        return str(self.__dict__)
 
 
 #%%% Unit Structure
@@ -111,6 +120,9 @@ class Unit_struct:
         self.u_r    = np.array([[0,0]]).T   # vector u rotated
         self.u_d    = np.array([[0,0]]).T   # u_dot
         return
+    
+    def __str__(self):
+        return str(self.__dict__)
 
 #%%% Function Structure
 class Funct_struct:
@@ -123,5 +135,6 @@ class Funct_struct:
         self.dfdt_end= 1                 # required for functions c
         self.ncoeff= 4                   # number of coefficients
         self.coeff=np.array([[]]).T      # required for function a
-
         return
+    def __str__(self):
+        return str(self.__dict__)

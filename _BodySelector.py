@@ -24,7 +24,9 @@ from _FreeCADVectorTools import dist, normalized, crossproduct,dotproduct, angle
 
 TYPES = ["two points and two bodies","One point and two bodies","One Point and associated point" ]
 
-HELPER_TEXT = ["Choose two points (LCS) and two bodies that points are attached to","Choose one point (LCS) and two bodies","Pick one point and the body associated to it" ]
+HELPER_TEXT = ["Choose two points (LCS) and two bodies, where the points belong to the corresponding body",
+               "Choose one point (LCS) and two bodies",
+               "Add points for post-processing. Pick one point and the body associated to it" ]
 
 class BodySelector:
     def __init__(self, parent_widget, obj):

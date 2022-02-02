@@ -28,20 +28,23 @@ class DapWorkbench(Workbench):
         
         FreeCADGui.addCommand("Dap_analysis", _CommandDapAnalysis())
         cmdlst = ["Dap_analysis",
+                  "Separator",
                   "Dap_Body",
                   "Dap_Joint",
                   "Dap_Material",
                   "Dap_Force",
+                  #"Dap_Point",#point functionality has not yet been included in the solver builder
+                  "Separator",
                   "Dap_Solver",
+                  "Separator",
                   "Dap_Animation",
                   "Dap_Plot",
-                  "Dap_Point"
+                  
                   ]
                   #"Dap_Point"]
         
         self.appendToolbar("My Commands",cmdlst) # creates a new toolbar with your commands
         self.appendMenu("Nikra-Dap",cmdlst) # creates a new menu
-        #self.appendMenu(["An existing Menu","My submenu"],self.list) # appends a submenu to an existing menu
 
     def Activated(self):
         """This function is executed when the workbench is activated"""
