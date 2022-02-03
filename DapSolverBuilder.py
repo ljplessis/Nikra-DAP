@@ -469,16 +469,18 @@ class DapSolverBuilder():
         density = Units.Quantity(self.material_dictionary[shape_label]["density"]).getValueAs("kg/mm^3")
         #Moment of inertia about axis of orientation (normal of plane)
         J = Iij * self.plane_norm * self.plane_norm  * density * self.scale**2
-        FreeCAD.Console.PrintMessage("J for " + shape_label + " " + str(J) + "\n")
         #Project CoG of shape onto plane and compute distance of projected CoG of current shape to projected
         # body CoG
         centre_of_gravity = shape_obj.CenterOfMass * self.scale
         CoG_me_proj = self.projectPointOntoPlane(centre_of_gravity)
         CoG_body_proj = self.cog_of_body_projected[body_label]
-        planar_dist_CoG_to_CogBody = ((CoG_me_proj.x - CoG_body_proj.x)**2 + (CoG_me_proj.y - CoG_body_proj.y)**2 
-                                + (CoG_me_proj.z - CoG_body_proj.z)**2)**0.5
+        #planar_dist_CoG_to_CogBody = ((CoG_me_proj.x - CoG_body_proj.x)**2 + (CoG_me_proj.y - CoG_body_proj.y)**2 
+                                #+ (CoG_me_proj.z - CoG_body_proj.z)**2)**0.5
+        planar_dist_CoG_to_CogBody = (CoG_body_proj - CoG_me_proj).Length
         
         
+        #to convert density back to kg/m^3
+        density = density / self.scale**3
         shape_mass = shape_obj.Volume * self.scale**3 * density
         #NOTE: Using parallel axis theoram to compute the moment of inertia of the full body comprised of
         #multiple shapes
@@ -495,7 +497,7 @@ class DapSolverBuilder():
             totVol += vol
             CoG += solid.CenterOfMass*vol
         CoG /= totVol
-        return CoG
+        return CoG, totVol
     
     def computeCentreOfGravity(self):
         """  Computes the global centre of mass of each body based on the weighted sum of each subshape centre
@@ -518,10 +520,12 @@ class DapSolverBuilder():
                 # then perform weighted average of all the subsolid shapes of the compound
                 if shape_obj.Shape.ShapeType == 'Compound':
                     if len(shape_obj.Shape.Solids)>=1:
-                        centre_of_gravity = self.centerOfGravityOfCompound(shape_obj)
+                        centre_of_gravity, volume = self.centerOfGravityOfCompound(shape_obj)
+                        volume *= self.scale**3
+                        centre_of_gravity *= self.scale
                 else:
                     centre_of_gravity = shape_obj.Shape.CenterOfMass * self.scale
-                volume = shape_obj.Shape.Volume *self.scale**3
+                    volume = shape_obj.Shape.Volume *self.scale**3
 
                 #NOTE: Converting density to base units which is mm?
                 density = Units.Quantity(self.material_dictionary[shape_label]["density"]).getValueAs("kg/m^3")
@@ -704,11 +708,25 @@ class DapSolverBuilder():
         #FreeCAD.Console.PrintMessage(output)
         import subprocess
         import sys
-        result = subprocess.run(["python", dap_solver, self.folder])
+        #import os
+        #result = subprocess.run(["python", dap_solver, self.folder])
+        #os.system(dap_solver + " " + str(self.folder))
+        import dap_temp_temp
+        dap_temp_temp.folder = self.folder
+        dap_temp_temp.readInputFiles()
+        dap_temp_temp.initialize()
+        dap_temp_temp.t_initial = self.t_initial
+        dap_temp_temp.dt = self.reporting_time
+        dap_temp_temp.t_final = self.t_final
+        dap_temp_temp.solve()
+        dap_temp_temp.writeOutputs()
         
+        
+        FreeCAD.Console.PrintMessage("Was the solve step success: " + str(dap_temp_temp.solution_success) + "\n")
+        FreeCAD.Console.PrintMessage("write success: " + str(dap_temp_temp.write_success) + "\n")
         #FreeCAD.Console.PrintMessage("Python runnable" + sys.executable + "\n")
         #result = subprocess.run([sys.executable, dap_solver, self.folder])
-        FreeCAD.Console.PrintMessage(result)
+        #FreeCAD.Console.PrintMessage(result)
         self.loadResults()
         
     def onFinished(self,  exitCode,  exitStatus):
