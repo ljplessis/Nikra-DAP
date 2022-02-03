@@ -668,7 +668,11 @@ class DapSolverBuilder():
         #output = self.process.readAllStandardOutput()
         #FreeCAD.Console.PrintMessage(output)
         import subprocess
+        import sys
         result = subprocess.run(["python", dap_solver, self.folder])
+        
+        #FreeCAD.Console.PrintMessage("Python runnable" + sys.executable + "\n")
+        #result = subprocess.run([sys.executable, dap_solver, self.folder])
         FreeCAD.Console.PrintMessage(result)
         self.loadResults()
         
