@@ -442,6 +442,7 @@ class DapSolverBuilder():
         """
 
         self.J = {}
+        FreeCAD.Console.PrintMessage("List of bodies in J: " + str(self.list_of_bodies) + "\n")
         for body_label in self.list_of_bodies:
             J_global_body = 0
             for shape_label in self.parts_of_bodies[body_label]:
@@ -451,25 +452,24 @@ class DapSolverBuilder():
                     if len(shape_obj.Shape.Solids)>=1:
                         for i in range(len(shape_obj.Shape.Solids)):
                             J_global_body += self.computeShapeMomentOfInertia(shape_obj.Shape.Solids[i],
-                                                                              J_global_body,
                                                                               shape_label,
                                                                               body_label)
                 else:
-                    J_global_body += self.computeShapeMomentOfInertia(shape_obj.Shape, J_global_body, shape_label, body_label)
+                    J_global_body += self.computeShapeMomentOfInertia(shape_obj.Shape, shape_label, body_label)
 
             self.J[body_label] = J_global_body
             
             FreeCAD.Console.PrintMessage("Total J: " + str(self.J) + "\n")
             #Iij = 
             
-    def computeShapeMomentOfInertia(self, shape_obj, J_global_body, shape_label, body_label):
+    def computeShapeMomentOfInertia(self, shape_obj, shape_label, body_label):
         # Compound shapes with more than one solid does not have a MatrixOfInertia function
         # Therefore creating recursive function to iteratively loop through subsolids
         Iij = shape_obj.MatrixOfInertia
         density = Units.Quantity(self.material_dictionary[shape_label]["density"]).getValueAs("kg/mm^3")
         #Moment of inertia about axis of orientation (normal of plane)
         J = Iij * self.plane_norm * self.plane_norm  * density * self.scale**2
-        
+        FreeCAD.Console.PrintMessage("J for " + shape_label + " " + str(J) + "\n")
         #Project CoG of shape onto plane and compute distance of projected CoG of current shape to projected
         # body CoG
         centre_of_gravity = shape_obj.CenterOfMass * self.scale
@@ -482,8 +482,8 @@ class DapSolverBuilder():
         shape_mass = shape_obj.Volume * self.scale**3 * density
         #NOTE: Using parallel axis theoram to compute the moment of inertia of the full body comprised of
         #multiple shapes
-        J_global_body += J + shape_mass * planar_dist_CoG_to_CogBody**2
-        return J_global_body
+        J_body = J + shape_mass * planar_dist_CoG_to_CogBody**2
+        return J_body
             
     def centerOfGravityOfCompound(self, compound):
         #Older versions of FreeCAD does not have centerOfGravity and compound shapes do 
