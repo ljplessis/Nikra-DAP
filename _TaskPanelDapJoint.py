@@ -65,22 +65,18 @@ class TaskPanelDapJoint:
         self.form.LCSBody1.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body1, 0)
         self.form.LCSBody1.setCurrentIndex(b1i)
-        self.selectedBody1()
                 
         self.form.LCSBody2.addItems(self.body_labels)
         b2i = indexOrDefault(self.body_labels, self.obj.Body2, 0)
         self.form.LCSBody2.setCurrentIndex(b2i)
-        self.selectedBody2()
 
         self.form.comboBoxBody1LinMov.addItems(self.body_labels)
         b1i = indexOrDefault(self.body_labels, self.obj.Body1, 0)
         self.form.comboBoxBody1LinMov.setCurrentIndex(b1i)        
-        self.selectedBody1()
 
         self.form.comboBoxBody2LinMov.addItems(self.body_labels)
         b2i = indexOrDefault(self.body_labels, self.obj.Body2, 0)
         self.form.comboBoxBody2LinMov.setCurrentIndex(b2i)
-        self.selectedBody2()        
 
         self.form.LCSBody1.currentIndexChanged.connect(self.selectedBody1)
         self.form.LCSBody2.currentIndexChanged.connect(self.selectedBody2)
