@@ -41,14 +41,15 @@ def getListOfSolidsFromShape(obj, shape_label_list=[]):
         if len(solids) == 1:
             shape_label_list.append(obj.Label)
         elif len(solids)>1:
-            if hasattr(obj, "Group"):
-                #This applies to assemlby 4 assemlbies
-                #TODO add in a formal checker for assemblies
-                for sub_object in obj.Group:
-                    getListOfSolidsFromShape(sub_object, shape_label_list)
-            else:
-                if obj.Shape.ShapeType == 'Compound':
-                    shape_label_list.append(obj.Label)
+            #if hasattr(obj, "Group"):
+            if hasattr(obj, "Type"):
+                if obj.Type == "Assembly":
+                    #This applies to assemlby 4 assemlbies
+                    #TODO add in a formal checker for assemblies
+                    for sub_object in obj.Group:
+                        getListOfSolidsFromShape(sub_object, shape_label_list)
+            elif obj.Shape.ShapeType == 'Compound':
+                shape_label_list.append(obj.Label)
 
     #else:
         #if hasattr(obj, "Shape"):
