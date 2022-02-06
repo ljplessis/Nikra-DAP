@@ -442,33 +442,62 @@ class DapSolverBuilder():
         """
 
         self.J = {}
+        FreeCAD.Console.PrintMessage("List of bodies in J: " + str(self.list_of_bodies) + "\n")
         for body_label in self.list_of_bodies:
             J_global_body = 0
             for shape_label in self.parts_of_bodies[body_label]:
                 shape_obj = self.doc.getObjectsByLabel(shape_label)[0]
-                Iij = shape_obj.Shape.MatrixOfInertia
-                density = Units.Quantity(self.material_dictionary[shape_label]["density"]).getValueAs("kg/mm^3")
-                #Moment of inertia about axis of orientation (normal of plane)
-                J = Iij * self.plane_norm * self.plane_norm  * density * self.scale**2
                 
-                #Project CoG of shape onto plane and compute distance of projected CoG of current shape to projected
-                # body CoG
-                centre_of_gravity = shape_obj.Shape.CenterOfMass * self.scale
-                CoG_me_proj = self.projectPointOntoPlane(centre_of_gravity)
-                CoG_body_proj = self.cog_of_body_projected[body_label]
-                planar_dist_CoG_to_CogBody = ((CoG_me_proj.x - CoG_body_proj.x)**2 + (CoG_me_proj.y - CoG_body_proj.y)**2 
-                                       + (CoG_me_proj.z - CoG_body_proj.z)**2)**0.5
-                
-                
-                shape_mass = shape_obj.Shape.Volume * self.scale**3 * density
-                #NOTE: Using parallel axis theoram to compute the moment of inertia of the full body comprised of
-                #multiple shapes
-                J_global_body += J + shape_mass * planar_dist_CoG_to_CogBody**2
-                
+                if shape_obj.Shape.ShapeType == 'Compound':
+                    if len(shape_obj.Shape.Solids)>=1:
+                        for i in range(len(shape_obj.Shape.Solids)):
+                            J_global_body += self.computeShapeMomentOfInertia(shape_obj.Shape.Solids[i],
+                                                                              shape_label,
+                                                                              body_label)
+                else:
+                    J_global_body += self.computeShapeMomentOfInertia(shape_obj.Shape, shape_label, body_label)
+
             self.J[body_label] = J_global_body
             
             FreeCAD.Console.PrintMessage("Total J: " + str(self.J) + "\n")
             #Iij = 
+            
+    def computeShapeMomentOfInertia(self, shape_obj, shape_label, body_label):
+        # Compound shapes with more than one solid does not have a MatrixOfInertia function
+        # Therefore creating recursive function to iteratively loop through subsolids
+        Iij = shape_obj.MatrixOfInertia
+        density = Units.Quantity(self.material_dictionary[shape_label]["density"]).getValueAs("kg/mm^3")
+        #Moment of inertia about axis of orientation (normal of plane)
+        J = Iij * self.plane_norm * self.plane_norm  * density * self.scale**2
+        #Project CoG of shape onto plane and compute distance of projected CoG of current shape to projected
+        # body CoG
+        centre_of_gravity = shape_obj.CenterOfMass * self.scale
+        CoG_me_proj = self.projectPointOntoPlane(centre_of_gravity)
+        CoG_body_proj = self.cog_of_body_projected[body_label]
+        #planar_dist_CoG_to_CogBody = ((CoG_me_proj.x - CoG_body_proj.x)**2 + (CoG_me_proj.y - CoG_body_proj.y)**2 
+                                #+ (CoG_me_proj.z - CoG_body_proj.z)**2)**0.5
+        planar_dist_CoG_to_CogBody = (CoG_body_proj - CoG_me_proj).Length
+        
+        
+        #to convert density back to kg/m^3
+        density = density / self.scale**3
+        shape_mass = shape_obj.Volume * self.scale**3 * density
+        #NOTE: Using parallel axis theoram to compute the moment of inertia of the full body comprised of
+        #multiple shapes
+        J_body = J + shape_mass * planar_dist_CoG_to_CogBody**2
+        return J_body
+            
+    def centerOfGravityOfCompound(self, compound):
+        #Older versions of FreeCAD does not have centerOfGravity and compound shapes do 
+        #not have centerOfMass.
+        totVol = 0
+        CoG = FreeCAD.Vector(0,0,0)
+        for solid in compound.Shape.Solids:
+            vol = solid.Volume
+            totVol += vol
+            CoG += solid.CenterOfMass*vol
+        CoG /= totVol
+        return CoG, totVol
     
     def computeCentreOfGravity(self):
         """  Computes the global centre of mass of each body based on the weighted sum of each subshape centre
@@ -485,18 +514,28 @@ class DapSolverBuilder():
 
                 
                 shape_obj = self.doc.getObjectsByLabel(shape_label)[0]
-                centre_of_gravity = shape_obj.Shape.CenterOfMass * self.scale
-                volume = shape_obj.Shape.Volume *self.scale**3
+                #NOTE: Older versions of freecad does not have centerOfGravity function, therefore
+                #rather using centerOfMass, which does not exist for compound shapes.
+                # Therefore performing the check and if body object is a compound shape
+                # then perform weighted average of all the subsolid shapes of the compound
+                if shape_obj.Shape.ShapeType == 'Compound':
+                    if len(shape_obj.Shape.Solids)>=1:
+                        centre_of_gravity, volume = self.centerOfGravityOfCompound(shape_obj)
+                        volume *= self.scale**3
+                        centre_of_gravity *= self.scale
+                else:
+                    centre_of_gravity = shape_obj.Shape.CenterOfMass * self.scale
+                    volume = shape_obj.Shape.Volume *self.scale**3
 
                 #NOTE: Converting density to base units which is mm?
                 density = Units.Quantity(self.material_dictionary[shape_label]["density"]).getValueAs("kg/m^3")
                 mass = density*volume
                 total_mass += mass
-                FreeCAD.Console.PrintMessage("Density: " + str(density) + "\n")
-                FreeCAD.Console.PrintMessage("mass: " + str(mass) + "\n")
-                FreeCAD.Console.PrintMessage("Density: " + str(density.Value) + "\n")
-                FreeCAD.Console.PrintMessage("mass: " + str(mass.Value) + "\n")
-                FreeCAD.Console.PrintMessage("centre_of_gravity: " + str(centre_of_gravity) + "\n")
+                #FreeCAD.Console.PrintMessage("Density: " + str(density) + "\n")
+                #FreeCAD.Console.PrintMessage("mass: " + str(mass) + "\n")
+                #FreeCAD.Console.PrintMessage("Density: " + str(density.Value) + "\n")
+                #FreeCAD.Console.PrintMessage("mass: " + str(mass.Value) + "\n")
+                #FreeCAD.Console.PrintMessage("centre_of_gravity: " + str(centre_of_gravity) + "\n")
                 centre_of_gravity_global += mass.Value*centre_of_gravity
                 
             centre_of_gravity_global /= total_mass
@@ -504,7 +543,7 @@ class DapSolverBuilder():
             self.cog_of_body_projected[body_label] = self.projectPointOntoPlane(centre_of_gravity_global)
             self.total_mass_of_body[body_label] = total_mass
             self.cog_of_body_rotated[body_label] = self.global_rotation_matrix * self.cog_of_body_projected[body_label]
-            
+        #self.obj.BodiesCoG = self.centre_of_gravity_of_body
     #TODO: find a more elegant way of writing the input files instead of line by line writing
     def writeBodies(self):
         FreeCAD.Console.PrintMessage("Writing bodies \n")
@@ -653,19 +692,42 @@ class DapSolverBuilder():
         pythonCommand = "python3 " + str(dap_solver) + " " + str(self.folder)
 
         
-        from PySide.QtCore import QProcess
+        #from PySide.QtCore import QProcess
         #process = QProcess()
-        self.process = QtCore.QProcess()
-        self.process.finished.connect(self.onFinished)
+        #self.process = QtCore.QProcess()
+        #self.process.finished.connect(self.onFinished)
         
         FreeCAD.Console.PrintMessage("DAP solver started.\n")
         
-        self.process.start("python3",[str(dap_solver), str(self.folder)])
+        #self.process.start("python3",[str(dap_solver), str(self.folder)])
+        #self.process.start(pythonCommand)
         ##proc.waitForStarted()
         #TODO need to overwrite waitForFinished to latch on to the output
-        self.process.waitForFinished()
-        output = self.process.readAllStandardOutput()
-        FreeCAD.Console.PrintMessage(output)
+        #self.process.waitForFinished()
+        #output = self.process.readAllStandardOutput()
+        #FreeCAD.Console.PrintMessage(output)
+        import subprocess
+        import sys
+        #import os
+        #result = subprocess.run(["python", dap_solver, self.folder])
+        #os.system(dap_solver + " " + str(self.folder))
+        import dap_temp_temp
+        dap_temp_temp.folder = self.folder
+        dap_temp_temp.readInputFiles()
+        dap_temp_temp.initialize()
+        dap_temp_temp.t_initial = self.t_initial
+        dap_temp_temp.dt = self.reporting_time
+        dap_temp_temp.t_final = self.t_final
+        dap_temp_temp.solve()
+        dap_temp_temp.writeOutputs()
+        
+        
+        FreeCAD.Console.PrintMessage("Was the solve step success: " + str(dap_temp_temp.solution_success) + "\n")
+        FreeCAD.Console.PrintMessage("write success: " + str(dap_temp_temp.write_success) + "\n")
+        #FreeCAD.Console.PrintMessage("Python runnable" + sys.executable + "\n")
+        #result = subprocess.run([sys.executable, dap_solver, self.folder])
+        #FreeCAD.Console.PrintMessage(result)
+        self.loadResults()
         
     def onFinished(self,  exitCode,  exitStatus):
         if exitCode == 0:

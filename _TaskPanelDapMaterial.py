@@ -45,6 +45,8 @@ class TaskPanelDapMaterial:
 
         self.form.tableWidget.cellClicked.connect(self.tableWidgetCellClicked)
         #self.form.tableWidget.cellChanged.connect(self.valueInCellChanged)
+        
+        self.defaultAssignmentOnCreate()
 
 
     def accept(self):
@@ -91,7 +93,25 @@ class TaskPanelDapMaterial:
         self.card_name_list.insert(0, ["Manual Definition", "", ""])
         self.card_name_labels.insert(0,"Manual Definition")
 
-
+    def defaultAssignmentOnCreate(self):
+        docName = str(self.doc_name)
+        doc = FreeCAD.getDocument(docName)
+        if len(self.body_labels):
+            for i in range(len(self.body_labels)):
+                selection_object = doc.getObjectsByLabel(self.body_labels[i])[0]
+                list_of_parts = selection_object.References
+                for current_body_label in list_of_parts:
+                    obj = doc.getObjectsByLabel(current_body_label)[0]
+                    shape_label_list = DapTools.getListOfSolidsFromShape(obj, [])
+                    for sub_shape_label in shape_label_list:
+                        if not(sub_shape_label in self.MaterialDictionary.keys()):
+                            mat_name = self.card_name_labels[0]
+                            density = self.default_density
+                            self.MaterialDictionary[sub_shape_label] = {}
+                            self.MaterialDictionary[sub_shape_label]["matName"] = mat_name
+                            self.MaterialDictionary[sub_shape_label]["density"] = density
+                        
+                        
     def bodyComboSelectionChanged(self):
         ci = self.form.bodyCombo.currentIndex()
         table_row = 0

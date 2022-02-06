@@ -97,6 +97,7 @@ class _DapSolver:
         addObjectProperty(obj, "UnitVector", FreeCAD.Vector(0, 0, 0), "App::PropertyVector", "", "Vector Normal to Planar Motion")
         addObjectProperty(obj, 'DapResults', None, "App::PropertyPythonObject", "", "")
         addObjectProperty(obj, 'ReportedTimes', None, "App::PropertyPythonObject", "", "")
+        #addObjectProperty(obj, 'BodiesCoG', None, "App::PropertyPythonObject", "", "")
         addObjectProperty(obj, 'Bodies_r', None, "App::PropertyPythonObject", "", "")
         addObjectProperty(obj, 'Bodies_p', None, "App::PropertyPythonObject", "", "")
         addObjectProperty(obj, 'Points_r', None, "App::PropertyPythonObject", "", "")
