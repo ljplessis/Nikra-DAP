@@ -28,18 +28,22 @@ def getActiveAnalysis():
 
 
 
-def getListOfSolidsFromShape(obj, shape_label_list=[]):
+def getListOfSolidsFromShape(obj, shape_label_list=[], parent_object = None, parent_assembly = {}):
     """ Recursively loops through assemblies or shape object to find all the
     sub shapes
     input:
         obj: object, such as assembly container, part, body
     returns: 
         shape_label_list: list to the labels of objects contained within obj """
-    
+    #parent_assembly = {}
     if hasattr(obj, 'Shape'):
         solids = obj.Shape.Solids
         if len(solids) == 1:
             shape_label_list.append(obj.Label)
+            if parent_object == None:
+                parent_assembly[obj.Label] = None
+            else:
+                parent_assembly[obj.Label] = parent_object.Label
         elif len(solids)>1:
             #if hasattr(obj, "Group"):
             if hasattr(obj, "Type"):
@@ -47,16 +51,41 @@ def getListOfSolidsFromShape(obj, shape_label_list=[]):
                     #This applies to assemlby 4 assemlbies
                     #TODO add in a formal checker for assemblies
                     for sub_object in obj.Group:
-                        getListOfSolidsFromShape(sub_object, shape_label_list)
+                        getListOfSolidsFromShape(sub_object, shape_label_list, obj, parent_assembly)
             elif obj.Shape.ShapeType == 'Compound':
                 shape_label_list.append(obj.Label)
+                if parent_object == None:
+                    parent_assembly[obj.Label] = None
+                else:
+                    parent_assembly[obj.Label] = parent_object.Label
 
-    #else:
-        #if hasattr(obj, "Shape"):
-            #solids = obj.Shape.Solids
-            #if len(solids)>0:
-                #shape_label_list = [obj.Label]
-    return shape_label_list
+    return shape_label_list, parent_assembly
+
+def getSolidsFromAllShapes(doc):
+    """ Function loops through all defined bodies, and return the list of shapes making up each body, as 
+    well as retun the parent assemlby for each sub part. If the subpart does not have a parent assembly then
+    it is defined as None. """
+    body_labels = getListOfBodyLabels()
+    parts_shape_list_all = {}
+    parent_assembly_all = {}
+    if len(body_labels):
+        for i in range(len(body_labels)):
+            selection_object = doc.getObjectsByLabel(body_labels[i])[0]
+            list_of_parts = selection_object.References
+            for current_body_label in list_of_parts:
+                obj = doc.getObjectsByLabel(current_body_label)[0]
+                shape_label_list, parent_assembly = getListOfSolidsFromShape(obj, [])
+                parts_shape_list_all[current_body_label] = shape_label_list
+                parent_assembly_all.update(parent_assembly)
+    return parts_shape_list_all, parent_assembly_all
+    
+
+def getAssemblyObjectByLabel(doc, parent_assembly_label, part_label):
+    parent_assembly_obj = doc.getObjectsByLabel(parent_assembly_label)[0]
+    for sub_object in parent_assembly_obj.Group:
+        if sub_object.Label == part_label:
+            return sub_object
+    return None
 
 def addObjectProperty(obj, prop, init_val, type, *args):
     """ Call addProperty on the object if it does not yet exist """

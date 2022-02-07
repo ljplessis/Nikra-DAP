@@ -32,7 +32,12 @@ class TaskPanelDapMaterial:
         self.fetchFreeCADMaterials()
         
         self.doc_name = self.obj.Document.Name
+        self.doc = FreeCAD.getDocument(self.doc_name)
         
+        self.parts_shape_list_all, self.parent_assembly_all = DapTools.getSolidsFromAllShapes(self.doc)
+        
+        #FreeCAD.Console.PrintMessage("all parts shape " + str(self.parts_shape_list_all) + "\n")
+        #FreeCAD.Console.PrintMessage("all parent assembly " + str(self.parent_assembly_all) + "\n")
         
         ui_path = os.path.join(os.path.dirname(__file__), "TaskPanelDapMaterials.ui")
         self.form = FreeCADGui.PySideUic.loadUi(ui_path)
@@ -94,15 +99,16 @@ class TaskPanelDapMaterial:
         self.card_name_labels.insert(0,"Manual Definition")
 
     def defaultAssignmentOnCreate(self):
-        docName = str(self.doc_name)
-        doc = FreeCAD.getDocument(docName)
+        #docName = str(self.doc_name)
+        #doc = FreeCAD.getDocument(docName)
         if len(self.body_labels):
             for i in range(len(self.body_labels)):
-                selection_object = doc.getObjectsByLabel(self.body_labels[i])[0]
+                selection_object = self.doc.getObjectsByLabel(self.body_labels[i])[0]
                 list_of_parts = selection_object.References
                 for current_body_label in list_of_parts:
-                    obj = doc.getObjectsByLabel(current_body_label)[0]
-                    shape_label_list = DapTools.getListOfSolidsFromShape(obj, [])
+                    obj = self.doc.getObjectsByLabel(current_body_label)[0]
+                    #shape_label_list = DapTools.getListOfSolidsFromShape(obj, [])
+                    shape_label_list = self.parts_shape_list_all[obj.Label]
                     for sub_shape_label in shape_label_list:
                         if not(sub_shape_label in self.MaterialDictionary.keys()):
                             mat_name = self.card_name_labels[0]
@@ -117,20 +123,21 @@ class TaskPanelDapMaterial:
         table_row = 0
 
         docName = str(self.doc_name)
-        doc = FreeCAD.getDocument(docName)
+        #doc = FreeCAD.getDocument(docName)
         self.form.tableWidget.clearContents()
         self.form.tableWidget.setRowCount(0)
         self.form.tableWidget.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)
 
         if len(self.body_labels):
-            selection_object = doc.getObjectsByLabel(self.body_labels[ci])[0]
+            selection_object = self.doc.getObjectsByLabel(self.body_labels[ci])[0]
             list_of_parts = selection_object.References
             for current_body_label in list_of_parts:
                 self.form.tableWidget.insertRow(table_row)
 
                 #current_body_label = list_of_parts[i]
-                obj = doc.getObjectsByLabel(current_body_label)[0]
-                shape_label_list = DapTools.getListOfSolidsFromShape(obj, [])
+                obj = self.doc.getObjectsByLabel(current_body_label)[0]
+                #shape_label_list = DapTools.getListOfSolidsFromShape(obj, [])
+                shape_label_list = self.parts_shape_list_all[obj.Label]
 
                 if len(shape_label_list)>1:
                     partName = QtGui.QTableWidgetItem(current_body_label)
@@ -209,7 +216,19 @@ class TaskPanelDapMaterial:
             doc = FreeCAD.getDocument(docName)
             
             selection_object_label = self.form.tableWidget.item(row, column).text()
-
-            selection_object = doc.getObjectsByLabel(selection_object_label)[0]
+            
+            
+            #NOTE: Because the underlying subshapes that make up subassemblies can be contained in a different
+            #document, getObject won't work and cannot be added to the selection list. If it was it would
+            #switch documents. To circumvent this, if the subpart is part of a subassemlby then the subassemlby
+            #will be added to the selection list.
+            if self.parent_assembly_all[selection_object_label] != None:
+                selection_object = doc.getObjectsByLabel(self.parent_assembly_all[selection_object_label])[0]
+            else:
+                selection_object = doc.getObjectsByLabel(selection_object_label)[0]
+            
+            #selection_object = doc.findObjects(Label = selection_object_label)[0]
+            
+            #selection_object = doc.getObjectsByLabel(selection_object_label)[0]
             FreeCADGui.Selection.clearSelection()
             FreeCADGui.Selection.addSelection(selection_object)

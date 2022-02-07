@@ -34,6 +34,8 @@ class DapSolverBuilder():
         self.doc_name = self.active_analysis.Document.Name
         self.doc = FreeCAD.getDocument(self.doc_name)
         
+        self.parts_shape_list_all, self.parent_assembly_all = DapTools.getSolidsFromAllShapes(self.doc)
+        
         self.dap_points = []
         self.dap_joints = []
         self.dap_forces = []
@@ -94,8 +96,8 @@ class DapSolverBuilder():
             for part in list_of_parts:
                 part_obj = self.doc.getObjectsByLabel(part)[0]
                 #body_object = FreeCAD.
-                shape_label_list = DapTools.getListOfSolidsFromShape(part_obj, [])
-                
+                #shape_label_list = DapTools.getListOfSolidsFromShape(part_obj, [])
+                shape_label_list = self.parts_shape_list_all[part_obj.Label]
                 for part_sub_label in shape_label_list:
                     shape_complete_list.append(part_sub_label)
             self.parts_of_bodies[body_label] = shape_complete_list
@@ -446,7 +448,13 @@ class DapSolverBuilder():
         for body_label in self.list_of_bodies:
             J_global_body = 0
             for shape_label in self.parts_of_bodies[body_label]:
-                shape_obj = self.doc.getObjectsByLabel(shape_label)[0]
+                #shape_obj = self.doc.getObjectsByLabel(shape_label)[0]
+                
+                if self.parent_assembly_all[shape_label] != None:
+                    shape_obj = DapTools.getAssemblyObjectByLabel(self.doc, self.parent_assembly_all[shape_label] , shape_label)
+                else:
+                    shape_obj = self.doc.getObjectsByLabel(shape_label)[0]
+                
                 
                 if shape_obj.Shape.ShapeType == 'Compound':
                     if len(shape_obj.Shape.Solids)>=1:
@@ -469,9 +477,18 @@ class DapSolverBuilder():
         density = Units.Quantity(self.material_dictionary[shape_label]["density"]).getValueAs("kg/mm^3")
         #Moment of inertia about axis of orientation (normal of plane)
         J = Iij * self.plane_norm * self.plane_norm  * density * self.scale**2
+        #If a part is a subshape of an assemlby, then the part is in the underformed configuration relative
+        #to the placement expression link of the assembly 4 object, therefore have to move the 
+        #calculated CoG by the same amount that the subassembly was moved by assembly 4
+        if self.parent_assembly_all[shape_label] != None:
+            parent_assembly_obj = self.doc.getObjectsByLabel(self.parent_assembly_all[shape_label])[0]
+            parent_assebly_placement_matrix = parent_assembly_obj.Placement.Matrix
+            centre_of_gravity = parent_assebly_placement_matrix * shape_obj.CenterOfMass * self.scale
+        else:
+            centre_of_gravity = shape_obj.CenterOfMass * self.scale
+            
         #Project CoG of shape onto plane and compute distance of projected CoG of current shape to projected
         # body CoG
-        centre_of_gravity = shape_obj.CenterOfMass * self.scale
         CoG_me_proj = self.projectPointOntoPlane(centre_of_gravity)
         CoG_body_proj = self.cog_of_body_projected[body_label]
         #planar_dist_CoG_to_CogBody = ((CoG_me_proj.x - CoG_body_proj.x)**2 + (CoG_me_proj.y - CoG_body_proj.y)**2 
@@ -511,9 +528,16 @@ class DapSolverBuilder():
             total_mass = 0
             centre_of_gravity_global = FreeCAD.Vector(0,0,0)
             for shape_label in self.parts_of_bodies[body_label]:
-
-                
-                shape_obj = self.doc.getObjectsByLabel(shape_label)[0]
+                #If a part is a subshape of an assemlby, then the part is in the underformed configuration relative
+                #to the placement expression link of the assembly 4 object, therefore have to move the 
+                #calculated CoG by the same amount that the subassembly was moved by assembly 4
+                if self.parent_assembly_all[shape_label] != None:
+                    shape_obj = DapTools.getAssemblyObjectByLabel(self.doc, self.parent_assembly_all[shape_label] , shape_label)
+                    parent_assembly_obj = self.doc.getObjectsByLabel(self.parent_assembly_all[shape_label])[0]
+                    parent_assebly_placement_matrix = parent_assembly_obj.Placement.Matrix
+                else:
+                    shape_obj = self.doc.getObjectsByLabel(shape_label)[0]
+                    parent_assebly_placement_matrix = None
                 #NOTE: Older versions of freecad does not have centerOfGravity function, therefore
                 #rather using centerOfMass, which does not exist for compound shapes.
                 # Therefore performing the check and if body object is a compound shape
@@ -521,21 +545,22 @@ class DapSolverBuilder():
                 if shape_obj.Shape.ShapeType == 'Compound':
                     if len(shape_obj.Shape.Solids)>=1:
                         centre_of_gravity, volume = self.centerOfGravityOfCompound(shape_obj)
-                        volume *= self.scale**3
-                        centre_of_gravity *= self.scale
                 else:
-                    centre_of_gravity = shape_obj.Shape.CenterOfMass * self.scale
-                    volume = shape_obj.Shape.Volume *self.scale**3
+                    centre_of_gravity = shape_obj.Shape.CenterOfMass
+                    volume = shape_obj.Shape.Volume
+                
+                if parent_assebly_placement_matrix != None:
+                    centre_of_gravity = parent_assebly_placement_matrix * centre_of_gravity
+                
+                volume *= self.scale**3
+                centre_of_gravity *= self.scale
+                
 
                 #NOTE: Converting density to base units which is mm?
                 density = Units.Quantity(self.material_dictionary[shape_label]["density"]).getValueAs("kg/m^3")
                 mass = density*volume
                 total_mass += mass
-                #FreeCAD.Console.PrintMessage("Density: " + str(density) + "\n")
-                #FreeCAD.Console.PrintMessage("mass: " + str(mass) + "\n")
-                #FreeCAD.Console.PrintMessage("Density: " + str(density.Value) + "\n")
-                #FreeCAD.Console.PrintMessage("mass: " + str(mass.Value) + "\n")
-                #FreeCAD.Console.PrintMessage("centre_of_gravity: " + str(centre_of_gravity) + "\n")
+                
                 centre_of_gravity_global += mass.Value*centre_of_gravity
                 
             centre_of_gravity_global /= total_mass
