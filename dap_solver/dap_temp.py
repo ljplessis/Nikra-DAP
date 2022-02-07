@@ -90,6 +90,8 @@ def analysis(t, u):
     global num
     num = num + 1
     
+    #NOTE: hardcoding showtime for now
+    showtime = 1
     if showtime == 1:
         if np.mod(t10, 100) == 0:
             print(t)
@@ -567,10 +569,10 @@ def initialize():
         
 #%%% Points 
     nP      = len(Points)
-    nPanim  = len(Points_anim)
+    #nPanim  = len(Points_anim)
     #nPtot   = nP + nPanim - 1
     nPtot = nP 
-    Points  = np.concatenate( (Points, Points_anim),axis=0 ) 
+    #Points  = np.concatenate( (Points, Points_anim),axis=0 ) 
     
     print("==================================")
     print("nPtot",nPtot)
@@ -1746,324 +1748,289 @@ def Update_Velocity():
 #import 
 
 #print(sys.argv)
-folder = sys.argv[1]
-exec(open(os.path.join(folder, 'dapInputSettings.py')).read())
+#folder = sys.argv[1]
+
 
 
 #folder = "/tmp/"
-print("Reading input files")
-exec(open(os.path.join(folder, 'inBodies.py')).read())
-exec(open(os.path.join(folder, 'inForces.py')).read())
-exec(open(os.path.join(folder, 'inFuncts.py')).read())
-exec(open(os.path.join(folder, 'inJoints.py')).read())
-exec(open(os.path.join(folder, 'inPoints.py')).read())
-exec(open(os.path.join(folder, 'inUvectors.py')).read())
+def readInputFiles():
+    global Bodies, nB, nB3, nB6      
+    global Points, nP, Points_anim, nPanim, nPtot
+    global Uvectors, nU 
+    global Joints, nJ, nConst
+    global Forces, nF
+    global M_array, M_inv_array
+    global Functs, nFc
+    global ZZ, redund, cfriction
+    global num, D, Dt, Lambda 
+    global xmin, xmax, ymin, ymax
+    global showtime, t10
+    global flags, pen_d0
+    print("Reading input files")
+    exec(open(os.path.join(folder, 'inBodies.py')).read())
+    exec(open(os.path.join(folder, 'inForces.py')).read())
+    exec(open(os.path.join(folder, 'inFuncts.py')).read())
+    exec(open(os.path.join(folder, 'inJoints.py')).read())
+    exec(open(os.path.join(folder, 'inPoints.py')).read())
+    exec(open(os.path.join(folder, 'inUvectors.py')).read())
+    print("Bodies inside dap_temp_temp", Bodies)
 
 
-#print(Points[1::])
-#broekn
-Points_anim = np.array([[]]).T
+##print(Points[1::])
+##broekn
+#Points_anim = np.array([[]]).T
 
-initialize()
-#ic_correct()
+#initialize()
+##ic_correct()
 
-showtime = 1 #TODO do we really need this?
+#showtime = 1 #TODO do we really need this?
 
-u = np.zeros( (6*(nB),1) )
-u = Bodies_to_u(u)
-
-
-Tspan  = np.arange(t_initial,t_final,dt)
-Tarray = np.zeros( (len(Tspan), len(u)) )
-
-
-Tarray[0,:] = np.concatenate((u), axis=None)
-
-r = integrate.ode(analysis).set_integrator("dop853") # choice of method
-
-r.set_initial_value(u,t_initial)                     # initial values
-
-
-for i in range(1, Tspan.size):
-    Tarray[i, :] = np.concatenate((r.integrate(Tspan[i])),axis=None)
-Tarray_final = Tarray[:,1:(6*(nB-1)+1)]
-if not r.successful():
-    raise RuntimeError("Could not integrate")
-
-
-## TODO temporary saving of outputs...
-## should update this to be more elegant
-#outFile = os.path.join(folder, "dapResults.npy")
-#np.save(outFile, Tarray)
-
-## TODO temporary saving of outputs, saving Bodies CoG r and p
-#Bodies_r_T = []
-#Bodies_p_T = []
-#Bodies_r_d_T = []
-#Bodies_p_d_T = []
-#nt = len(Tspan)
-
-#for i in range(0,nt):
-    #u = Tarray[i,:].T
-    #u_to_Bodies(u)
-    #Bodies_r = []
-    #Bodies_p = []
-    #Bodies_r_d = []
-    #Bodies_p_d = []
-    ##print(Bodies)
-    #for bn in range(1,nB):
-        ##print(Bodies[bn,0])
-        #Bodies_r.append(Bodies[bn,0].r.tolist())
-        #Bodies_p.append(Bodies[bn,0].p.tolist())
-        #Bodies_r_d.append(Bodies[bn,0].r_d.tolist())
-        #Bodies_p_d.append(Bodies[bn,0].p_d.tolist())
-    ##print("Bodies_r",Bodies_r)
-    #Bodies_r_T.append(Bodies_r)
-    #Bodies_p_T.append(Bodies_p)
-    #Bodies_r_d_T.append(Bodies_r_d)
-    #Bodies_p_d_T.append(Bodies_p_d)
-
-#import pickle
-#with open(os.path.join(folder,"Bodies_r"), "wb") as fp:   #Pickling
-    #pickle.dump(Bodies_r_T, fp)
-#with open(os.path.join(folder,"Bodies_p"), "wb") as fp:   #Pickling
-    #pickle.dump(Bodies_p_T, fp)
-#with open(os.path.join(folder,"Bodies_r_d"), "wb") as fp:   #Pickling
-    #pickle.dump(Bodies_r_d_T, fp)
-#with open(os.path.join(folder,"Bodies_p_d"), "wb") as fp:   #Pickling
-    #pickle.dump(Bodies_p_d_T, fp)
-
-#print("Bodies_r_T", Bodies_r_T)
-#print("Done")
-
-#print(Tarray)
-
-if animate:
+def solve():
+    global Bodies, nB, nB3, nB6      
+    global Points, nP, Points_anim, nPanim, nPtot
+    global Uvectors, nU 
+    global Joints, nJ, nConst
+    global Forces, nF
+    global M_array, M_inv_array
+    global Functs, nFc
+    global ZZ, redund, cfriction
+    global num, D, Dt, Lambda 
+    global xmin, xmax, ymin, ymax
+    global showtime, t10
+    global flags, pen_d0
+    global solution_success
+    global Tarray
     
-    nt = len(Tspan)
-    nP = nPtot
+    solution_success = False
+    exec(open(os.path.join(folder, 'dapInputSettings.py')).read())
+    
+    u = np.zeros( (6*(nB),1) )
+    u = Bodies_to_u(u)
 
-    pause_time = 0.01
-    Update_Position()
+
+    Tspan  = np.arange(t_initial,t_final,dt)
+    Tarray = np.zeros( (len(Tspan), len(u)) )
+
+
+    Tarray[0,:] = np.concatenate((u), axis=None)
+
+    r = integrate.ode(analysis).set_integrator("dop853") # choice of method
+
+    r.set_initial_value(u,t_initial)                     # initial values
+
+
+    for i in range(1, Tspan.size):
+        Tarray[i, :] = np.concatenate((r.integrate(Tspan[i])),axis=None)
+    Tarray_final = Tarray[:,1:(6*(nB-1)+1)]
+    if not r.successful():
+        raise RuntimeError("Could not integrate")
+
+    solution_success = True
+    return solution_success
+
+
+def writeOutputs():
+    global Bodies, nB, nB3, nB6      
+    global Points, nP, Points_anim, nPanim, nPtot
+    global Uvectors, nU 
+    global Joints, nJ, nConst
+    global Forces, nF
+    global M_array, M_inv_array
+    global Functs, nFc
+    global ZZ, redund, cfriction
+    global num, D, Dt, Lambda 
+    global xmin, xmax, ymin, ymax
+    global showtime, t10
+    global flags, pen_d0
+    global solution_success
+    global Tarray
+    global write_success
     
-    for Bi in range(1,nB):
-        
-        if Bodies[Bi,0].shape == 'rect':    
-            w2 = Bodies[Bi,0].W/2
-            h2 = Bodies[Bi,0].H/2
-            Bodies[Bi,0].P4 = np.array([[w2, -w2, -w2,  w2,],
-                                        [h2,  h2, -h2, -h2]]) 
-            
-        if Bodies[Bi,0].shape == 'line':
-            if Bodies[Bi,0].W == 0:
-                h2 = Bodies[Bi,0].R/2
-                Bodies[Bi,0].P4 = np.array([[0,  0],
-                                            [h2 ,-h2]])
-            else:
-                w2 = Bodies[Bi,0].R/2
-                Bodies[Bi,0].P4 = np.array([[w2, -w2],
-                                            [0,  0]])
+    write_success = False
     
-    #plot_system()
-    #plt.show()
-    
-    for i in range(1,nt):
+    Tspan  = np.arange(t_initial,t_final,dt)
+    nt  = len(Tspan)                # number of time steps
+    r   = np.zeros((nt,nB,2))       # translational coordinates
+    rd  = np.zeros((nt,nB,2))       # translational velocities
+    rdd = np.zeros((nt,nB,2))       # #translational acceleration
+    p   = np.zeros((nt,nB))         # rotational coordinate
+    pd  = np.zeros((nt,nB))         # angular velocity
+    pdd = np.zeros((nt,nB))         # angular acceleration
+    rP  = np.zeros((nt,nP,2))       # coordinates of points
+    rPd = np.zeros((nt,nP,2))       # velocity of points
+    Jac = np.zeros((nt,nConst,nB3)) # Jacobian matrix
+    Lam = np.zeros((nt,nConst))     # Lagrange multipliers
+    eng = np.zeros((nt,3))          # Energy (kinetic, potential, total)
+
+
+    for i in range(0,nt):
+        t = Tspan[i]
         u = Tarray[i,:].T
         u_to_Bodies(u)
-        Update_Position()
-        plt.clf()
-        plot_system() 
-        plt.pause(pause_time)
-        #if Tspan[i-1] == 0:
-            #if nt>1:
-                #input('Press Enter to continue...') 
-
-    #plt.show()
-else:
-    print('Done solving')
-    
-    
-nt  = len(Tspan)                # number of time steps
-r   = np.zeros((nt,nB,2))       # translational coordinates
-rd  = np.zeros((nt,nB,2))       # translational velocities
-rdd = np.zeros((nt,nB,2))       # #translational acceleration
-p   = np.zeros((nt,nB))         # rotational coordinate
-pd  = np.zeros((nt,nB))         # angular velocity
-pdd = np.zeros((nt,nB))         # angular acceleration
-rP  = np.zeros((nt,nP,2))       # coordinates of points
-rPd = np.zeros((nt,nP,2))       # velocity of points
-Jac = np.zeros((nt,nConst,nB3)) # Jacobian matrix
-Lam = np.zeros((nt,nConst))     # Lagrange multipliers
-eng = np.zeros((nt,3))          # Energy (kinetic, potential, total)
-
-
-for i in range(0,nt):
-    t = Tspan[i]
-    u = Tarray[i,:].T
-    u_to_Bodies(u)
-    analysis(t, u)
-    
-    for Bi in range(1,nB):
-        r[i,Bi,:]   = (Bodies[Bi,0].r).T
-        p[i,Bi]   = (Bodies[Bi,0].p).T
-        rd[i,Bi,:]  = (Bodies[Bi,0].r_d).T
-        pd[i,Bi]  = (Bodies[Bi,0].p_d).T
-        rdd[i,Bi,:] = (Bodies[Bi,0].r_dd).T
-        pdd[i,Bi] = (Bodies[Bi,0].p_dd).T
-    
-    for j in range(1,nP):
-        rP[i,j,:]   = (Points[j,0].rP).T
-        rPd[i,j,:]  = (Points[j,0].rP_d).T
-    
-    if nConst > 0:
-        Jac[i,:,:] = D
-        Lam[i,:] = Lambda.T
-    
-    # Compute kinetic and potential energies
-    kin = ((Tarray[i,3*(nB-1)+1:(6*(nB-1)+1)]) @ ((M_array_ @ np.atleast_2d(Tarray[i,3*(nB-1)+1:(6*(nB-1)+1)].T)))) /2
-    potential = 0
-                           
-    for Fi in range(1,nF):
-        if Forces[Fi,0].type == 'weight':
-            for Bi in range(1,nB):
-                    potential = potential - Bodies[Bi,0].wgt.T@Bodies[Bi,0].r ##### np.dot()?????
+        analysis(t, u)
         
-        if Forces[Fi,0].type == 'ptp':
-            SDA_ptp(Fi)
-            potential = potential + 0.5*Forces[Fi,0].k*delta_ptp**2 
-            
-        if Forces[Fi,0].type == 'rot_sda':
-            SDA_rot(Fi)               
-                           
-        if Forces[Fi,0].type == 'flocal':
-            Bi = Forces[Fi,0].iBindex
-            Bodies[Bi,0].f = Bodies[Bi,0].f + Bodies[Bi,0].A*Forces[Fi,0].flocal
+        for Bi in range(1,nB):
+            r[i,Bi,:]   = (Bodies[Bi,0].r).T
+            p[i,Bi]   = (Bodies[Bi,0].p).T
+            rd[i,Bi,:]  = (Bodies[Bi,0].r_d).T
+            pd[i,Bi]  = (Bodies[Bi,0].p_d).T
+            rdd[i,Bi,:] = (Bodies[Bi,0].r_dd).T
+            pdd[i,Bi] = (Bodies[Bi,0].p_dd).T
         
-        if Forces[Fi,0].type == 'f':
-            Bi = Forces[Fi,0].iBindex
-            Bodies[Bi,0].f = Bodies[Bi,0].f + Forces[Fi,0].f
+        for j in range(1,nP):
+            rP[i,j,:]   = (Points[j,0].rP).T
+            rPd[i,j,:]  = (Points[j,0].rP_d).T
+        
+        if nConst > 0:
+            Jac[i,:,:] = D
+            Lam[i,:] = Lambda.T
+        
+        # Compute kinetic and potential energies
+        kin = ((Tarray[i,3*(nB-1)+1:(6*(nB-1)+1)]) @ ((M_array_ @ np.atleast_2d(Tarray[i,3*(nB-1)+1:(6*(nB-1)+1)].T)))) /2
+        potential = 0
+                            
+        for Fi in range(1,nF):
+            if Forces[Fi,0].type == 'weight':
+                for Bi in range(1,nB):
+                        potential = potential - Bodies[Bi,0].wgt.T@Bodies[Bi,0].r ##### np.dot()?????
             
-        if Forces[Fi,0].type == 'trq':
-            Bi = Forces[Fi,0].iBindex
-            Bodies[Bi,0].n = Bodies[Bi,0].n + Forces[Fi,0].trq  
+            if Forces[Fi,0].type == 'ptp':
+                SDA_ptp(Fi)
+                potential = potential + 0.5*Forces[Fi,0].k*delta_ptp**2 
+                
+            if Forces[Fi,0].type == 'rot_sda':
+                SDA_rot(Fi)               
+                            
+            if Forces[Fi,0].type == 'flocal':
+                Bi = Forces[Fi,0].iBindex
+                Bodies[Bi,0].f = Bodies[Bi,0].f + Bodies[Bi,0].A*Forces[Fi,0].flocal
             
-        #NOTE: TODO include user force
-        #if Forces[Fi,0].type == 'user':  
-            #if selection == 'a':
-                #user_force_AA()
-            #elif selection == 'b':
-                #user_force_Cart_C()
-            #elif selection =='c':
-                #user_force_Cart_D()
-            ## elif selection == 'd':
-            ##     user_force_CB()
-            #elif selection == 'd':
-                #user_force_MP_A()
-            ## elif selection == 'h':
-            ##     user_force_MP_B()
-            ## elif selection == 'i':
-            ##     user_force_MP_C() 
-            ## elif selection == 'f':
-            ##     user_force_Rod()                    
-            #else:
-                #print('Undefined User Force')
-            
-    tot = kin + potential
-    eng[i,:] = np.concatenate((kin[0], potential[0,0], tot[0,0]), axis=None)
+            if Forces[Fi,0].type == 'f':
+                Bi = Forces[Fi,0].iBindex
+                Bodies[Bi,0].f = Bodies[Bi,0].f + Forces[Fi,0].f
+                
+            if Forces[Fi,0].type == 'trq':
+                Bi = Forces[Fi,0].iBindex
+                Bodies[Bi,0].n = Bodies[Bi,0].n + Forces[Fi,0].trq  
+                
+            #NOTE: TODO include user force
+            #if Forces[Fi,0].type == 'user':  
+                #if selection == 'a':
+                    #user_force_AA()
+                #elif selection == 'b':
+                    #user_force_Cart_C()
+                #elif selection =='c':
+                    #user_force_Cart_D()
+                ## elif selection == 'd':
+                ##     user_force_CB()
+                #elif selection == 'd':
+                    #user_force_MP_A()
+                ## elif selection == 'h':
+                ##     user_force_MP_B()
+                ## elif selection == 'i':
+                ##     user_force_MP_C() 
+                ## elif selection == 'f':
+                ##     user_force_Rod()                    
+                #else:
+                    #print('Undefined User Force')
+                
+        tot = kin + potential
+        eng[i,:] = np.concatenate((kin[0], potential[0,0], tot[0,0]), axis=None)
 
-print('Done')     
+    print('Done')     
 
-#WRITE OUTPUT TO FILES
-time_size = 5
-num_size = 15
+    #WRITE OUTPUT TO FILES
+    time_size = 5
+    num_size = 15
 
-#write out positions, velocities and accelerations
-bodyPositionsFid = open(os.path.join(folder,"DapBodyPositions"),'w')
-bodyVelocitiesFid = open(os.path.join(folder,"DapBodyVelocities"),'w')
-bodyAcclerationFid = open(os.path.join(folder,"DapBodyAccelerations"),'w')
+    #write out positions, velocities and accelerations
+    bodyPositionsFid = open(os.path.join(folder,"DapBodyPositions"),'w')
+    bodyVelocitiesFid = open(os.path.join(folder,"DapBodyVelocities"),'w')
+    bodyAcclerationFid = open(os.path.join(folder,"DapBodyAccelerations"),'w')
 
 
-bodyPositionsFid.write("{}".format(str("Time").ljust(time_size)))
-bodyVelocitiesFid.write("{}".format(str("Time").ljust(time_size)))
-bodyAcclerationFid.write("{}".format(str("Time").ljust(time_size)))
-for Bi in range(1,nB):
-    bodyPositionsFid.write("{}".format(("Body"+str(Bi)+'_x').rjust(num_size)))
-    bodyPositionsFid.write("{}".format(("Body"+str(Bi)+'_y').rjust(num_size)))
-    bodyPositionsFid.write("{}".format(("Body"+str(Bi)+'_angle').rjust(num_size)))
-    
-    bodyVelocitiesFid.write("{}".format(("Body"+str(Bi)+'_x').rjust(num_size)))
-    bodyVelocitiesFid.write("{}".format(("Body"+str(Bi)+'_y').rjust(num_size)))
-    bodyVelocitiesFid.write("{}".format(("Body"+str(Bi)+'_angle').rjust(num_size)))
-    
-    bodyAcclerationFid.write("{}".format(("Body"+str(Bi)+'_x').rjust(num_size)))
-    bodyAcclerationFid.write("{}".format(("Body"+str(Bi)+'_y').rjust(num_size)))
-    bodyAcclerationFid.write("{}".format(("Body"+str(Bi)+'_angle').rjust(num_size)))
-#fid.write()
-
-bodyPositionsFid.write("\n")
-bodyVelocitiesFid.write("\n")
-bodyAcclerationFid.write("\n")
-for i in range(0,nt):
-    bodyPositionsFid.write("{}".format(str(Tspan[i]).ljust(time_size)))
-    bodyVelocitiesFid.write("{}".format(str(Tspan[i]).ljust(time_size)))
-    bodyAcclerationFid.write("{}".format(str(Tspan[i]).ljust(time_size)))
+    bodyPositionsFid.write("{}".format(str("Time").ljust(time_size)))
+    bodyVelocitiesFid.write("{}".format(str("Time").ljust(time_size)))
+    bodyAcclerationFid.write("{}".format(str("Time").ljust(time_size)))
     for Bi in range(1,nB):
-        bodyPositionsFid.write("{:15f}{:15f}{:15f}".format(r[i][Bi][0],
-                                                           r[i][Bi][1],
-                                                           p[i][Bi]))
-        bodyVelocitiesFid.write("{:15f}{:15f}{:15f}".format(rd[i][Bi][0],
-                                                           rd[i][Bi][1],
-                                                           pd[i][Bi]))
-        bodyAcclerationFid.write("{:15f}{:15f}{:15f}".format(rdd[i][Bi][0],
-                                                           rdd[i][Bi][1],
-                                                           pdd[i][Bi]))
+        bodyPositionsFid.write("{}".format(("Body"+str(Bi)+'_x').rjust(num_size)))
+        bodyPositionsFid.write("{}".format(("Body"+str(Bi)+'_y').rjust(num_size)))
+        bodyPositionsFid.write("{}".format(("Body"+str(Bi)+'_angle').rjust(num_size)))
+        
+        bodyVelocitiesFid.write("{}".format(("Body"+str(Bi)+'_x').rjust(num_size)))
+        bodyVelocitiesFid.write("{}".format(("Body"+str(Bi)+'_y').rjust(num_size)))
+        bodyVelocitiesFid.write("{}".format(("Body"+str(Bi)+'_angle').rjust(num_size)))
+        
+        bodyAcclerationFid.write("{}".format(("Body"+str(Bi)+'_x').rjust(num_size)))
+        bodyAcclerationFid.write("{}".format(("Body"+str(Bi)+'_y').rjust(num_size)))
+        bodyAcclerationFid.write("{}".format(("Body"+str(Bi)+'_angle').rjust(num_size)))
+    #fid.write()
+
     bodyPositionsFid.write("\n")
     bodyVelocitiesFid.write("\n")
     bodyAcclerationFid.write("\n")
+    for i in range(0,nt):
+        bodyPositionsFid.write("{}".format(str(Tspan[i]).ljust(time_size)))
+        bodyVelocitiesFid.write("{}".format(str(Tspan[i]).ljust(time_size)))
+        bodyAcclerationFid.write("{}".format(str(Tspan[i]).ljust(time_size)))
+        for Bi in range(1,nB):
+            bodyPositionsFid.write("{:15f}{:15f}{:15f}".format(r[i][Bi][0],
+                                                            r[i][Bi][1],
+                                                            p[i][Bi]))
+            bodyVelocitiesFid.write("{:15f}{:15f}{:15f}".format(rd[i][Bi][0],
+                                                            rd[i][Bi][1],
+                                                            pd[i][Bi]))
+            bodyAcclerationFid.write("{:15f}{:15f}{:15f}".format(rdd[i][Bi][0],
+                                                            rdd[i][Bi][1],
+                                                            pdd[i][Bi]))
+        bodyPositionsFid.write("\n")
+        bodyVelocitiesFid.write("\n")
+        bodyAcclerationFid.write("\n")
 
-bodyPositionsFid.close()
-bodyVelocitiesFid.close()
-bodyAcclerationFid.close()
+    bodyPositionsFid.close()
+    bodyVelocitiesFid.close()
+    bodyAcclerationFid.close()
 
 
-#write out system energy
-energyFid = open(os.path.join(folder, "DapSystemEnergy"),'w')
-energyFid.write("{}{}{}{}".format(str("Time").ljust(time_size),
-                                  str("Kinetic").rjust(num_size),
-                                  str("Potential").rjust(num_size),
-                                  str("Total").rjust(num_size)))
-energyFid.write("\n")
-for i in range(nt):
-    energyFid.write("{}{:15e}{:15e}{:15e}".format(str(Tspan[i]).ljust(time_size),
-                                                  eng[i,0],
-                                                  eng[i,1],
-                                                  eng[i,2]))
+    #write out system energy
+    energyFid = open(os.path.join(folder, "DapSystemEnergy"),'w')
+    energyFid.write("{}{}{}{}".format(str("Time").ljust(time_size),
+                                    str("Kinetic").rjust(num_size),
+                                    str("Potential").rjust(num_size),
+                                    str("Total").rjust(num_size)))
     energyFid.write("\n")
-energyFid.close()
+    for i in range(nt):
+        energyFid.write("{}{:15e}{:15e}{:15e}".format(str(Tspan[i]).ljust(time_size),
+                                                    eng[i,0],
+                                                    eng[i,1],
+                                                    eng[i,2]))
+        energyFid.write("\n")
+    energyFid.close()
 
-pointsFid = open(os.path.join(folder, "DapPointsPositions"),'w')
-pointsVelFid = open(os.path.join(folder, "DapPointsVelocities"),'w')
+    pointsFid = open(os.path.join(folder, "DapPointsPositions"),'w')
+    pointsVelFid = open(os.path.join(folder, "DapPointsVelocities"),'w')
 
-pointsFid.write("{}".format(str("Time").ljust(time_size)))
-pointsVelFid.write("{}".format(str("Time").ljust(time_size)))
-for Pi in range(1,nP):
-    pointsFid.write("{}".format(("Point"+str(Pi)+'_x').rjust(num_size)))
-    pointsFid.write("{}".format(("Point"+str(Pi)+'_y').rjust(num_size)))
-    
-    pointsVelFid.write("{}".format(("Point"+str(Pi)+'_x').rjust(num_size)))
-    pointsVelFid.write("{}".format(("Point"+str(Pi)+'_y').rjust(num_size)))
-
-pointsFid.write("\n")
-pointsVelFid.write("\n")
-for i in range(0,nt):
-    pointsFid.write("{}".format(str(Tspan[i]).ljust(time_size)))
-    pointsVelFid.write("{}".format(str(Tspan[i]).ljust(time_size)))
+    pointsFid.write("{}".format(str("Time").ljust(time_size)))
+    pointsVelFid.write("{}".format(str("Time").ljust(time_size)))
     for Pi in range(1,nP):
-        pointsFid.write("{:15f}{:15f}".format(rP[i][Pi][0],
-                                              rP[i][Pi][1]))
-        pointsVelFid.write("{:15f}{:15f}".format(rPd[i][Pi][0],
-                                                 rPd[i][Pi][1]))
+        pointsFid.write("{}".format(("Point"+str(Pi)+'_x').rjust(num_size)))
+        pointsFid.write("{}".format(("Point"+str(Pi)+'_y').rjust(num_size)))
+        
+        pointsVelFid.write("{}".format(("Point"+str(Pi)+'_x').rjust(num_size)))
+        pointsVelFid.write("{}".format(("Point"+str(Pi)+'_y').rjust(num_size)))
+
     pointsFid.write("\n")
     pointsVelFid.write("\n")
-pointsFid.close()
-pointsVelFid.close()
+    for i in range(0,nt):
+        pointsFid.write("{}".format(str(Tspan[i]).ljust(time_size)))
+        pointsVelFid.write("{}".format(str(Tspan[i]).ljust(time_size)))
+        for Pi in range(1,nP):
+            pointsFid.write("{:15f}{:15f}".format(rP[i][Pi][0],
+                                                rP[i][Pi][1]))
+            pointsVelFid.write("{:15f}{:15f}".format(rPd[i][Pi][0],
+                                                    rPd[i][Pi][1]))
+        pointsFid.write("\n")
+        pointsVelFid.write("\n")
+    pointsFid.close()
+    pointsVelFid.close()
+    write_success = True

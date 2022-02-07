@@ -706,7 +706,7 @@ class DapSolverBuilder():
 
         
         cwd = DapTools.get_module_path()
-        dap_solver = os.path.join(cwd,"dap_solver","dap_temp.py")
+        #dap_solver = os.path.join(cwd,"dap_solver","dap_temp.py")
         #exec(open(dap_solver).read())
         
         self.dapResults = None
@@ -714,7 +714,7 @@ class DapSolverBuilder():
         self.obj.DapResults = None
         
 
-        pythonCommand = "python3 " + str(dap_solver) + " " + str(self.folder)
+        #pythonCommand = "python3 " + str(dap_solver) + " " + str(self.folder)
 
         
         #from PySide.QtCore import QProcess
@@ -722,7 +722,7 @@ class DapSolverBuilder():
         #self.process = QtCore.QProcess()
         #self.process.finished.connect(self.onFinished)
         
-        FreeCAD.Console.PrintMessage("DAP solver started.\n")
+        
         
         #self.process.start("python3",[str(dap_solver), str(self.folder)])
         #self.process.start(pythonCommand)
@@ -731,36 +731,42 @@ class DapSolverBuilder():
         #self.process.waitForFinished()
         #output = self.process.readAllStandardOutput()
         #FreeCAD.Console.PrintMessage(output)
-        import subprocess
-        import sys
+        #import subprocess
+        #import sys
         #import os
         #result = subprocess.run(["python", dap_solver, self.folder])
         #os.system(dap_solver + " " + str(self.folder))
-        import dap_temp_temp
-        dap_temp_temp.folder = self.folder
-        dap_temp_temp.readInputFiles()
-        dap_temp_temp.initialize()
-        dap_temp_temp.t_initial = self.t_initial
-        dap_temp_temp.dt = self.reporting_time
-        dap_temp_temp.t_final = self.t_final
-        dap_temp_temp.solve()
-        dap_temp_temp.writeOutputs()
-        
-        
-        FreeCAD.Console.PrintMessage("Was the solve step success: " + str(dap_temp_temp.solution_success) + "\n")
-        FreeCAD.Console.PrintMessage("write success: " + str(dap_temp_temp.write_success) + "\n")
+        import dap_temp
+        dap_temp.folder = self.folder
+        dap_temp.readInputFiles()
+        dap_temp.initialize()
+        dap_temp.t_initial = self.t_initial
+        dap_temp.dt = self.reporting_time
+        dap_temp.t_final = self.t_final
+        FreeCAD.Console.PrintMessage("DAP solver started.\n")
+        solution_success = dap_temp.solve()
+        if solution_success:
+            FreeCAD.Console.PrintMessage("Solver solved Succesfully \n")
+            dap_temp.writeOutputs()
+            if dap_temp.write_success:
+                FreeCAD.Console.PrintMessage("Results successfully loaded. Should now be able to animate and \
+plot the generated results \n")
+                self.loadResults()
+        else:
+            FreeCAD.Console.PrintError("There was an error solving the system. Proper error checking has not yet been\
+included. \n")
         #FreeCAD.Console.PrintMessage("Python runnable" + sys.executable + "\n")
         #result = subprocess.run([sys.executable, dap_solver, self.folder])
         #FreeCAD.Console.PrintMessage(result)
-        self.loadResults()
         
-    def onFinished(self,  exitCode,  exitStatus):
-        if exitCode == 0:
-            FreeCAD.Console.PrintMessage("Solver completed Succesfully \n")
-            self.loadResults()
-            self.resultsAvailable = True
-        else:
-            FreeCAD.Console.PrintError("Solver Failed: error codes not yet included (in the TODO list)\n")
+        
+    #def onFinished(self,  exitCode,  exitStatus):
+        #if exitCode == 0:
+            #FreeCAD.Console.PrintMessage("Solver completed Succesfully \n")
+            #self.loadResults()
+            #self.resultsAvailable = True
+        #else:
+            #FreeCAD.Console.PrintError("Solver Failed: error codes not yet included (in the TODO list)\n")
         
     def loadResults(self):
         #results = os.path.join(self.folder, "dapResults.npy")
