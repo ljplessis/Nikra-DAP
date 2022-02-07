@@ -19,7 +19,7 @@ PLOT_ITEMS = ["Position",
 
 class _CommandDapPlot:
     def GetResources(self):
-        icon_path = os.path.join(DapTools.get_module_path(), "Gui", "Resources", "icons", "Icon8.png")
+        icon_path = os.path.join(DapTools.get_module_path(), "Gui", "Resources", "icons", "Icon9.png")
         return {
             'Pixmap': icon_path,
             'MenuText': QtCore.QT_TRANSLATE_NOOP("Dap_Plot", "Plot results"),

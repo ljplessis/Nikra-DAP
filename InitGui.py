@@ -31,8 +31,8 @@ class DapWorkbench(Workbench):
                   "Separator",
                   "Dap_Body",
                   "Dap_Joint",
-                  "Dap_Force",
                   "Dap_Material",
+                  "Dap_Force",
                   #"Dap_Point",#point functionality has not yet been included in the solver builder
                   "Separator",
                   "Dap_Solver",
