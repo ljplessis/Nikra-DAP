@@ -1,8 +1,8 @@
 # ***************************************************************************
-# *                                                                             *
-# *   Copyright (c) 2022 Lukas du Plessis (UP) <lukas.duplessis@up.ac.za>       *
-# *   Copyright (c) 2022 Alfred Bogaers (CSIR) <alfred.bogaers@ex-mente.co.za>  *
-# *   Copyright (c) 2022 Dewald Hattingh (UP) <u17082006@tuks.co.za>            *
+# *                                                                                  *
+# *   Copyright (c) 2022 Lukas du Plessis (UP) <lukas.duplessis@up.ac.za>            *
+# *   Copyright (c) 2022 Alfred Bogaers (EX-MENTE) <alfred.bogaers@ex-mente.co.za>   *
+# *   Copyright (c) 2022 Dewald Hattingh (UP) <u17082006@tuks.co.za>                 *
 # *   Copyright (c) 2022 Varnu Govender (UP) <govender.v@tuks.co.za>            *
 # *                                                                             *
 # *   This program is free software; you can redistribute it and/or modify      *
@@ -20,14 +20,15 @@
 # *   License along with this program; if not, write to the Free Software       *
 # *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307      *
 # *   USA                                                                       *
-# *                                                                                     
+# *                                                                             *        
 # *     Nikra-DAP FreeCAD WorkBench (c) 2022:                                   *
-# *         - Please refer to the documentation and ReadME 
-# *           for more information regarding this WorkBench. 
-# *
-# *     Author of this file:                                                     *
-# *        -  Varnu Govender (UP) <govender.v@tuks.co.za>                        *
-# ****************************************************************************
+# *         - Please refer to the documentation and ReadME                      *
+# *           for more information regarding this WorkBench.                    *
+# *                                                                             *
+# *     Author of this file:                                                    *
+# *        -  Varnu Govender (UP) <govender.v@tuks.co.za>                       *
+# *                                                                             *
+# *******************************************************************************
 
 
 from pickle import FALSE
