@@ -201,23 +201,20 @@ class TaskPanelPlot:
                 units = "m/s"
             if self.form.orthonormalRadioButton.isChecked():
                 if what_to_plot == "Position" or what_to_plot == "Velocity":
-                    
-                    fig = Plot.figure(what_to_plot)
+                    fig = Plot.figure("x " + what_to_plot)
                     ax = fig.axes
                     
                     x_list, y_list = self.extractPlotDispVel(parts_list, times, what_to_plot)
-
-                    ax.change_geometry(2,1,1)
-                    ax.set_title(what_to_plot)
+    
+                    ax.set_title("x " + what_to_plot)
                     ax.set_ylabel("x ["+str(units)+"]")
                     for i in range(len(x_list)):
                         ax.plot(times, x_list[i], label=legend_list[i])
                     ax.legend(loc='lower left')
+                    fig.update()
                     
-                    
-                    
-                    ax = fig.fig.add_subplot(2,1,2)
-                    ax.change_geometry(2,1,2)
+                    fig = Plot.figure("y " + what_to_plot)
+                    ax = fig.axes
                     ax.set_xlabel("Time [s]")
                     ax.set_ylabel("y ["+str(units)+"]")
                     for i in range(len(y_list)):
@@ -225,6 +222,32 @@ class TaskPanelPlot:
                     ax.legend(loc='lower left')
                     
                     fig.update()
+                    
+                    
+                    #NOTE: For subplots instead of individual windows
+                    #fig = Plot.figure(what_to_plot)
+                    #ax = fig.axes
+                    
+                    #x_list, y_list = self.extractPlotDispVel(parts_list, times, what_to_plot)
+
+                    #ax.change_geometry(2,1,1)
+                    #ax.set_title(what_to_plot)
+                    #ax.set_ylabel("x ["+str(units)+"]")
+                    #for i in range(len(x_list)):
+                        #ax.plot(times, x_list[i], label=legend_list[i])
+                    #ax.legend(loc='lower left')
+                    
+                    
+                    
+                    #ax = fig.fig.add_subplot(2,1,2)
+                    #ax.change_geometry(2,1,2)
+                    #ax.set_xlabel("Time [s]")
+                    #ax.set_ylabel("y ["+str(units)+"]")
+                    #for i in range(len(y_list)):
+                        #ax.plot(times, y_list[i], label=legend_list[i])
+                    #ax.legend(loc='lower left')
+                    
+                    #fig.update()
 
                 elif what_to_plot == "Path Trace":
                     fig = Plot.figure("Path Trace")
@@ -249,27 +272,62 @@ class TaskPanelPlot:
                     x_list, y_list = self.extractPlotDispVel(parts_list, times, what_to_plot)
                     x_list, y_list, z_list = self.convertOrthonormalToReal(x_list, y_list)
 
-                    ax.change_geometry(3,1,1)
-                    ax.set_title(what_to_plot)
+
+                    fig = Plot.figure("x " + what_to_plot)
+                    ax = fig.axes
+                    
+                    x_list, y_list = self.extractPlotDispVel(parts_list, times, what_to_plot)
+    
+                    ax.set_title("x " + what_to_plot)
                     ax.set_ylabel("x ["+str(units)+"]")
                     for i in range(len(x_list)):
                         ax.plot(times, x_list[i], label=legend_list[i])
                     ax.legend(loc='lower left')
+                    fig.update()
                     
-                    ax = fig.fig.add_subplot(3,1,2)
+                    fig = Plot.figure("y " + what_to_plot)
+                    ax = fig.axes
                     ax.set_xlabel("Time [s]")
                     ax.set_ylabel("y ["+str(units)+"]")
                     for i in range(len(y_list)):
                         ax.plot(times, y_list[i], label=legend_list[i])
-                        
-                    ax = fig.fig.add_subplot(3,1,3)
+                    ax.legend(loc='lower left')
+                    
+                    fig.update()
+                    
+                    fig = Plot.figure("z " + what_to_plot)
+                    ax = fig.axes
                     ax.set_xlabel("Time [s]")
                     ax.set_ylabel("z ["+str(units)+"]")
-                    for i in range(len(y_list)):
+                    for i in range(len(z_list)):
                         ax.plot(times, z_list[i], label=legend_list[i])
-
                     ax.legend(loc='lower left')
+                    
                     fig.update()
+                    
+                    
+                    #NOTE: For subplots instead of individual windows
+                    #ax.change_geometry(3,1,1)
+                    #ax.set_title(what_to_plot)
+                    #ax.set_ylabel("x ["+str(units)+"]")
+                    #for i in range(len(x_list)):
+                        #ax.plot(times, x_list[i], label=legend_list[i])
+                    #ax.legend(loc='lower left')
+                    
+                    #ax = fig.fig.add_subplot(3,1,2)
+                    #ax.set_xlabel("Time [s]")
+                    #ax.set_ylabel("y ["+str(units)+"]")
+                    #for i in range(len(y_list)):
+                        #ax.plot(times, y_list[i], label=legend_list[i])
+                        
+                    #ax = fig.fig.add_subplot(3,1,3)
+                    #ax.set_xlabel("Time [s]")
+                    #ax.set_ylabel("z ["+str(units)+"]")
+                    #for i in range(len(y_list)):
+                        #ax.plot(times, z_list[i], label=legend_list[i])
+
+                    #ax.legend(loc='lower left')
+                    #fig.update()
                     
                 if what_to_plot == "Path Trace":
                     fig = Plot.figure("Path Trace")
