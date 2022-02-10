@@ -2,7 +2,7 @@
 
 The FreeCAD Nikra-DAP WorkBench is a planar multibody dynamics workbench that is based on Prof. Nikravesh's DAP solver. 
 
-## [Example of a multibody planar dynamic mechanism](./Tutorials/Double_Pendulum/Double_Pendulum.MD)
+## [Example of a multibody planar dynamic mechanism](./Documentation/Tutorials/Double_Pendulum/Double_Pendulum.MD)
 ![Opening the WorkBench](./Documentation/Tutorials/Double_Pendulum/Illustrations/21.gif)
 
 <br />
