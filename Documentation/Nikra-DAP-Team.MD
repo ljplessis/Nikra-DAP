@@ -4,7 +4,7 @@
 
 Senior Lecturer at the University of Pretoria under the Department of Mechanical and Aeronautical Engineering.
 
-![Opening the WorkBench](./Team/Ldp.jpg)
+![Opening the WorkBench](./Team/LdP.jpg)
 
  - Project initiator
  - Contributed to the 'relative movement/Dap Joint' functionality
