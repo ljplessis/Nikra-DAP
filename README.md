@@ -1,1 +1,0 @@
-# Nikra-DAP
