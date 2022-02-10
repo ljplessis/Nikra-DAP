@@ -3,7 +3,7 @@
 The FreeCAD Nikra-DAP WorkBench is a planar multibody dynamics workbench that is based on Prof. Nikravesh's DAP solver. 
 
 ## [Example of a multibody planar dynamic mechanism](./Tutorials/Double_Pendulum/Double_Pendulum.MD)
-![Opening the WorkBench](./Tutorials/Double_Pendulum/Illustrations/21.gif)
+![Opening the WorkBench](./Documentation/Tutorials/Double_Pendulum/Illustrations/21.gif)
 
 <br />
 
@@ -11,7 +11,7 @@ The FreeCAD Nikra-DAP WorkBench is a planar multibody dynamics workbench that is
 
 ## Professor Parvis E. Nikravesh
 
-![Opening the WorkBench](./Team/Nikra.jpg)
+![Opening the WorkBench](./Documentation//Team/Nikra.jpg)
 
 Prof. Nikravesh's work on computational dynamics has lead to the creation of the Nikra-DAP workbench. Formulations were adapted from **Planar Multibody Dynamics (Parvis E. Nikravesh) 2nd Ed**
 
@@ -19,10 +19,10 @@ Prof. Nikravesh's work on computational dynamics has lead to the creation of the
 
 ## Thank you to our funders:
 
-![Opening the WorkBench](./Logos/EngX.png)
+![Opening the WorkBench](./Documentation/Logos/EngX.png)
 
-![Opening the WorkBench](./Logos/LRF.jpg)
-![Opening the WorkBench](./Logos/RAE_B.png)
+![Opening the WorkBench](./Documentation/Logos/LRF.jpg)
+![Opening the WorkBench](./Documentation/Logos/RAE_B.png)
 
 - This project is funded through Engineering X, an international collaboration founded by the Royal Academy of Engineering and Lloyd's Register Foundation.
 
@@ -30,7 +30,7 @@ Prof. Nikravesh's work on computational dynamics has lead to the creation of the
 
 <br />
 
-# [Nikra-DAP Team](./Nikra-DAP-Team.MD)
+# [Nikra-DAP Team](./Documentation/Nikra-DAP-Team.MD)
 
 # Installation
 
@@ -78,9 +78,9 @@ These parameters are defined as follows:
 
 A variety of planar dynamic problems can be modelled in Nikra-DAP. We have compiled three tutorials that demonstrates the functionality of Nikra-DAP: 
 
-- [Simple Pendulum](./Tutorials/Simple_Pendulum/Simple_Pendulum.MD)
-- [Double Pendulum](./Tutorials/Double_Pendulum/Double_Pendulum.MD)
-- [Sliding Pendulum](./Tutorials/Sliding_Pendulum/Sliding_Pendulum.MD)
+- [Simple Pendulum](./Documentation/Tutorials/Simple_Pendulum/Simple_Pendulum.MD)
+- [Double Pendulum](./Documentation/Tutorials/Double_Pendulum/Double_Pendulum.MD)
+- [Sliding Pendulum](./Documentation/Tutorials/Sliding_Pendulum/Sliding_Pendulum.MD)
 
 
 
