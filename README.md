@@ -9,11 +9,11 @@ The FreeCAD Nikra-DAP WorkBench is a planar multibody dynamics workbench that is
 
 # Acknowledgments
 
-## Professor Parvis E. Nikravesh
+## Professor Parviz E. Nikravesh
 
 ![Opening the WorkBench](./Documentation/Team/Nikra.jpg)
 
-Prof. Nikravesh's work on computational dynamics has lead to the creation of the Nikra-DAP workbench. Formulations were adapted from **Planar Multibody Dynamics (Parvis E. Nikravesh) 2nd Ed**
+Prof. Nikravesh's work on computational dynamics has lead to the creation of the Nikra-DAP workbench. Formulations were adapted from **Planar Multibody Dynamics (Parviz E. Nikravesh) 2nd Ed**
 
 <br />
 
