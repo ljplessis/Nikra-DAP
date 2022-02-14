@@ -1,32 +1,9 @@
 # Sliding Pendulum 
-This tutorial will show you how to use the Nikra-DAP FreeCAD WorkBench to solve a simple pendulum dynamics problem. 
+This tutorial will show you how to use the Nikra-DAP FreeCAD WorkBench to solve a sliding pendulum dynamics problem. Please refer to the README for a basic run-down on all features within Nikra-DAP.
 
-# Basic Overview 
-
-The FreeCAD Nikra-DAP WorkBench is a planar multibody dynamics workbench that is based on Prof. Nikravesh's DAP solver. 
-
-In order to utilise the Nikra-DAP solver to solve planar dynamic problems. Several analysis parameters needs to be defined. 
-
-These parameters are defined as follows: 
-
-* DapBody: A single body that forms part of a multibody system. The equations of motion are then constructed for this body by using the body-coordinate method. (Nikravesh, 2019) These can be defined as either ground or moving and intial conditions can be assigned to them.
-
-* DapJoint: This defines the Degrees of Freedom between several bodies or between a body and ground. This can either be revolute or linear translation. 
-
-* DapForce:  Forces such as gravity, a linear spring, linear damper, rotational (torsional) spring and rotational damper are options and its placement in the mechanism can also be selected. **(This makes use of the LCS assigned to a body as well as the body itself)** 
-
-* DapMaterial: This defines the material properties for each DapBody. You can also manually insert a density if your material is not shown in the list. 
-
-* DapSolver: Allows you to select the plane of motion and also the time step. The plane of motion can be one of the cartesian planes, a plane auto-generated from a selected object. From an Assembly 4 standpoint, by using the object selection feature, you can select the master sketch and use the plane of motion defined within the master sketch. 
-
-* DapAnimate: Once the solver has completed, you can then view an animation of the DAP Mechanism. 
-
-* DapPlot: Several plots can be generated for each of the bodies. These plots include: postion, velocity, a path trace as well as energies. These can be plotted in orthonormal co-ordinates or 3D co-coordinates. 
-
-* **Attach legend!!!!**
+<br/>
 
 # Sliding  pendulum tutorial 
-
 ## Prerequisites 
 In order to progress further with this tutorial, you need to have: 
 1. Nikra-DAP WorkBench installed (refer to the **Readme** for further information on installation)
@@ -36,6 +13,9 @@ In order to progress further with this tutorial, you need to have:
 ## Initial Steps 
 
 Several assembly files for this sliding pendulum have been made availible for purposes of this tutorial. Each assembly has been created in a different way. Depending on your Assembly 4 workflow, you might use multiple sub-assemblies or just use bodies directly in your document. *Nikra-DAP* allows you to assign a DapBody to a sub-assembly, **only if the sub-assembly is contained within the assembly and not within another sub-assembly**
+
+The assembly files can be found in the **FreeCAD Tutorial Files** folder in **Documentation**, you only need to open the FreeCAD Assembly file. (They have been marked with **OPEN**.)
+There are two options for each type of assembly, both options are functional within Nikra-DAP. 
 
 ## Opening the WorkBench
 
