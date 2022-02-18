@@ -37,7 +37,7 @@ class DapWorkbench(Workbench):
         import DapTools
         icon_path = os.path.join(DapTools.get_module_path(), "Gui", "Resources", "icons", "Icon1.png")
         self.__class__.Icon = icon_path
-        self.__class__.MenuText = "Nikra-DAP Workbench"
+        self.__class__.MenuText = "Nikra-DAP"
         self.__class__.ToolTip = "Planar multibody dynamics workbench based on Prof. Nikravesh DAP solver"
 
 
