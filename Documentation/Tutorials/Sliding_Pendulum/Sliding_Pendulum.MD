@@ -166,7 +166,7 @@ In the *Force Type* drop down menu, you can select gravity and click *Ok* or hit
 
 Now let us define the spring force, open a new DapForce container: 
 
-![Selecting the body](./Illustrations/23.png)
+![Selecting the body](./Illustrations/21.png)
 
 1. In the *Force Type* drop down menu, you can select Spring. 
 
