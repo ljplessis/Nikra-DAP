@@ -286,7 +286,7 @@ class TaskPanelDapJoint:
         sel = FreeCADGui.Selection.getSelectionEx()
         updated = False
         if len(sel)>1 or len(sel[0].SubElementNames)>1:
-            FreeCAD.Console.PrintError("Only a single face, or single LCS should be selected when defining co-ordinate.")
+            FreeCAD.Console.PrintError("Only a single face, or single LCS should be selected when defining coordinate.")
         else:
             if "LCS" in sel[0].Object.Name:
                 if self.joint_type_index == 0:

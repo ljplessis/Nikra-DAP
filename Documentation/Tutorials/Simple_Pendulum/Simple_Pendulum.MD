@@ -7,12 +7,12 @@ This tutorial will show you how to use the Nikra-DAP FreeCAD WorkBench to solve 
 ## Prerequisites 
 In order to progress further with this tutorial, you need to have: 
 1. Nikra-DAP WorkBench installed (refer to the **Readme** for further information on installation)
-2. FreeCAD Plot WorkBench Installed (availible in **Addon Manager**)
-3. Assembly 4 WorkBench Installed (availible in **Addon Manager**)
+2. FreeCAD Plot WorkBench Installed (available in **Addon Manager**)
+3. Assembly 4 WorkBench Installed (available in **Addon Manager**)
 
 ## Initial Steps 
 
-An assembly file for the simple pendulum has been made availible for purposes of this tutorial. If you are familiar with Assembly 4, you can recreate this assembly, *the steps for this tutorial will not change* 
+An assembly file for the simple pendulum has been made available for purposes of this tutorial. If you are familiar with Assembly 4, you can recreate this assembly, *the steps for this tutorial will not change* 
 
 The assembly files can be found in the **FreeCAD Tutorial Files** folder in **Documentation**, you only need to open the FreeCAD Assembly file. (They have been marked with **OPEN**)
 
@@ -46,7 +46,7 @@ This is illustrated below:
 2. Select the body 
 3. Switch back to the DapBody task panel.
 4. Click *Add*
-5. The body will show up on the parts list, it should also highlight on screen in a diffeent colour. 
+5. The body will show up on the parts list, it should also highlight on screen in a different colour. 
 6. Click *Ok* or hit *Enter* 
 
 ![Selecting the body](./Illustrations/4.png)
@@ -80,7 +80,7 @@ Open the joint selection panel to do this:
 
 ![Selecting the body](./Illustrations/6.png)
 
-**NB! You can select the bodies in any order, Body 1 can be the DapBody and Body 2 can be ground, this should not affect the results. In additon to this, you can also select the LCS in the model tree view, it would be better to make selections in the model tree view but for this case, it was not neccessary**
+**NB! You can select the bodies in any order, Body 1 can be the DapBody and Body 2 can be ground, this should not affect the results. In addition to this, you can also select the LCS in the model tree view, it would be better to make selections in the model tree view but for this case, it was not necessary**
 
 You will notice that a rounded arrow will show up. If this shows up at the correct place, you have chosen the revolute joint/relative movement correctly.
 
@@ -119,13 +119,13 @@ In the *Force Type* drop down menu, you can select gravity and click *Ok* or hit
 
 ### Running the solver 
 
-Two more steps need to be completed before we can solve this pendulum problem, we need to deifne the plane of motion as well as define the time steps. 
+Two more steps need to be completed before we can solve this pendulum problem, we need to define the plane of motion as well as define the time steps. 
 
 Open the solver panel: 
 
 ![Selecting the body](./Illustrations/9'.png)
 
-A wide variety of options are availible for the plane of motion. You are welcome to choose the *X-Y Plane* as the plane of motion. 
+A wide variety of options are available for the plane of motion. You are welcome to choose the *X-Y Plane* as the plane of motion. 
 
 However, to illustrate how the 'Master-Sketch' can be selected to define the plane of motion, the following steps need to be followed: 
 
@@ -170,12 +170,12 @@ Open the plotting selection panel:
 
 ![Selecting the body](./Illustrations/15'.png)
 
-You can plot several different plots and you can view those both in orthonormal co-ordinates or 3D co-ordinates. 
+You can plot several different plots and you can view those both in orthonormal coordinates or 3D coordinates. 
 
 For example, let us view a 2D sketch of the path trace of our single pendulum:
 
 1. You can select *path trace* in the plotting drop down menu, here you can also see what other plots can be generated for this mechanism. 
-2. Select your co-ordinate system, in our cae we will use the orthonormal co-ordinate system. 
+2. Select your coordinate system, in our cae we will use the orthonormal coordinate system. 
 3. You can select which bodies in particular that you want to analyse. In our case, we only have a single DapBody. Select it from the drop down menu and click *add*. 
 4. Click on *plot* and a new document with your generated plot will be opened. With each new plot you generate a new document will be opened. 
 
@@ -185,7 +185,7 @@ Once the plot has been generated, you will be able to use several controls to in
 
 ![Selecting the body](./Illustrations/16.png)
 
-You are welcome to tinker with your Dap Analysis to explore the other options that are availible to you. 
+You are welcome to tinker with your Dap Analysis to explore the other options that are available to you. 
 
 
 

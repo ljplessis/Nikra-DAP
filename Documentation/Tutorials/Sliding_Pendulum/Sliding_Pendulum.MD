@@ -7,12 +7,12 @@ This tutorial will show you how to use the Nikra-DAP FreeCAD WorkBench to solve 
 ## Prerequisites 
 In order to progress further with this tutorial, you need to have: 
 1. Nikra-DAP WorkBench installed (refer to the **Readme** for further information on installation)
-2. FreeCAD Plot WorkBench Installed (availible in **Addon Manager**)
-3. Assembly 4 WorkBench Installed (availible in **Addon Manager**)
+2. FreeCAD Plot WorkBench Installed (available in **Addon Manager**)
+3. Assembly 4 WorkBench Installed (available in **Addon Manager**)
 
 ## Initial Steps 
 
-Several assembly files for this sliding pendulum have been made availible for purposes of this tutorial. Each assembly has been created in a different way. Depending on your Assembly 4 workflow, you might use multiple sub-assemblies or just use bodies directly in your document. *Nikra-DAP* allows you to assign a DapBody to a sub-assembly, **only if the sub-assembly is contained within the assembly and not within another sub-assembly**
+Several assembly files for this sliding pendulum have been made available for purposes of this tutorial. Each assembly has been created in a different way. Depending on your Assembly 4 workflow, you might use multiple sub-assemblies or just use bodies directly in your document. *Nikra-DAP* allows you to assign a DapBody to a sub-assembly, **only if the sub-assembly is contained within the assembly and not within another sub-assembly**
 
 The assembly files can be found in the **FreeCAD Tutorial Files** folder in **Documentation**, you only need to open the FreeCAD Assembly file. (They have been marked with **OPEN**.)
 There are two options for each type of assembly, both options are functional within Nikra-DAP. 
@@ -82,7 +82,7 @@ The steps for body selection does not change however:
 
 Selecting DapJoints, or the relative movement between bodies is up next. 
 
-In our case, we need to define relative movement in two places, a linear translational movement between the orgin and the sliding plate as well as a revolute motion between the pendulum and the sliding plates. 
+In our case, we need to define relative movement in two places, a linear translational movement between the origin and the sliding plate as well as a revolute motion between the pendulum and the sliding plates. 
 
 The selection process would need to be undertaken twice for this. 
 
@@ -102,7 +102,7 @@ We are going to define the revolute motion first:
 5. This is where you select the bodies attached to this point, you can assign each of your previously attached DapBody objects to Body 1 & 2. The order in this case is not important. 
 6. Click *OK* or hit *Enter* 
 
-**If the rounded arrow appears in the correct postion, you have successfully created a revolute joint between the pendulum and the sliding plates.** 
+**If the rounded arrow appears in the correct position, you have successfully created a revolute joint between the pendulum and the sliding plates.** 
 
 Let us assign Linear movement to the sliding plate between its current position and the origin. 
 
@@ -127,7 +127,7 @@ Repeat this step for the LCS_Spring:
 ![Selecting the body](./Illustrations/16.png)
 
 6. Now select the bodies attached to these points, **make sure they are linked correctly**
-7. If you have selected your bodies correctly, a red arrow will appear on the graphic display in the illustrated postion. 
+7. If you have selected your bodies correctly, a red arrow will appear on the graphic display in the illustrated position. 
 
 ![Selecting the body](./Illustrations/17.png)
 
@@ -183,16 +183,16 @@ Now let us define the spring force, open a new DapForce container:
 10. You can now add parameters to the spring, for this assembly we used 20 Nm for stiffness and an undeformed length of 600mm. You can however play around with this and see how it affects the results. 
 11. Click *OK* or hit *Enter* 
 
-If you have done this correctly, the spring will appear in the correct postion as illustrated:
+If you have done this correctly, the spring will appear in the correct position as illustrated:
 
 ![Selecting the body](./Illustrations/24.png)
 ![Selecting the body](./Illustrations/25.png)
 
 ## Running the solver 
 
-Two more steps need to be completed before we can solve this sliding pendulum problem, we need to deifne the plane of motion as well as define the time steps. 
+Two more steps need to be completed before we can solve this sliding pendulum problem, we need to define the plane of motion as well as define the time steps. 
 
-A wide variety of options are availible for the plane of motion. You are welcome to choose the *X-Y Plane* as the plane of motion and proceed to define the time steps and solve. 
+A wide variety of options are available for the plane of motion. You are welcome to choose the *X-Y Plane* as the plane of motion and proceed to define the time steps and solve. 
 
 However, to illustrate how the 'Master-Sketch' can be selected to define the plane of motion, the following steps need to be followed: 
 
@@ -236,14 +236,14 @@ Open the plotting selection panel:
 
 ![Selecting the body](./Illustrations/33.png)
 
-You can plot several different plots and you can view those both in orthonormal co-ordinates or 3D co-ordinates. 
+You can plot several different plots and you can view those both in orthonormal coordinates or 3D coordinates. 
 
-For example, let us view a 2D sketch of the postions of our pendulum (DapBody001):
+For example, let us view a 2D sketch of the positions of our pendulum (DapBody001):
 
-1. You can select *positon* in the plotting drop down menu, here you can also see what other plots can be generated for this mechanism. 
-2. Select your co-ordinate system, in our case we will use the orthonormal co-ordinate system. 
+1. You can select *position* in the plotting drop down menu, here you can also see what other plots can be generated for this mechanism. 
+2. Select your coordinate system, in our case we will use the orthonormal coordinate system. 
 3. You can select which bodies in particular that you want to analyse. Select *DapBody001* from the drop down menu and click *add*. 
-4. Click on *plot* and a new document with your generated plot will be opened. With each new plot you generate a new document will be opened. In this case, because we have two components for the postion, it has been plotted individually in the X & Y directions. 
+4. Click on *plot* and a new document with your generated plot will be opened. With each new plot you generate a new document will be opened. In this case, because we have two components for the position, it has been plotted individually in the X & Y directions. 
 
 ![Selecting the body](./Illustrations/35.png)
 
@@ -252,7 +252,7 @@ Once the plot has been generated, you will be able to use several controls to in
 ![Selecting the body](./Illustrations/36.png)
 ![Selecting the body](./Illustrations/37.png)
 
-You are welcome to tinker with your Dap Analysis to explore the other options that are availible to you. 
+You are welcome to tinker with your Dap Analysis to explore the other options that are available to you. 
 
 
 

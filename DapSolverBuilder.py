@@ -247,9 +247,9 @@ class DapSolverBuilder():
             body_label = self.list_of_bodies[i]
             body_object = self.body_objects[i]
             
-            #at the moment the initial conditions are already specified in orthonormal co-ordinates
+            #at the moment the initial conditions are already specified in orthonormal coordinates
             #if the decision is made to at some point rather specify it in x-y-z coordinates then
-            #the intiial condition should be projected and rotated onto the plane of motion
+            #the initial condition should be projected and rotated onto the plane of motion
             self.body_init[body_label] = {}
             self.body_init[body_label]["init_y"] = body_object.InitialVertical.getValueAs("m/s")
             self.body_init[body_label]["init_x"] = body_object.InitialHorizontal.getValueAs("m/s")
@@ -770,7 +770,7 @@ class DapSolverBuilder():
         FreeCAD.Console.PrintMessage("DAP solver started.\n")
         solution_success = dap_temp.solve()
         if solution_success:
-            FreeCAD.Console.PrintMessage("Solver solved Succesfully \n")
+            FreeCAD.Console.PrintMessage("Solver solved Successfully \n")
             dap_temp.writeOutputs()
             if dap_temp.write_success:
                 FreeCAD.Console.PrintMessage("Results successfully loaded. Should now be able to animate and \
@@ -786,7 +786,7 @@ included. \n")
         
     #def onFinished(self,  exitCode,  exitStatus):
         #if exitCode == 0:
-            #FreeCAD.Console.PrintMessage("Solver completed Succesfully \n")
+            #FreeCAD.Console.PrintMessage("Solver completed Successfully \n")
             #self.loadResults()
             #self.resultsAvailable = True
         #else:
@@ -855,7 +855,7 @@ included. \n")
             Bodies_p_d_d.append(p)
         fid.close()
         
-        #read point co-ordinate
+        #read point coordinate
         fid = open(os.path.join(self.folder,"DapPointsPositions"))
         Points_r = []
         lines = fid.readlines()
@@ -869,7 +869,7 @@ included. \n")
             Points_r.append(r)
         fid.close()
         
-        #read point co-ordinate velocities
+        #read point coordinate velocities
         fid = open(os.path.join(self.folder,"DapPointsVelocities"))
         Points_r_d = []
         lines = fid.readlines()
