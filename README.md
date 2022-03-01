@@ -67,8 +67,6 @@ These parameters are defined as follows:
 
 * DapPlot: Several plots can be generated for each of the bodies. These plots include: position, velocity, a path trace as well as energies. These can be plotted in orthonormal coordinates or 3D co-coordinates. 
 
-* **Attach legend!!!!**
-
 <br />
 
 # Tutorials 

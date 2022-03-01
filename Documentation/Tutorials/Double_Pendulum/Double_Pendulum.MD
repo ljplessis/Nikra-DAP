@@ -57,9 +57,7 @@ You will notice that the body is highlighted and you can use this to confirm if 
 
 You would need to complete this step twice, for each individual body as shown below:
 
-Every time you need to define a new Dap Body, Joint or Force, you would need to open a new 'container' for that entity:
-
-![Selecting the DapBody Selector](./Illustrations/2.png)
+Every time you need to define a new Dap Body, Joint or Force, you would need to open a new 'container' for that entity.
 
 You can now redo the steps as shown:
 
@@ -229,3 +227,4 @@ Once the plot has been generated, you will be able to use several controls to in
 ![Selecting the body](./Illustrations/24.png)
 
 You are welcome to tinker with your Dap Analysis to explore the other options that are available to you. 
+
