@@ -11,7 +11,7 @@ class DapSolver():
         self.folder = folder
         
         self.readInputFiles()
-        self.initalize()
+        self.initialize()
         
         return
     
@@ -30,7 +30,7 @@ class DapSolver():
         self.Points = Points
         self.Uvectors = Uvectors
     
-    def initalize(self):
+    def initialize(self):
         self.nB  = len(self.Bodies)
         self.nB3 = 3*(self.nB)
         self.nB6 = 6*(self.nB)
@@ -286,7 +286,7 @@ class DapSolver():
 import sys
 folder = sys.argv[1]
 solver = DapSolver(folder)
-solver.initalize()
+solver.initialize()
 
 for i in range(solver.nB):
     print("Bodies",i)

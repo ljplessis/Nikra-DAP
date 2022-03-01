@@ -8,12 +8,12 @@ This tutorial will show you how to use the Nikra-DAP FreeCAD WorkBench to solve 
 ## Prerequisites 
 In order to progress further with this tutorial, you need to have: 
 1. Nikra-DAP WorkBench installed (refer to the **Readme** for further information on installation)
-2. FreeCAD Plot WorkBench Installed (availible in **Addon Manager**)
-3. Assembly 4 WorkBench Installed (availible in **Addon Manager**)
+2. FreeCAD Plot WorkBench Installed (available in **Addon Manager**)
+3. Assembly 4 WorkBench Installed (available in **Addon Manager**)
 
 ## Initial Steps 
 
-An assembly file for the double pendulum has been made availible for purposes of this tutorial. If you are familiar with Assembly 4, you can recreate this assembly, *the steps for this tutorial will not change* 
+An assembly file for the double pendulum has been made available for purposes of this tutorial. If you are familiar with Assembly 4, you can recreate this assembly, *the steps for this tutorial will not change* 
 
 The assembly files can be found in the **FreeCAD Tutorial Files** folder in **Documentation**, you only need to open the FreeCAD Assembly file. (They have been marked with **OPEN**)
 
@@ -27,7 +27,7 @@ Depending on your FreeCAD workflow, you might open your workbenches differently.
 
 ### Body Selection 
 
-When working with an assembly, you need to select the bodies that need to remain grounded (stationary) as well as select the moving bodies. In our case, the double pendulum is a multi body mechanism and each individual pendulum would need to be chosen seperately as they move independently of each other. 
+When working with an assembly, you need to select the bodies that need to remain grounded (stationary) as well as select the moving bodies. In our case, the double pendulum is a multi body mechanism and each individual pendulum would need to be chosen separately as they move independently of each other. 
 
 Firstly, open a new Dap Analysis container and select the DapBody selector. 
 
@@ -47,7 +47,7 @@ This is illustrated below:
 2. Select the body 
 3. Switch back to the DapBody task panel.
 4. Click *Add*
-5. The body will show up on the parts list, it should also highlight on screen in a diffeent colour. 
+5. The body will show up on the parts list, it should also highlight on screen in a different colour. 
 6. Click *Ok* or hit *Enter* 
 
 ![Selecting the body](./Illustrations/4.png)
@@ -71,7 +71,7 @@ You can now redo the steps as shown:
 
 Selecting DapJoints, or the relative movement between bodies is up next. 
 
-In our case, we need to define relative motion between the first pendulum (DapBody) that will rotate about a fixed pooint as well as the second pendulum (DapBody001) that will be attached to the first one and also rotate about an axis (in this case, we have defined a LCS that is concentric with the centers of both holes).
+In our case, we need to define relative motion between the first pendulum (DapBody) that will rotate about a fixed point as well as the second pendulum (DapBody001) that will be attached to the first one and also rotate about an axis (in this case, we have defined a LCS that is concentric with the centers of both holes).
 
 We need to use the *'revolute'* joint in both cases. The selection of a revolute joint works with the 'One point and two bodies' principle.
 
@@ -87,7 +87,7 @@ Once again, relative movement would need to be assigned twice as there are two p
 
 The steps are as follows: 
 
-A. Choose *rotation* in the drop down box. (This isnt always neccesary as the rotation joint is active by default)
+A. Choose *rotation* in the drop down box. (This isn't always necessary as the rotation joint is active by default)
 
 1. Switch to the *model tree view*
 
@@ -102,7 +102,7 @@ A. Choose *rotation* in the drop down box. (This isnt always neccesary as the ro
 ![Selecting the body](./Illustrations/9.png)
 ![Selecting the body](./Illustrations/10.png)
 
-**NB! You can select the bodies in any order, Body 1 can be the DapBody and Body 2 can be ground, this should not affect the results. In additon to this, you can also select the LCS in the model tree view, it would be better to make selections in the model tree view but for this case, it was not neccessary**
+**NB! You can select the bodies in any order, Body 1 can be the DapBody and Body 2 can be ground, this should not affect the results. In addition to this, you can also select the LCS in the model tree view, it would be better to make selections in the model tree view but for this case, it was not necessary**
 
 You will notice that a rounded arrow will show up. If this shows up at the correct place, you have chosen the revolute joint/relative movement correctly.
 
@@ -168,7 +168,7 @@ Open the solver panel:
 
 ![Selecting the body](./Illustrations/16'.png)
 
-A wide variety of options are availible for the plane of motion. You are welcome to choose the *X-Y Plane* as the plane of motion. 
+A wide variety of options are available for the plane of motion. You are welcome to choose the *X-Y Plane* as the plane of motion. 
 
 However, to illustrate how the 'Master-Sketch' can be selected to define the plane of motion, the following steps need to be followed: 
 
@@ -210,12 +210,12 @@ Open the plotting selection panel:
 
 ![Selecting the body](./Illustrations/22'.png)
 
-You can plot several different plots and you can view those both in orthonormal co-ordinates or 3D co-ordinates. 
+You can plot several different plots and you can view those both in orthonormal coordinates or 3D coordinates. 
 
 For example, let us view a 2D sketch of the velocity of our second pendulum (DapBody001):
 
 1. You can select *velocity* in the plotting drop down menu, here you can also see what other plots can be generated for this mechanism. 
-2. Select your co-ordinate system, in our case we will use the orthonormal co-ordinate system. 
+2. Select your coordinate system, in our case we will use the orthonormal coordinate system. 
 3. You can select which bodies in particular that you want to analyse. Select *DapBody001* from the drop down menu and click *add*. 
 4. Click on *plot* and a new document with your generated plot will be opened. With each new plot you generate a new document will be opened. In this case, because we have two components of velocity, it has been plotted individually in the X & Y directions. 
 
@@ -226,4 +226,5 @@ Once the plot has been generated, you will be able to use several controls to in
 ![Selecting the body](./Illustrations/23.png)
 ![Selecting the body](./Illustrations/24.png)
 
-You are welcome to tinker with your Dap Analysis to explore the other options that are availible to you. 
+You are welcome to tinker with your Dap Analysis to explore the other options that are available to you. 
+

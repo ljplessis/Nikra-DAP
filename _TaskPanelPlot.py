@@ -360,7 +360,7 @@ class TaskPanelPlot:
                     x_list, y_list, z_list = self.convertOrthonormalToReal(x_list, y_list)
                     from mpl_toolkits.mplot3d import Axes3D
                     #NOTE: to get around the deprecated warning, creating new axis
-                    #instance, and hiding previous isntance. Pehaps until FreeCAD.plot 
+                    #instance, and hiding previous instance. Perhaps until FreeCAD.plot
                     #module has been updated to custom create a new axis on init
                     ax1 = fig.axes
                     ax1.set_visible(False)

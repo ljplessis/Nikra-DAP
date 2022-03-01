@@ -95,7 +95,7 @@ def getListOfSolidsFromShape(obj, shape_label_list=[], parent_object = None, par
 
 def getSolidsFromAllShapes(doc):
     """ Function loops through all defined bodies, and return the list of shapes making up each body, as 
-    well as retun the parent assemlby for each sub part. If the subpart does not have a parent assembly then
+    well as return the parent assemlby for each sub part. If the subpart does not have a parent assembly then
     it is defined as None. """
     body_labels = getListOfBodyLabels()
     parts_shape_list_all = {}

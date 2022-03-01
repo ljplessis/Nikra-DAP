@@ -189,13 +189,13 @@ class _DapJoint:
 
     def execute(self, obj):
         """ Create joint representation part at recompute. """
-        #TODO visual representation of the joint should only be vissible if the joint definition mode was correctly specified, e.g. rotation joint needs 1 point AND 2 seperate bodies, translation joint needs 2 points AND 2 bodies
+        #TODO visual representation of the joint should only be visible if the joint definition mode was correctly specified, e.g. rotation joint needs 1 point AND 2 separate bodies, translation joint needs 2 points AND 2 bodies
             
         doc_name = str(obj.Document.Name)
         doc = FreeCAD.getDocument(doc_name)
         
-        # if LCS positions were changed then the new co-ordinates should be calculated.
-        # this is a wastefull way of achieving this, since the objects coordinates are changed
+        # if LCS positions were changed then the new coordinates should be calculated.
+        # this is a wasteful way of achieving this, since the objects coordinates are changed
         # within the ui
         if obj.Point1RelMov != "":
             lcs_obj = doc.getObjectsByLabel(obj.Point1RelMov)[0]

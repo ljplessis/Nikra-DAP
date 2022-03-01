@@ -8,7 +8,7 @@
 # *   This program is free software; you can redistribute it and/or modify           *
 # *   it under the terms of the GNU Lesser General Public License (LGPL)             *
 # *   as published by the Free Software Foundation; either version 2 of              *
-# *   the License, or (at your option) any later version.                            *               
+# *   the License, or (at your option) any later version.                            *
 # *   for detail see the LICENCE text file.                                          *
 # *                                                                                  *
 # *   This program is distributed in the hope that it will be useful,                *
@@ -16,19 +16,19 @@
 # *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                  *
 # *   GNU Library General Public License for more details.                           *
 # *                                                                                  *
-# *   You should have received a copy of the GNU Library General Public              *   
+# *   You should have received a copy of the GNU Library General Public              *
 # *   License along with this program; if not, write to the Free Software            *
 # *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307           *
 # *   USA                                                                            *
-# *_________________________________________________________________________________ *        
+# *_________________________________________________________________________________ *
 # *                                                                                  *
 # *       Nikra-DAP FreeCAD WorkBench (c) 2022:                                      *
 # *         - Please refer to the Documentation and README                           *
 # *           for more information regarding this WorkBench and its usage.           *
 # *                                                                                  *
 # *     Author(s) of this file:                                                      *
-# *        -  Varnu Govender (UP) <govender.v@tuks.co.za>                            *                          
-# *        -  Alfred Bogaers (EX-MENTE) <alfred.bogaers@ex-mente.co.za>              * 
+# *        -  Varnu Govender (UP) <govender.v@tuks.co.za>                            *
+# *        -  Alfred Bogaers (EX-MENTE) <alfred.bogaers@ex-mente.co.za>              *
 # ************************************************************************************
 
 from webbrowser import get
@@ -36,13 +36,13 @@ import FreeCAD
 from FreeCAD import Units
 import os
 import os.path
-import numpy 
+import numpy
 import DapTools
 from DapTools import indexOrDefault
 from DapTools import getQuantity, setQuantity
 import DapForceSelection
 import _BodySelector
-import _DapForceDriver 
+import _DapForceDriver
 if FreeCAD.GuiUp:
     import FreeCADGui
     from PySide import QtGui
@@ -52,12 +52,12 @@ if FreeCAD.GuiUp:
 
 class TaskPanelDapForce:
     """ Taskpanel for adding DAP Force """
-    
+
 
     def __init__(self, obj):
         self.obj = obj
         self.Type = self.obj.ForceTypes
-        self.TypeReset = self.obj.ForceTypes #copy for reset, type gets used alot
+        self.TypeReset = self.obj.ForceTypes #copy for reset, type gets used a lot
 
         self.X = self.obj.gx
         self.Y = self.obj.gy
@@ -269,7 +269,7 @@ class TaskPanelDapForce:
         """IF this is missing, there won't be a Cancel button"""
         FreeCADGui.Selection.removeObserver(self)
         
-        ##Do the reject checker before reseting the force type to previous selection
+        ##Do the reject checker before resetting the force type to previous selection
         if self.obj.ForceTypes == "Spring" or self.obj.ForceTypes == "Linear Spring Damper":
             self.bodySelector.reject(0)
             ##self.bodySelector.execute(self.obj,0)

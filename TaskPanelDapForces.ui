@@ -93,7 +93,7 @@
       <item>
        <widget class="QCheckBox" name="driveCheck">
         <property name="text">
-         <string>Switch on Driver Control for specificed DAP Force? </string>
+         <string>Switch on Driver Control for specified DAP Force? </string>
         </property>
        </widget>
       </item>
