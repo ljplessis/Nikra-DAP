@@ -59,11 +59,10 @@ You would need to complete this step twice, for each individual body as shown be
 
 Every time you need to define a new Dap Body, Joint or Force, you would need to open a new 'container' for that entity:
 
-![Selecting the DapBody Selector](./Illustrations/2.png)
+![Selecting the DapBody Selector](./Illustrations/6.png)
 
 You can now redo the steps as shown:
 
-![Selecting the body](./Illustrations/6.png)
 ![Selecting the body](./Illustrations/7.png)
 ![Selecting the body](./Illustrations/8.png)
 
