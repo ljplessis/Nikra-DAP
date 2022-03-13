@@ -43,7 +43,7 @@ FreeCAD has been infamously known for its topological naming issue. Meaning that
 
 *Nikra-DAP* was designed with **Assembly 4** in mind and makes use of the LCS, Master Sketch and Sub-Assemblies when creating a DAP mechanism. 
 
-*However*, *Nikra-DAP* does still work well with Assembly 2 files. It is recommended however that a mechnanism created in **Assembly 4** is used. 
+*However*, *Nikra-DAP* does still work well with Assembly 2 files. It is recommended however that a mechanism created in **Assembly 4** is used. 
 
 <br />
 
@@ -53,7 +53,7 @@ In order to utilise the Nikra-DAP solver to solve planar dynamic problems. Sever
 
 These parameters are defined as follows: 
 
-* DapBody: A single body that forms part of a multibody system. The equations of motion are then constructed for this body by using the body-coordinate method. (Nikravesh, 2019) These can be defined as either ground or moving and intial conditions can be assigned to them.
+* DapBody: A single body that forms part of a multibody system. The equations of motion are then constructed for this body by using the body-coordinate method. (Nikravesh, 2019) These can be defined as either ground or moving and initial conditions can be assigned to them.
 
 * DapJoint: This defines the Degrees of Freedom between several bodies or between a body and ground. This can either be revolute or linear translation. 
 
@@ -65,9 +65,7 @@ These parameters are defined as follows:
 
 * DapAnimate: Once the solver has completed, you can then view an animation of the DAP Mechanism. 
 
-* DapPlot: Several plots can be generated for each of the bodies. These plots include: postion, velocity, a path trace as well as energies. These can be plotted in orthonormal co-ordinates or 3D co-coordinates. 
-
-* **Attach legend!!!!**
+* DapPlot: Several plots can be generated for each of the bodies. These plots include: position, velocity, a path trace as well as energies. These can be plotted in orthonormal coordinates or 3D co-coordinates. 
 
 <br />
 

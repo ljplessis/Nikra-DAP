@@ -340,7 +340,7 @@ def Force_array(t):
 #WARNING WARNING WARNING WARNING
 #WARNING WARNING WARNING WARNING
 #%%% funct_a
-def funct_a(Ci, x): # Funciton type 'a'
+def funct_a(Ci, x): # Function type 'a'
     c    = Functs[Ci,0].coeff
     f    = c[1,0] + c[2,0]*x + c[3,0]*(x**2)
     f_d  = c[2,0] + c[4,0]*x
@@ -1644,9 +1644,9 @@ def Update_Velocity():
     #flag = 0;
     #for n in range(20):
         #Update_Position();      #% Update position entities
-        ##TODO: should contraints have an input
+        ##TODO: should constraints have an input
         ##Phi = Constraints(0); #% Evaluate constraints
-        ##TODO: I think somehting is wrong with this Phi construction
+        ##TODO: I think something is wrong with this Phi construction
         #Phi = Constraints(); #% Evaluate constraints
         #print("Phi",Phi)
         #D   = Jacobian(0);       #% Evaluate Jacobian

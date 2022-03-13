@@ -346,7 +346,7 @@ class TaskPanelDapSolver:
                         normal = FreeCAD.Vector(1,0,0)
                         changed = True
                 else:
-                    FreeCAD.Console.PrintError("Can not idenitfy normal from " + str(sel[0].Object.Label) + "object \n")
+                    FreeCAD.Console.PrintError("Can not identify normal from " + str(sel[0].Object.Label) + "object \n")
                     
                 if changed:
                     self.XVector = normal.x
@@ -418,7 +418,7 @@ class TaskPanelDapSolver:
                         #self.form.lblPlaneDefined.setText("Planar motion set to be coincident with a set of 3 points")
                     #else:
                         #self.form.lblPlaneDefined.setText("Planar motion could not be defined from the given entities")
-                        #FreeCAD.Console.PrintError("\n Plane of motion could not be defined from the given entites \n")
+                        #FreeCAD.Console.PrintError("\n Plane of motion could not be defined from the given entities \n")
                         #FreeCAD.Console.PrintWarning(self.ObjectEntities)
                         #FreeCAD.Console.PrintError("\n Select face, 2 lines, line and point or set of three points \n")
 

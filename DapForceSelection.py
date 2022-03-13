@@ -189,8 +189,8 @@ class _DapForce:
 
     def execute(self, obj):
         """ Create compound part at recompute. """
-        # if LCS positions were changed then the new co-ordinates should be calculated.
-        # this is a wastefull way of achieving this, since the objects coordinates are changed
+        # if LCS positions were changed then the new coordinates should be calculated.
+        # this is a wasteful way of achieving this, since the objects coordinates are changed
         # within the ui
         doc_name = str(obj.Document.Name)
         doc = FreeCAD.getDocument(doc_name)
